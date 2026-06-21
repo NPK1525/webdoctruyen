@@ -1,0 +1,178 @@
+@model MangaNPK.Models.Manga
+@{
+    var genres = ViewBag.Genres as List<MangaNPK.Models.Genre> ?? new();
+    var themes = ViewBag.Themes as List<MangaNPK.Models.Theme> ?? new();
+    var authors = ViewBag.Authors as List<MangaNPK.Models.Author> ?? new();
+    var selectedGenreIds = Model.MangaGenres?.Select(g => g.GenreId).ToHashSet() ?? new();
+    var selectedThemeIds = Model.MangaThemes?.Select(t => t.ThemeId).ToHashSet() ?? new();
+    var selectedAuthors = Model.MangaAuthors?.ToList() ?? new();
+}
+
+<div class="row g-3">
+    <div class="col-md-8">
+        <label class="form-label">Tên Manga <span class="text-danger">*</span></label>
+        <input type="text" name="title" class="form-control" value="@Model.Title" required />
+    </div>
+    <div class="col-md-4">
+        <label class="form-label">Tên khác</label>
+        <input type="text" name="alternativeTitle" class="form-control" value="@Model.AlternativeTitle" />
+    </div>
+    <div class="col-12">
+        <label class="form-label">Mô tả</label>
+        <textarea name="description" class="form-control" rows="4">@Model.Description</textarea>
+    </div>
+    <div class="col-12">
+        <label class="form-label">URL ảnh bìa</label>
+        <input type="url" name="coverUrl" class="form-control" value="@Model.CoverUrl" placeholder="https://..." />
+    </div>
+
+    <div class="col-6 col-md-3">
+        <label class="form-label">Loại</label>
+        <select name="type" class="form-select">
+            @foreach (MangaType t in Enum.GetValues<MangaType>())
+            {
+                if (Model.Type == t)
+                {
+                    <option value="@((int)t)" selected>@t</option>
+                }
+                else
+                {
+                    <option value="@((int)t)">@t</option>
+                }
+            }
+        </select>
+    </div>
+    <div class="col-6 col-md-3">
+        <label class="form-label">Trạng thái</label>
+        <select name="status" class="form-select">
+            @foreach (MangaStatus s in Enum.GetValues<MangaStatus>())
+            {
+                var statusLabel = s switch { MangaStatus.Completed => "Hoàn thành", MangaStatus.Hiatus => "Tạm ngưng", _ => "Đang tiến hành" };
+                if (Model.Status == s)
+                {
+                    <option value="@((int)s)" selected>@statusLabel</option>
+                }
+                else
+                {
+                    <option value="@((int)s)">@statusLabel</option>
+                }
+            }
+        </select>
+    </div>
+    <div class="col-6 col-md-3">
+        <label class="form-label">Demographic</label>
+        <select name="demographic" class="form-select">
+            @foreach (MangaDemographic d in Enum.GetValues<MangaDemographic>())
+            {
+                if (Model.Demographic == d)
+                {
+                    <option value="@((int)d)" selected>@d</option>
+                }
+                else
+                {
+                    <option value="@((int)d)">@d</option>
+                }
+            }
+        </select>
+    </div>
+    <div class="col-6 col-md-3">
+        <label class="form-label">Format</label>
+        <select name="format" class="form-select">
+            @foreach (MangaFormat f in Enum.GetValues<MangaFormat>())
+            {
+                if (Model.Format == f)
+                {
+                    <option value="@((int)f)" selected>@f</option>
+                }
+                else
+                {
+                    <option value="@((int)f)">@f</option>
+                }
+            }
+        </select>
+    </div>
+    <div class="col-md-2">
+        <label class="form-label">Năm phát hành</label>
+        <input type="number" name="releaseYear" class="form-control" value="@Model.ReleaseYear" min="1900" max="2099" />
+    </div>
+
+    @* Genres checkboxes *@
+    <div class="col-12">
+        <label class="form-label">Thể loại</label>
+        <div class="d-flex flex-wrap gap-2 p-3" style="background:#0f0f1a; border:1px solid #2a2a4a; border-radius:8px; max-height:180px; overflow-y:auto;">
+            @foreach (var g in genres)
+            {
+                <div class="form-check me-2">
+                    @if (selectedGenreIds.Contains(g.Id))
+                    {
+                        <input class="form-check-input" type="checkbox" name="genreIds" value="@g.Id" id="genre_@g.Id" checked />
+                    }
+                    else
+                    {
+                        <input class="form-check-input" type="checkbox" name="genreIds" value="@g.Id" id="genre_@g.Id" />
+                    }
+                    <label class="form-check-label" for="genre_@g.Id">@g.Name</label>
+                </div>
+            }
+            @if (!genres.Any())
+            {
+                <span class="text-secondary">Chưa có thể loại. <a asp-controller="AdminView" asp-action="Genres">Thêm thể loại</a></span>
+            }
+        </div>
+    </div>
+
+    @* Themes checkboxes *@
+    <div class="col-12">
+        <label class="form-label">Chủ đề</label>
+        <div class="d-flex flex-wrap gap-2 p-3" style="background:#0f0f1a; border:1px solid #2a2a4a; border-radius:8px; max-height:160px; overflow-y:auto;">
+            @foreach (var t in themes)
+            {
+                <div class="form-check me-2">
+                    @if (selectedThemeIds.Contains(t.Id))
+                    {
+                        <input class="form-check-input" type="checkbox" name="themeIds" value="@t.Id" id="theme_@t.Id" checked />
+                    }
+                    else
+                    {
+                        <input class="form-check-input" type="checkbox" name="themeIds" value="@t.Id" id="theme_@t.Id" />
+                    }
+                    <label class="form-check-label" for="theme_@t.Id">@t.Name</label>
+                </div>
+            }
+            @if (!themes.Any())
+            {
+                <span class="text-secondary">Chưa có chủ đề.</span>
+            }
+        </div>
+    </div>
+
+    @* Authors *@
+    <div class="col-12">
+        <label class="form-label">Tác giả</label>
+        <div id="author-rows">
+            @foreach (var a in selectedAuthors)
+            {
+                <div class="d-flex gap-2 mb-2 align-items-center">
+                    <select name="authorIds" class="form-select" style="flex:2">
+                        @foreach (var author in authors)
+                        {
+                            if (author.Id == a.AuthorId)
+                            {
+                                <option value="@author.Id" selected>@author.Name</option>
+                            }
+                            else
+                            {
+                                <option value="@author.Id">@author.Name</option>
+                            }
+                        }
+                    </select>
+                    <input type="text" name="authorRoles" class="form-control" value="@a.Role" style="flex:1" />
+                    <button type="button" class="btn btn-sm btn-outline-danger" onclick="this.parentElement.remove()"><i class="bi bi-x"></i></button>
+                </div>
+            }
+        </div>
+        <button type="button" class="btn btn-sm btn-outline-success mt-1" onclick="addAuthorRow()">
+            <i class="bi bi-plus me-1"></i>Thêm tác giả
+        </button>
+    </div>
+</div>

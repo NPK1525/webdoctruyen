@@ -1,0 +1,35 @@
+@{
+    ViewData["Title"] = "Thêm chương";
+    var manga = ViewBag.Manga as MangaNPK.Models.Manga;
+}
+
+<div class="container py-4">
+    <div class="d-flex align-items-center mb-4 gap-3">
+        <a asp-controller="MangaView" asp-action="Detail" asp-route-id="@manga?.Id" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-left"></i></a>
+        <h1 class="section-title mb-0">Thêm chương — @manga?.Title</h1>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-7">
+            <div class="card p-4">
+                <form asp-action="ChapterCreate" asp-route-mangaId="@manga?.Id" method="post">
+                    @Html.AntiForgeryToken()
+                    <div class="mb-3">
+                        <label class="form-label">Số chương <span class="text-danger">*</span></label>
+                        <input type="number" name="chapterNumber" class="form-control" step="0.1" min="0" required placeholder="1" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Tiêu đề chương <span class="text-secondary">(tuỳ chọn)</span></label>
+                        <input type="text" name="title" class="form-control" placeholder="Để trống sẽ tự đặt tên" />
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label">URL ảnh các trang <span class="text-secondary">(mỗi dòng một URL)</span></label>
+                        <textarea name="pageUrls" class="form-control" rows="10" placeholder="https://example.com/page1.jpg&#10;https://example.com/page2.jpg&#10;..."></textarea>
+                        <small class="text-secondary">Mỗi dòng là URL ảnh của một trang, theo thứ tự.</small>
+                    </div>
+                    <button type="submit" class="btn btn-success w-100"><i class="bi bi-plus-circle me-2"></i>Tạo chương</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,27 @@
+@model MangaNPK.Models.Manga
+@{
+    var latestChapter = Model.Chapters?.OrderByDescending(c => c.ChapterNumber).FirstOrDefault();
+    var typeLabel = Model.Type switch { MangaType.Manhwa => "Manhwa", MangaType.Manhua => "Manhua", _ => "Manga" };
+    var typeBadge = Model.Type switch { MangaType.Manhwa => "bg-info", MangaType.Manhua => "bg-warning text-dark", _ => "bg-danger" };
+}
+
+<a asp-controller="MangaView" asp-action="Detail" asp-route-id="@Model.Id" class="text-decoration-none">
+    <div class="card h-100">
+        @if (!string.IsNullOrEmpty(Model.CoverUrl))
+        {
+            <img src="@Model.CoverUrl" class="card-img-top" alt="@Model.Title" loading="lazy" />
+        }
+        else
+        {
+            <div class="manga-cover-placeholder"><i class="bi bi-image"></i></div>
+        }
+        <div class="card-body p-2">
+            <span class="badge @typeBadge badge-type mb-1">@typeLabel</span>
+            <p class="card-title mb-1 fw-semibold text-white" style="font-size:.85rem; line-height:1.3; display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">@Model.Title</p>
+            @if (latestChapter != null)
+            {
+                <small class="text-secondary">Ch. @latestChapter.ChapterNumber</small>
+            }
+        </div>
+    </div>
+</a>

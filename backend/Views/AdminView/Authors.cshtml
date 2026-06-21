@@ -1,0 +1,56 @@
+@model List<MangaNPK.Models.Author>
+@{
+    ViewData["Title"] = "Quản lý Tác giả";
+}
+
+<div class="container py-4">
+    <div class="d-flex align-items-center mb-4 gap-3">
+        <a asp-action="Index" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-left"></i></a>
+        <h1 class="section-title mb-0">Quản lý Tác giả</h1>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="card p-3">
+                <h5 class="text-white mb-3">Thêm tác giả mới</h5>
+                <form asp-action="AuthorCreate" method="post">
+                    @Html.AntiForgeryToken()
+                    <div class="mb-3">
+                        <label class="form-label">Tên tác giả <span class="text-danger">*</span></label>
+                        <input type="text" name="name" class="form-control" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Tiểu sử</label>
+                        <textarea name="biography" class="form-control" rows="3"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Thêm</button>
+                </form>
+            </div>
+        </div>
+        <div class="col-md-8">
+            <table class="table table-dark table-hover">
+                <thead><tr><th>#</th><th>Tên</th><th>Tiểu sử</th><th></th></tr></thead>
+                <tbody>
+                    @foreach (var a in Model)
+                    {
+                        <tr>
+                            <td>@a.Id</td>
+                            <td>@a.Name</td>
+                            <td style="font-size:.85rem;" class="text-secondary">@(a.Biography.Length > 60 ? a.Biography[..60] + "..." : a.Biography)</td>
+                            <td>
+                                <form asp-action="AuthorDelete" asp-route-id="@a.Id" method="post" style="display:inline;" onsubmit="return confirm('Xoá tác giả này?')">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                    @if (!Model.Any())
+                    {
+                        <tr><td colspan="4" class="text-center text-secondary">Chưa có tác giả nào.</td></tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

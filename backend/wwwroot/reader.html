@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Đọc Truyện - MangaNPK</title>
+    <!-- CSS styles link -->
+    <link rel="stylesheet" href="css/style.css?v=3.0" />
+    <!-- Lucide Icons CDN -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+  </head>
+  <body style="background-color: #090B0F;">
+    <div id="root">
+      
+      <!-- Sticky Header (Spans 100% width, absolutely positioned, transitions on scroll) -->
+      <header id="global-header" class="glass" style="position: absolute; top: 0; left: 0; right: 0; z-index: 1000; transition: transform 0.3s ease; width: 100%;">
+        <div style="display: flex; align-items: center; justify-content: space-between; height: 60px; padding: 0 20px;">
+          
+          <!-- Left: Menu + Logo + Breadcrumb -->
+          <div style="display: flex; align-items: center; gap: 15px;">
+            <button id="sidebar-toggle-btn" style="color: var(--text-main); display: flex; align-items: center; cursor: pointer; background: none; border: none;" title="Menu">
+              <i data-lucide="menu" style="width: 22px; height: 22px;"></i>
+            </button>
+            <div id="logo-btn" style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+              <div style="width: 32px; height: 32px; border-radius: 6px; background-color: #FF8C00; display: flex; align-items: center; justify-content: center;">
+                <i data-lucide="book-open" style="width: 16px; height: 16px; color: white;"></i>
+              </div>
+              <span style="font-size: 1.15rem; font-weight: 800; letter-spacing: -0.02em; color: white; display: inline-block;">
+                Manga<span style="color: #FF8C00;">NPK</span>
+              </span>
+            </div>
+            
+            <div style="width: 1px; height: 20px; background-color: rgba(255,255,255,0.1); margin: 0 5px;" class="desktop-only"></div>
+            
+            <!-- Breadcrumbs / Manga Name -->
+            <div id="reader-manga-title-breadcrumb" style="font-size: 0.9rem; font-weight: 700; color: #FF8C00; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; cursor: pointer;" class="desktop-only">
+              Đang tải...
+            </div>
+          </div>
+
+          <!-- Center: Navigation controls (dropdowns for Chapters and Pages) -->
+          <div style="display: flex; align-items: center; gap: 8px;">
+            
+            <!-- Prev Chapter -->
+            <button id="btn-prev-chap" class="btn btn-secondary" style="border-radius: 4px; width: 34px; height: 34px; padding: 0; display: flex; align-items: center; justify-content: center;" title="Chương trước">
+              <i data-lucide="chevron-left" style="width: 18px; height: 18px;"></i>
+            </button>
+
+            <!-- Chapters Custom Selector Dropdown -->
+            <div style="position: relative;" id="chapter-select-dropdown-container">
+              <div id="chapter-select-trigger" style="display: flex; align-items: center; gap: 8px; background-color: #1A1D24; border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; height: 34px; padding: 0 12px; cursor: pointer; user-select: none; font-size: 0.85rem; font-weight: 700;">
+                <span id="current-chapter-label">Chương --</span>
+                <i data-lucide="chevron-left" style="width: 14px; height: 14px; transform: rotate(-90deg); color: var(--text-muted);"></i>
+              </div>
+              
+              <div id="chapter-select-options" class="glass" style="display: none; position: absolute; top: 40px; left: 50%; transform: translateX(-50%); width: 220px; max-height: 250px; overflow-y: auto; border-radius: var(--radius-sm); z-index: 100; box-shadow: var(--shadow-md); padding: 4px 0;">
+                <!-- Chapter items loaded dynamically -->
+              </div>
+            </div>
+
+            <!-- Page Custom Selector Dropdown -->
+            <div style="position: relative;" id="page-select-dropdown-container">
+              <div id="page-select-trigger" style="display: flex; align-items: center; gap: 8px; background-color: #1A1D24; border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; height: 34px; padding: 0 12px; cursor: pointer; user-select: none; font-size: 0.85rem; font-weight: 700;">
+                <span id="current-page-label">Trang -- / --</span>
+                <i data-lucide="chevron-left" style="width: 14px; height: 14px; transform: rotate(-90deg); color: var(--text-muted);"></i>
+              </div>
+              
+              <div id="page-select-options" class="glass" style="display: none; position: absolute; top: 40px; left: 50%; transform: translateX(-50%); width: 140px; max-height: 250px; overflow-y: auto; border-radius: var(--radius-sm); z-index: 100; box-shadow: var(--shadow-md); padding: 4px 0;">
+                <!-- Page items loaded dynamically -->
+              </div>
+            </div>
+
+            <!-- Next Chapter -->
+            <button id="btn-next-chap" class="btn btn-secondary" style="border-radius: 4px; width: 34px; height: 34px; padding: 0; display: flex; align-items: center; justify-content: center;" title="Chương sau">
+              <i data-lucide="chevron-right" style="width: 18px; height: 18px;"></i>
+            </button>
+
+          </div>
+
+          <!-- Right: View Modes Dropdown & User Profile -->
+          <div style="display: flex; align-items: center; gap: 12px;">
+            
+            <!-- Settings Button -->
+            <div style="position: relative;" id="reader-settings-dropdown-container">
+              <button id="reader-settings-btn" class="btn btn-secondary" style="border-radius: 4px; width: 34px; height: 34px; padding: 0; display: flex; align-items: center; justify-content: center;" title="Cài đặt giao diện">
+                <i data-lucide="settings" style="width: 18px; height: 18px;"></i>
+              </button>
+              
+              <!-- Settings Menu -->
+              <div id="reader-settings-options" class="glass" style="display: none; position: absolute; top: 40px; right: 0; width: 260px; border-radius: var(--radius-sm); z-index: 100; box-shadow: var(--shadow-lg); padding: 16px; border: 1px solid rgba(255,255,255,0.08);">
+                <h4 style="font-size: 0.85rem; font-weight: 700; color: white; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.05em;">Cấu hình đọc</h4>
+                
+                <!-- Reading Mode -->
+                <div class="settings-group" style="margin-bottom: 15px;">
+                  <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 6px; font-weight: 600;">Chế độ đọc:</div>
+                  <div style="display: flex; gap: 6px; background-color: #0B0E14; padding: 3px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.05);">
+                    <button id="opt-mode-scroll" style="flex: 1; padding: 6px 0; font-size: 0.8rem; font-weight: 700; border-radius: 3px; text-align: center; cursor: pointer;">Cuộn dọc</button>
+                    <button id="opt-mode-slide" style="flex: 1; padding: 6px 0; font-size: 0.8rem; font-weight: 700; border-radius: 3px; text-align: center; cursor: pointer;">Từng trang</button>
+                  </div>
+                </div>
+
+                <!-- Fit Mode -->
+                <div class="settings-group">
+                  <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 6px; font-weight: 600;">Kích thước ảnh:</div>
+                  <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px;">
+                    <button class="opt-fit-btn" data-fit="both" style="padding: 6px 0; font-size: 0.75rem; font-weight: 700; background-color: #1C1F26; border-radius: 4px; text-align: center;">Tự động</button>
+                    <button class="opt-fit-btn" data-fit="width" style="padding: 6px 0; font-size: 0.75rem; font-weight: 700; background-color: #1C1F26; border-radius: 4px; text-align: center;">Đầy chiều ngang</button>
+                    <button class="opt-fit-btn" data-fit="height" style="padding: 6px 0; font-size: 0.75rem; font-weight: 700; background-color: #1C1F26; border-radius: 4px; text-align: center;">Đầy chiều dọc</button>
+                    <button class="opt-fit-btn" data-fit="none" style="padding: 6px 0; font-size: 0.75rem; font-weight: 700; background-color: #1C1F26; border-radius: 4px; text-align: center;">Gốc (100%)</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- User Avatar / Info -->
+            <div id="header-user-area" style="display: flex; align-items: center;">
+              <!-- Loaded via common.js -->
+            </div>
+
+          </div>
+
+        </div>
+      </header>
+
+      <!-- Sidebar Navigation Drawer Overlay -->
+      <div id="sidebar-drawer-overlay" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px); z-index: 1010; opacity: 0; pointer-events: none; transition: opacity 0.3s ease;"></div>
+      
+      <!-- Sidebar Navigation Drawer -->
+      <div id="sidebar-drawer">
+        <!-- Header -->
+        <div class="sidebar-header">
+          <div style="display: flex; align-items: center; gap: 10px; cursor: pointer;" id="sidebar-logo">
+            <div style="width: 32px; height: 32px; border-radius: 6px; background-color: #FF8C00; display: flex; align-items: center; justify-content: center;">
+              <i data-lucide="book-open" style="width: 16px; height: 16px; color: white;"></i>
+            </div>
+            <span style="font-size: 1.2rem; font-weight: 800; color: white;">Manga<span style="color: #FF8C00;">NPK</span></span>
+          </div>
+          <button id="sidebar-close-btn" style="color: white; cursor: pointer; display: flex; align-items: center;" title="Đóng">
+            <i data-lucide="x" style="width: 20px; height: 20px;"></i>
+          </button>
+        </div>
+
+        <!-- Scrollable content area -->
+        <div class="sidebar-content-scroll">
+          
+          <!-- Home / Feed / Follows Section -->
+          <div class="sidebar-menu-section">
+            <button id="nav-home-btn" class="sidebar-sub-item active" style="font-weight: 700; padding: 10px 16px; font-size: 0.95rem; width: 100%; border: none; background: none; cursor: pointer;">
+              <span style="display: flex; align-items: center; gap: 12px;">
+                <i data-lucide="home" style="width: 18px; height: 18px;"></i>
+                <span>Trang Chủ</span>
+              </span>
+            </button>
+            
+            <button class="sidebar-sub-item" onclick="alert('Tính năng đang phát triển!')" style="width: 100%; border: none; background: none; cursor: pointer;">
+              <span style="display: flex; align-items: center; gap: 12px;">
+                <i data-lucide="rss" style="width: 18px; height: 18px;"></i>
+                <span>Bảng tin</span>
+              </span>
+              <span class="sidebar-badge-red">Mới</span>
+            </button>
+            
+            <button id="nav-bookmarks-btn" class="sidebar-sub-item" style="width: 100%; border: none; background: none; cursor: pointer;">
+              <span style="display: flex; align-items: center; gap: 12px;">
+                <i data-lucide="bookmark" style="width: 18px; height: 18px;"></i>
+                <span>Tủ Sách của Tôi</span>
+              </span>
+            </button>
+          </div>
+
+          <!-- Section: Titles -->
+          <div class="sidebar-menu-section">
+            <div class="sidebar-section-title">
+              <span class="sidebar-section-title-left">
+                <i data-lucide="book-open" style="width: 18px; height: 18px;"></i>
+                <span>Truyện Tranh</span>
+              </span>
+              <i data-lucide="plus" style="width: 16px; height: 16px; color: white;"></i>
+            </div>
+            <div class="sidebar-sub-list">
+              <button class="sidebar-sub-item" onclick="document.getElementById('header-search-input').focus();" style="width: 100%; border: none; background: none; cursor: pointer;">Tìm kiếm nâng cao</button>
+              <button class="sidebar-sub-item" onclick="alert('Tính năng mới cập nhật!')" style="width: 100%; border: none; background: none; cursor: pointer;">Mới cập nhật</button>
+              <button class="sidebar-sub-item" onclick="alert('Tính năng ngẫu nhiên!')" style="width: 100%; border: none; background: none; cursor: pointer;">Ngẫu nhiên</button>
+            </div>
+          </div>
+
+          <!-- Section: Community -->
+          <div class="sidebar-menu-section">
+            <div class="sidebar-section-title">
+              <span class="sidebar-section-title-left">
+                <i data-lucide="users" style="width: 18px; height: 18px;"></i>
+                <span>Cộng đồng</span>
+              </span>
+            </div>
+            <div class="sidebar-sub-list">
+              <button class="sidebar-sub-item" onclick="alert('Diễn đàn đang phát triển!')" style="width: 100%; border: none; background: none; cursor: pointer;">Diễn đàn</button>
+              <button class="sidebar-sub-item" onclick="alert('Nhóm dịch đang phát triển!')" style="width: 100%; border: none; background: none; cursor: pointer;">Nhóm dịch</button>
+            </div>
+          </div>
+
+          <!-- Section: MangaNPK info -->
+          <div class="sidebar-menu-section">
+            <div class="sidebar-section-title">
+              <span class="sidebar-section-title-left">
+                <i data-lucide="info" style="width: 18px; height: 18px;"></i>
+                <span>MangaNPK</span>
+              </span>
+            </div>
+            <div class="sidebar-sub-list">
+              <button id="nav-info-btn" class="sidebar-sub-item" style="width: 100%; border: none; background: none; cursor: pointer;">Giới thiệu</button>
+              <button id="nav-admin-btn" class="sidebar-sub-item" style="display: none; width: 100%; border: none; background: none; cursor: pointer;">Bảng quản trị</button>
+              <button class="sidebar-sub-item" onclick="alert('Liên hệ: contact@manganpk.com')" style="width: 100%; border: none; background: none; cursor: pointer;">Liên hệ</button>
+            </div>
+          </div>
+
+          <!-- Sticky Sidebar Footer -->
+          <div id="sidebar-footer-area">
+            <!-- Rendered dynamically via common.js -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Auth Modal -->
+      <div id="auth-modal" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0,0,0,0.75); backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center; z-index: 2000; padding: 20px;">
+        <div class="glass-card" style="width: 100%; max-width: 400px; padding: 32px; border-radius: var(--radius-lg); position: relative; background-color: #151A22; box-shadow: var(--shadow-lg);" onclick="event.stopPropagation()">
+          <button id="auth-modal-close" style="position: absolute; top: 20px; right: 20px; color: var(--text-muted); cursor: pointer;" title="Đóng">
+            <i data-lucide="x" style="width: 20px; height: 20px;"></i>
+          </button>
+          
+          <div id="auth-modal-login-view">
+            <h3 style="font-size: 1.5rem; font-weight: 800; color: white; margin-bottom: 24px;">Đăng Nhập</h3>
+            <div id="login-error-message" style="display: none; background-color: rgba(255, 69, 82, 0.15); border: 1px solid rgba(255, 69, 82, 0.3); color: #FF4552; padding: 10px; border-radius: 6px; margin-bottom: 16px; font-size: 0.85rem; align-items: center; gap: 8px;">
+              <i data-lucide="alert-circle" style="width: 16px; height: 16px; flex-shrink: 0;"></i>
+              <span class="msg-txt">Sai tài khoản hoặc mật khẩu.</span>
+            </div>
+            <form id="login-form">
+              <div class="form-group">
+                <label class="form-label">Tên đăng nhập</label>
+                <input type="text" id="login-username" class="form-control" placeholder="Nhập tên đăng nhập..." required />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Mật khẩu</label>
+                <input type="password" id="login-password" class="form-control" placeholder="Nhập mật khẩu..." required />
+              </div>
+              <button type="submit" class="btn btn-primary" style="width: 100%; border-radius: 24px; margin-top: 16px; font-weight: 700;">Đăng Nhập</button>
+            </form>
+            <p style="text-align: center; font-size: 0.85rem; color: var(--text-muted); margin-top: 24px;">
+              Chưa có tài khoản? <span id="switch-to-register" style="color: #FF4552; cursor: pointer; font-weight: 600;">Đăng ký ngay</span>
+            </p>
+          </div>
+
+          <div id="auth-modal-register-view" style="display: none;">
+            <h3 style="font-size: 1.5rem; font-weight: 800; color: white; margin-bottom: 24px;">Đăng Ký</h3>
+            <div id="register-error-message" style="display: none; background-color: rgba(255, 69, 82, 0.15); border: 1px solid rgba(255, 69, 82, 0.3); color: #FF4552; padding: 10px; border-radius: 6px; margin-bottom: 16px; font-size: 0.85rem; align-items: center; gap: 8px;">
+              <i data-lucide="alert-circle" style="width: 16px; height: 16px; flex-shrink: 0;"></i>
+              <span class="msg-txt">Đăng ký không thành công.</span>
+            </div>
+            <form id="register-form">
+              <div class="form-group">
+                <label class="form-label">Tên đăng nhập</label>
+                <input type="text" id="register-username" class="form-control" placeholder="Tối thiểu 3 ký tự..." required />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Mật khẩu</label>
+                <input type="password" id="register-password" class="form-control" placeholder="Tối thiểu 6 ký tự..." required />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Xác nhận mật khẩu</label>
+                <input type="password" id="register-confirm-password" class="form-control" placeholder="Nhập lại mật khẩu..." required />
+              </div>
+              <button type="submit" class="btn btn-primary" style="width: 100%; border-radius: 24px; margin-top: 16px; font-weight: 700;">Đăng Ký</button>
+            </form>
+            <p style="text-align: center; font-size: 0.85rem; color: var(--text-muted); margin-top: 24px;">
+              Đã có tài khoản? <span id="switch-to-login" style="color: #FF4552; cursor: pointer; font-weight: 600;">Đăng nhập</span>
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Layout -->
+      <main id="main-layout" style="flex: 1; display: flex; flex-direction: column; width: 100%; padding-top: 60px;">
+        
+        <!-- Loading chapter -->
+        <div id="reader-loading-spinner" style="display: flex; justify-content: center; align-items: center; min-height: 400px;">
+          <div class="loader" style="border: 4px solid rgba(255,255,255,0.1); border-top: 4px solid #FF4552; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite;"></div>
+        </div>
+
+        <div id="reader-main-content" style="display: none; width: 100%; position: relative; flex: 1;">
+          
+          <!-- Chapter information header block inside the viewer -->
+          <div style="text-align: center; padding: 24px 16px 12px 16px; background-color: rgba(0,0,0,0.2);">
+            <h2 id="reader-manga-title-h2" style="font-size: 1.35rem; font-weight: 800; color: white; margin-bottom: 4px;">Tên truyện</h2>
+            <p id="reader-chapter-title-p" style="font-size: 0.9rem; color: var(--text-muted);">Chương ...</p>
+          </div>
+
+          <!-- Divider line (Gạch ngang phân tách vùng trên và vùng dưới) -->
+          <div style="height: 1px; background-color: rgba(255,255,255,0.08); width: 100%;" id="reader-divider-line"></div>
+
+          <!-- Interactive Full Click Overlay & Images Area -->
+          <div id="reader-viewer-pane" style="position: relative; width: 100%; display: flex; flex-direction: column; align-items: center; margin: 0 auto; user-select: none;">
+            
+            <!-- Unified Navigation Overlay (ONLY Active Below the Line, catches clicks to change pages) -->
+            <div id="reader-navigation-overlay" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; display: flex; pointer-events: none;">
+              <!-- Left side pointer target (pointer-events auto in code) -->
+              <div id="nav-zone-left" style="width: 50%; height: 100%; cursor: url(&quot;data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'><polyline points='15 18 9 12 15 6'></polyline></svg>&quot;) 12 12, pointer; pointer-events: auto;"></div>
+              <!-- Right side pointer target -->
+              <div id="nav-zone-right" style="width: 50%; height: 100%; cursor: url(&quot;data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'><polyline points='9 18 15 12 9 6'></polyline></svg>&quot;) 12 12, pointer; pointer-events: auto;"></div>
+            </div>
+
+            <!-- Scroll mode content placeholder -->
+            <div id="viewer-scroll-container" style="display: flex; flex-direction: column; width: 100%; gap: 12px; align-items: center; padding: 20px 0;">
+              <!-- Stack of images rendered dynamically -->
+            </div>
+
+            <!-- Slide mode content placeholder -->
+            <div id="viewer-slide-container" style="display: none; width: 100%; justify-content: center; align-items: center; min-height: 70vh; padding: 20px 0;">
+              <!-- Single active slide image rendered dynamically -->
+            </div>
+
+          </div>
+
+          <!-- Bottom bar (Previous and Next chapter quick links) -->
+          <div style="background-color: #111319; border-top: 1px solid rgba(255,255,255,0.05); padding: 24px; display: flex; justify-content: center; align-items: center; gap: 15px;">
+            <button id="btn-bottom-prev" class="btn btn-secondary" style="border-radius: 20px; padding: 8px 24px; font-weight: 700;">
+              <i data-lucide="chevron-left" style="width: 16px; height: 16px;"></i> Chương Trước
+            </button>
+            <button id="btn-bottom-next" class="btn btn-primary" style="border-radius: 20px; padding: 8px 24px; font-weight: 700;">
+              Chương Tiếp Theo <i data-lucide="chevron-right" style="width: 16px; height: 16px;"></i>
+            </button>
+          </div>
+
+        </div>
+
+      </main>
+
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/common.js?v=2.2"></script>
+    <script src="js/reader.js?v=2.2"></script>
+    <style>
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+      
+      @media (max-width: 768px) {
+        .desktop-only {
+          display: none !important;
+        }
+      }
+    </style>
+  </body>
+</html>

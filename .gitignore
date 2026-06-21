@@ -1,0 +1,15 @@
+# Build outputs
+backend/bin/
+backend/obj/
+
+# Node
+node_modules/
+
+# User secrets & local settings
+appsettings.Development.json
+*.user
+.vs/
+
+# OS
+.DS_Store
+Thumbs.db

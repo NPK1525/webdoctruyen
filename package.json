@@ -1,0 +1,10 @@
+{
+  "name": "webdoctruyen-root",
+  "version": "1.0.0",
+  "description": "Root workspace configuration to run frontend and backend simultaneously",
+  "scripts": {
+    "frontend": "npx http-server html_version -p 5000",
+    "backend": "dotnet run --project backend",
+    "dev": "npx concurrently \"npm run frontend\" \"npm run backend\""
+  }
+}

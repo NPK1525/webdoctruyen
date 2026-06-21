@@ -1,0 +1,24 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Chạy Dự Án (F5)",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "prepare-all",
+      "program": "${workspaceFolder}/backend/bin/Debug/net10.0/backend.dll",
+      "args": [],
+      "cwd": "${workspaceFolder}/backend",
+      "stopAtEntry": false,
+      "env": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "ASPNETCORE_URLS": "http://localhost:5274"
+      },
+      "serverReadyAction": {
+        "action": "openExternally",
+        "pattern": "Now listening on:\\s+(https?://localhost):\\d+",
+        "uriFormat": "%s:5000/index.html"
+      }
+    }
+  ]
+}

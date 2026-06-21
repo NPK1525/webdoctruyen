@@ -1,0 +1,84 @@
+@model List<MangaNPK.Models.Manga>
+@{
+    ViewData["Title"] = "Thư viện";
+    var genres = ViewBag.Genres as List<MangaNPK.Models.Genre> ?? new();
+    int totalCount = ViewBag.TotalCount ?? 0;
+    int page = ViewBag.Page ?? 1;
+    int pageSize = ViewBag.PageSize ?? 16;
+    int totalPages = (int)Math.Ceiling((double)totalCount / pageSize);
+    string? search = ViewBag.Search;
+    MangaType? selectedType = ViewBag.SelectedType;
+    int? selectedGenreId = ViewBag.SelectedGenreId;
+}
+
+<div class="container py-4">
+    <h1 class="section-title mb-4">Thư viện</h1>
+
+    @* Filters *@
+    <form method="get" class="row g-2 mb-4">
+        <div class="col-12 col-md-4">
+            <input type="text" name="search" class="form-control" placeholder="Tìm kiếm tên manga..." value="@search" />
+        </div>
+        <div class="col-6 col-md-2">
+            <select name="type" class="form-select">
+                <option value="">Tất cả loại</option>
+                @foreach (MangaType t in Enum.GetValues<MangaType>())
+                {
+                    <option value="@((int)t)" selected="@(selectedType == t ? "selected" : null)">@t</option>
+                }
+            </select>
+        </div>
+        <div class="col-6 col-md-3">
+            <select name="genreId" class="form-select">
+                <option value="">Tất cả thể loại</option>
+                @foreach (var g in genres)
+                {
+                    <option value="@g.Id" selected="@(selectedGenreId == g.Id ? "selected" : null)">@g.Name</option>
+                }
+            </select>
+        </div>
+        <div class="col-auto">
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-search me-1"></i>Lọc
+            </button>
+            <a asp-action="Index" class="btn btn-outline-secondary ms-1">Xóa lọc</a>
+        </div>
+    </form>
+
+    <p class="text-secondary mb-3">Tìm thấy <strong class="text-white">@totalCount</strong> manga</p>
+
+    @if (Model.Any())
+    {
+        <div class="row g-3">
+            @foreach (var m in Model)
+            {
+                <div class="col-6 col-sm-4 col-md-3 col-lg-2">
+                    @await Html.PartialAsync("_MangaCard", m)
+                </div>
+            }
+        </div>
+
+        @* Pagination *@
+        @if (totalPages > 1)
+        {
+            <nav class="mt-4">
+                <ul class="pagination justify-content-center flex-wrap">
+                    @for (int i = 1; i <= totalPages; i++)
+                    {
+                        <li class="page-item @(i == page ? "active" : "")">
+                            <a class="page-link" style="background:@(i==page?"#e94560":"#1a1a2e"); border-color:#2a2a4a; color:@(i==page?"#fff":"#ccc");"
+                               asp-action="Index" asp-route-page="@i" asp-route-search="@search" asp-route-type="@((int?)selectedType)" asp-route-genreId="@selectedGenreId">@i</a>
+                        </li>
+                    }
+                </ul>
+            </nav>
+        }
+    }
+    else
+    {
+        <div class="text-center py-5 text-secondary">
+            <i class="bi bi-search fs-1 d-block mb-3"></i>
+            <p>Không tìm thấy manga nào phù hợp.</p>
+        </div>
+    }
+</div>

@@ -1,0 +1,47 @@
+@{
+    ViewData["Title"] = "Thêm Manga mới";
+    var genres = ViewBag.Genres as List<MangaNPK.Models.Genre> ?? new();
+    var themes = ViewBag.Themes as List<MangaNPK.Models.Theme> ?? new();
+    var authors = ViewBag.Authors as List<MangaNPK.Models.Author> ?? new();
+}
+
+<div class="container py-4">
+    <div class="d-flex align-items-center mb-4 gap-3">
+        <a asp-action="MangaList" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-left"></i></a>
+        <h1 class="section-title mb-0">Thêm Manga mới</h1>
+    </div>
+
+    @if (ViewBag.Error != null)
+    {
+        <div class="alert alert-danger">@ViewBag.Error</div>
+    }
+
+    <form asp-action="MangaCreate" method="post">
+        @Html.AntiForgeryToken()
+        @await Html.PartialAsync("_MangaForm", new MangaNPK.Models.Manga())
+        <div class="mt-4">
+            <button type="submit" class="btn btn-primary px-5"><i class="bi bi-check-circle me-2"></i>Tạo Manga</button>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <script>
+        // Author rows
+        let authorCount = 0;
+        function addAuthorRow() {
+            const authors = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(authors.Select(a => new { a.Id, a.Name })));
+            const container = document.getElementById('author-rows');
+            const div = document.createElement('div');
+            div.className = 'd-flex gap-2 mb-2 align-items-center';
+            div.innerHTML = `
+                <select name="authorIds" class="form-select" style="flex:2">
+                    ${authors.map(a => `<option value="${a.id}">${a.name}</option>`).join('')}
+                </select>
+                <input type="text" name="authorRoles" class="form-control" placeholder="Vai trò (Story & Art)" style="flex:1" value="Story & Art" />
+                <button type="button" class="btn btn-sm btn-outline-danger" onclick="this.parentElement.remove()"><i class="bi bi-x"></i></button>
+            `;
+            container.appendChild(div);
+        }
+    </script>
+}

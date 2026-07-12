@@ -23,6 +23,12 @@ Form tạo/sửa truyện giữ các trường hiện tại và bổ sung danh s
 
 Payload tạo/sửa gửi cả `genreIds` và `themeIds`. Backend kiểm tra các ID tồn tại trước khi ghi, thay thế quan hệ cũ trong cùng transaction và trả thông báo lỗi tiếng Việt cụ thể nếu dữ liệu không hợp lệ.
 
+### Giao diện taxonomy và cảnh báo
+
+Form admin hiển thị Content Warning, Demographic, Format, Genre và Theme bằng chip đồng bộ với biến màu dark/light mode của website. Content Warning là chip chọn nhiều và dùng màu đỏ khi được chọn. Demographic và Format là chip chọn một, còn Genre và Theme là chip chọn nhiều; các nhóm này dùng màu accent cam khi được chọn. Các control dữ liệu gốc vẫn tồn tại để giữ tương thích với payload hiện tại.
+
+Trang chi tiết chỉ hiển thị chip Content Warning màu đỏ khi truyện có cảnh báo tương ứng. Nếu `ContentWarnings` trống thì không render chip đỏ và không tạo khoảng trống. Genre và Theme tiếp tục dùng chip trung tính.
+
 Danh mục Genre và Theme được seed theo taxonomy MangaDex hiện tại. Khi import gặp Genre hoặc Theme chưa có, hệ thống tiếp tục tự tạo theo tên và slug, vì vậy dữ liệu mới từ MangaDex không bị bỏ qua.
 
 ## Mapping MangaDex

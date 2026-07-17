@@ -1,4 +1,4 @@
-@model MangaNPK.Models.Chapter
+﻿@model MangaNPK.Models.Chapter
 @{
     Layout = null;
     var allChapters = ViewBag.AllChapters as List<MangaNPK.Models.Chapter> ?? new();
@@ -9,12 +9,20 @@
         chapterNumber = Model.ChapterNumber,
         title = Model.Title,
         uploadedAt = Model.UploadedAt,
+        authors = Model.Manga?.MangaAuthors?.Select(a => new { name = a.Author.Name, role = a.Role }),
         pages = Model.Pages.Select(p => new { id = p.Id, pageNumber = p.PageNumber, imageUrl = p.ImageUrl }),
         prevChapterId = ViewBag.PrevChapterId,
         nextChapterId = ViewBag.NextChapterId
     });
     var mangaChaptersJson = System.Text.Json.JsonSerializer.Serialize(new {
         id = Model.MangaId,
+        title = Model.Manga?.Title ?? "",
+        description = Model.Manga?.Description ?? "",
+        coverUrl = Model.Manga?.CoverUrl ?? "",
+        type = Model.Manga?.Type.ToString() ?? "Manga",
+        status = Model.Manga?.Status.ToString() ?? "Ongoing",
+        viewCount = Model.Manga?.ViewCount ?? 0,
+        authors = Model.Manga?.MangaAuthors?.Select(a => new { name = a.Author.Name, role = a.Role }),
         chapters = allChapters.Select(c => new { id = c.Id, chapterNumber = c.ChapterNumber, title = c.Title })
     });
 }
@@ -23,11 +31,11 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@Model.Manga?.Title - Chương @Model.ChapterNumber - MangaNPK</title>
-    <link rel="stylesheet" href="/css/style.css?v=3.0" />
+    <title>@Model.Manga?.Title - Ch&#432;&#417;ng @Model.ChapterNumber - MangaNPK</title>
+    <link rel="stylesheet" href="/css/style.css?v=4.9" />
     <script src="https://unpkg.com/lucide@latest"></script>
   </head>
-  <body style="background-color: #090B0F;">
+  <body style="background-color: #090B0F;" class="reader-page">
     <div id="root">
       <header id="global-header" class="glass" style="position: absolute; top: 0; left: 0; right: 0; z-index: 1000; transition: transform 0.3s ease; width: 100%;">
         <div style="display: flex; align-items: center; justify-content: space-between; height: 60px; padding: 0 20px;">
@@ -44,53 +52,12 @@
             <div style="width: 1px; height: 20px; background-color: rgba(255,255,255,0.1); margin: 0 5px;" class="desktop-only"></div>
             <div id="reader-manga-title-breadcrumb" style="font-size: 0.9rem; font-weight: 700; color: #FF8C00; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; cursor: pointer;" class="desktop-only">@Model.Manga?.Title</div>
           </div>
-          <div style="display: flex; align-items: center; gap: 8px;">
-            <button id="btn-prev-chap" class="btn btn-secondary" style="border-radius: 4px; width: 34px; height: 34px; padding: 0; display: flex; align-items: center; justify-content: center;" title="Chương trước">
-              <i data-lucide="chevron-left" style="width: 18px; height: 18px;"></i>
-            </button>
-            <div style="position: relative;" id="chapter-select-dropdown-container">
-              <div id="chapter-select-trigger" style="display: flex; align-items: center; gap: 8px; background-color: #1A1D24; border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; height: 34px; padding: 0 12px; cursor: pointer; user-select: none; font-size: 0.85rem; font-weight: 700;">
-                <span id="current-chapter-label">Chương @Model.ChapterNumber</span>
-                <i data-lucide="chevron-left" style="width: 14px; height: 14px; transform: rotate(-90deg); color: var(--text-muted);"></i>
-              </div>
-              <div id="chapter-select-options" class="glass" style="display: none; position: absolute; top: 40px; left: 50%; transform: translateX(-50%); width: 220px; max-height: 250px; overflow-y: auto; border-radius: var(--radius-sm); z-index: 100; box-shadow: var(--shadow-md); padding: 4px 0;"></div>
-            </div>
-            <div style="position: relative;" id="page-select-dropdown-container">
-              <div id="page-select-trigger" style="display: flex; align-items: center; gap: 8px; background-color: #1A1D24; border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; height: 34px; padding: 0 12px; cursor: pointer; user-select: none; font-size: 0.85rem; font-weight: 700;">
-                <span id="current-page-label">Trang -- / --</span>
-                <i data-lucide="chevron-left" style="width: 14px; height: 14px; transform: rotate(-90deg); color: var(--text-muted);"></i>
-              </div>
-              <div id="page-select-options" class="glass" style="display: none; position: absolute; top: 40px; left: 50%; transform: translateX(-50%); width: 140px; max-height: 250px; overflow-y: auto; border-radius: var(--radius-sm); z-index: 100; box-shadow: var(--shadow-md); padding: 4px 0;"></div>
-            </div>
-            <button id="btn-next-chap" class="btn btn-secondary" style="border-radius: 4px; width: 34px; height: 34px; padding: 0; display: flex; align-items: center; justify-content: center;" title="Chương sau">
-              <i data-lucide="chevron-right" style="width: 18px; height: 18px;"></i>
-            </button>
+          <div class="reader-header-search" id="reader-header-search-container">
+            <i data-lucide="search" style="width: 16px; height: 16px;"></i>
+              <input id="reader-header-search-input" type="search" placeholder="T&#236;m ki&#7871;m..." autocomplete="off" />
+            <span>Ctrl</span><span>K</span>
           </div>
           <div style="display: flex; align-items: center; gap: 12px;">
-            <div style="position: relative;" id="reader-settings-dropdown-container">
-              <button id="reader-settings-btn" class="btn btn-secondary" style="border-radius: 4px; width: 34px; height: 34px; padding: 0; display: flex; align-items: center; justify-content: center;" title="Cài đặt">
-                <i data-lucide="settings" style="width: 18px; height: 18px;"></i>
-              </button>
-              <div id="reader-settings-options" class="glass" style="display: none; position: absolute; top: 40px; right: 0; width: 260px; border-radius: var(--radius-sm); z-index: 100; box-shadow: var(--shadow-lg); padding: 16px; border: 1px solid rgba(255,255,255,0.08);">
-                <h4 style="font-size: 0.85rem; font-weight: 700; color: white; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.05em;">Cấu hình đọc</h4>
-                <div class="settings-group" style="margin-bottom: 15px;">
-                  <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 6px; font-weight: 600;">Chế độ đọc:</div>
-                  <div style="display: flex; gap: 6px; background-color: #0B0E14; padding: 3px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.05);">
-                    <button id="opt-mode-scroll" style="flex: 1; padding: 6px 0; font-size: 0.8rem; font-weight: 700; border-radius: 3px; text-align: center; cursor: pointer; border: none;">Cuộn dọc</button>
-                    <button id="opt-mode-slide" style="flex: 1; padding: 6px 0; font-size: 0.8rem; font-weight: 700; border-radius: 3px; text-align: center; cursor: pointer; border: none;">Từng trang</button>
-                  </div>
-                </div>
-                <div class="settings-group">
-                  <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 6px; font-weight: 600;">Kích thước ảnh:</div>
-                  <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px;">
-                    <button class="opt-fit-btn" data-fit="both" style="padding: 6px 0; font-size: 0.75rem; font-weight: 700; background-color: #1C1F26; border-radius: 4px; text-align: center; border: none; cursor: pointer;">Tự động</button>
-                    <button class="opt-fit-btn" data-fit="width" style="padding: 6px 0; font-size: 0.75rem; font-weight: 700; background-color: #1C1F26; border-radius: 4px; text-align: center; border: none; cursor: pointer;">Đầy chiều ngang</button>
-                    <button class="opt-fit-btn" data-fit="height" style="padding: 6px 0; font-size: 0.75rem; font-weight: 700; background-color: #1C1F26; border-radius: 4px; text-align: center; border: none; cursor: pointer;">Đầy chiều dọc</button>
-                    <button class="opt-fit-btn" data-fit="none" style="padding: 6px 0; font-size: 0.75rem; font-weight: 700; background-color: #1C1F26; border-radius: 4px; text-align: center; border: none; cursor: pointer;">Gốc (100%)</button>
-                  </div>
-                </div>
-              </div>
-            </div>
             <div id="header-user-area" style="display: flex; align-items: center;"></div>
           </div>
         </div>
@@ -102,9 +69,37 @@
       <main id="main-layout" style="flex: 1; display: flex; flex-direction: column; width: 100%; padding-top: 60px;">
         <div id="reader-loading-spinner" style="display: none;"></div>
         <div id="reader-main-content" style="display: block; width: 100%; position: relative; flex: 1;">
-          <div style="text-align: center; padding: 24px 16px 12px 16px; background-color: rgba(0,0,0,0.2);">
-            <h2 id="reader-manga-title-h2" style="font-size: 1.35rem; font-weight: 800; color: white; margin-bottom: 4px;">@Model.Manga?.Title</h2>
-            <p id="reader-chapter-title-p" style="font-size: 0.9rem; color: var(--text-muted);">Chương @Model.ChapterNumber@(string.IsNullOrEmpty(Model.Title) || Model.Title == $"Chương {Model.ChapterNumber}" ? "" : ": " + Model.Title)</p>
+          <div class="reader-info-panel">
+            <div class="reader-title-block">
+            <div id="reader-chapter-title-p" class="reader-chapter-kicker">Ch&#432;&#417;ng @Model.ChapterNumber@(string.IsNullOrEmpty(Model.Title) || Model.Title == $"Ch\u01B0\u01A1ng {Model.ChapterNumber}" ? "" : ": " + Model.Title)</div>
+              <h2 id="reader-manga-title-h2">@Model.Manga?.Title</h2>
+              <div id="reader-author-name" class="reader-author-line">
+                <i data-lucide="users" style="width: 18px; height: 18px;"></i>
+              <span>&#272;ang c&#7853;p nh&#7853;t</span>
+              </div>
+            </div>
+            <div class="reader-control-grid">
+              <div style="position: relative;" id="chapter-select-dropdown-container">
+                <div id="chapter-select-trigger" class="reader-select-trigger">
+                  <span id="current-chapter-label">Ch&#432;&#417;ng @Model.ChapterNumber</span>
+                  <i data-lucide="chevron-left" style="width: 16px; height: 16px; transform: rotate(-90deg);"></i>
+                </div>
+                <div id="chapter-select-options" class="glass reader-select-options reader-select-options-wide" style="display: none;"></div>
+              </div>
+              <div style="position: relative;" id="page-select-dropdown-container">
+                <div id="page-select-trigger" class="reader-select-trigger">
+                  <span id="current-page-label">Trang -- / --</span>
+                  <i data-lucide="chevron-left" style="width: 16px; height: 16px; transform: rotate(-90deg);"></i>
+                </div>
+                <div id="page-select-options" class="glass reader-select-options reader-select-options-narrow" style="display: none;"></div>
+              </div>
+              <div style="position: relative;" id="reader-settings-dropdown-container">
+                <button id="reader-settings-btn" class="reader-select-trigger reader-menu-trigger" title="Menu">
+                  <span>Menu</span>
+                  <i data-lucide="chevron-left" style="width: 16px; height: 16px;"></i>
+                </button>
+              </div>
+            </div>
           </div>
           <div style="height: 1px; background-color: rgba(255,255,255,0.08); width: 100%;" id="reader-divider-line"></div>
           <div id="reader-viewer-pane" style="position: relative; width: 100%; display: flex; flex-direction: column; align-items: center; margin: 0 auto; user-select: none;">
@@ -115,24 +110,220 @@
             <div id="viewer-scroll-container" style="display: flex; flex-direction: column; width: 100%; gap: 12px; align-items: center; padding: 20px 0;"></div>
             <div id="viewer-slide-container" style="display: none; width: 100%; justify-content: center; align-items: center; min-height: 70vh; padding: 20px 0;"></div>
           </div>
-          <div style="background-color: #111319; border-top: 1px solid rgba(255,255,255,0.05); padding: 24px; display: flex; justify-content: center; align-items: center; gap: 15px;">
+          <div class="reader-bottom-bar">
             <button id="btn-bottom-prev" class="btn btn-secondary" style="border-radius: 20px; padding: 8px 24px; font-weight: 700;">
-              <i data-lucide="chevron-left" style="width: 16px; height: 16px;"></i> Chương Trước
+              <i data-lucide="chevron-left" style="width: 16px; height: 16px;"></i> Ch&#432;&#417;ng Tr&#432;&#7899;c
             </button>
             <button id="btn-bottom-next" class="btn btn-primary" style="border-radius: 20px; padding: 8px 24px; font-weight: 700;">
-              Chương Tiếp Theo <i data-lucide="chevron-right" style="width: 16px; height: 16px;"></i>
+              Ch&#432;&#417;ng Ti&#7871;p Theo <i data-lucide="chevron-right" style="width: 16px; height: 16px;"></i>
             </button>
           </div>
         </div>
       </main>
+      <div class="reader-progress-track" aria-hidden="true">
+        <div id="reader-reading-progress" class="reader-progress-fill"></div>
+        <span id="reader-progress-label" class="reader-progress-label">0 / 0</span>
+      </div>
+      <div id="reader-drawer-overlay" class="reader-drawer-overlay"></div>
+      <aside id="reader-menu-drawer" class="reader-menu-drawer" aria-hidden="true">
+        <div class="reader-drawer-header">
+          <button id="reader-drawer-close" class="reader-icon-btn" title="&#272;&#243;ng">
+            <i data-lucide="x"></i>
+          </button>
+          <button id="reader-drawer-pin" class="reader-icon-btn" title="Ghim menu">
+            <i data-lucide="pin"></i>
+          </button>
+        </div>
+        <div class="reader-drawer-title">
+          <i data-lucide="book-open"></i>
+          <span id="reader-drawer-manga-title">@Model.Manga?.Title</span>
+        </div>
+        <div class="reader-drawer-chapter">
+          <i data-lucide="file"></i>
+          <span id="reader-drawer-chapter-title">Ch&#432;&#417;ng @Model.ChapterNumber</span>
+        </div>
+        <div class="reader-drawer-navrow">
+          <button id="reader-drawer-page-prev" class="reader-drawer-step"><i data-lucide="chevron-left"></i></button>
+          <button id="reader-drawer-page-select" class="reader-drawer-select">
+            <small>Page</small>
+            <span id="reader-drawer-page-label">1</span>
+            <i data-lucide="chevron-down"></i>
+          </button>
+          <button id="reader-drawer-page-next" class="reader-drawer-step"><i data-lucide="chevron-right"></i></button>
+        </div>
+        <div class="reader-drawer-navrow">
+          <button id="reader-drawer-chapter-prev" class="reader-drawer-step"><i data-lucide="chevron-left"></i></button>
+          <button id="reader-drawer-chapter-select" class="reader-drawer-select">
+            <small>Chapter</small>
+            <span id="reader-drawer-chapter-label">Chapter @Model.ChapterNumber</span>
+            <i data-lucide="chevron-down"></i>
+          </button>
+          <button id="reader-drawer-chapter-next" class="reader-drawer-step"><i data-lucide="chevron-right"></i></button>
+        </div>
+        <button id="reader-report-chapter" class="reader-drawer-wide-btn">Report Chapter</button>
+        <div class="reader-drawer-divider"></div>
+        <button class="reader-drawer-wide-btn reader-drawer-muted">
+          <i data-lucide="message-square"></i>
+          <span>No comments yet</span>
+        </button>
+        <div class="reader-drawer-divider"></div>
+        <button id="reader-mode-long-strip" class="reader-drawer-wide-btn">
+          <i data-lucide="panel-top"></i>
+          <span>Long Strip</span>
+        </button>
+        <div class="reader-drawer-split">
+          <button id="reader-fit-both" class="reader-drawer-wide-btn">
+            <i data-lucide="expand"></i>
+            <span>Fit Both</span>
+          </button>
+          <button class="reader-drawer-square-btn" title="Fit settings"><i data-lucide="settings"></i></button>
+        </div>
+        <button id="reader-direction-ltr" class="reader-drawer-wide-btn">
+          <i data-lucide="circle-arrow-right"></i>
+          <span>Left To Right</span>
+        </button>
+        <button id="reader-toggle-header" class="reader-drawer-wide-btn">
+          <i data-lucide="square"></i>
+          <span>Header Hidden</span>
+        </button>
+        <div class="reader-drawer-split">
+          <button id="reader-progress-mode" class="reader-drawer-wide-btn">
+            <i data-lucide="scan-line"></i>
+            <span>Normal Progress</span>
+          </button>
+          <button class="reader-drawer-square-btn" title="Progress settings"><i data-lucide="settings"></i></button>
+        </div>
+        <button id="reader-settings-open" class="reader-drawer-wide-btn">
+          <i data-lucide="settings"></i>
+          <span>Reader Settings</span>
+        </button>
+      </aside>
+      <button id="reader-drawer-rail" class="reader-drawer-rail" title="Menu &#273;&#7885;c truy&#7879;n" aria-label="Menu &#273;&#7885;c truy&#7879;n">
+        <i data-lucide="menu"></i>
+      </button>
+      <div id="reader-settings-modal" class="reader-settings-modal" aria-hidden="true">
+        <div class="reader-settings-backdrop"></div>
+        <section class="reader-settings-dialog" role="dialog" aria-modal="true" aria-labelledby="reader-settings-title">
+          <div class="reader-settings-head">
+            <h2 id="reader-settings-title">Reader Settings</h2>
+            <button id="reader-settings-close" class="reader-icon-btn" title="Close">
+              <i data-lucide="x"></i>
+            </button>
+          </div>
+          <div class="reader-settings-body">
+            <nav class="reader-settings-tabs" aria-label="Reader Settings">
+              <button class="reader-settings-tab active" data-reader-settings-tab="layout">Page Layout</button>
+              <button class="reader-settings-tab" data-reader-settings-tab="image">Image fit</button>
+              <button class="reader-settings-tab" data-reader-settings-tab="keybinds">Keybinds</button>
+              <button class="reader-settings-tab" data-reader-settings-tab="behaviors">Behaviors</button>
+            </nav>
+            <div class="reader-settings-content">
+              <div class="reader-settings-panel-page active" data-reader-settings-panel="layout">
+                <div class="reader-setting-group">
+                  <h3>Page Display Style</h3>
+                  <div class="reader-segmented">
+                    <button data-reader-display="single"><i data-lucide="file"></i><span>Single Page</span></button>
+                    <button data-reader-display="double"><i data-lucide="book-open"></i><span>Double Page</span></button>
+                    <button data-reader-display="long"><i data-lucide="panel-top"></i><span>Long Strip</span></button>
+                    <button data-reader-display="wide"><i data-lucide="columns-2"></i><span>Wide Strip</span></button>
+                  </div>
+                </div>
+                <div class="reader-setting-group">
+                  <h3>Reading Direction</h3>
+                  <div class="reader-segmented two">
+                    <button data-reader-direction="ltr"><i data-lucide="circle-arrow-right"></i><span>Left To Right</span></button>
+                    <button data-reader-direction="rtl"><i data-lucide="circle-arrow-left"></i><span>Right To Left</span></button>
+                  </div>
+                </div>
+                <div class="reader-setting-group">
+                  <h3>Header Visibility</h3>
+                  <div class="reader-segmented two">
+                    <button data-reader-header="hidden"><i data-lucide="square"></i><span>Header Hidden</span></button>
+                    <button data-reader-header="shown"><i data-lucide="panel-top"></i><span>Header Shown</span></button>
+                  </div>
+                </div>
+                <div class="reader-setting-group">
+                  <h3>Progress Bar Style</h3>
+                  <div class="reader-segmented three">
+                    <button data-reader-progress="hidden"><i data-lucide="minus"></i><span>Progress Hidden</span></button>
+                    <button data-reader-progress="lightbar"><i data-lucide="scan-line"></i><span>Progress Lightbar</span></button>
+                    <button data-reader-progress="normal"><i data-lucide="scan-line"></i><span>Normal Progress</span></button>
+                  </div>
+                </div>
+                <div class="reader-setting-group">
+                  <h3>Reader Background Color</h3>
+                  <div class="reader-segmented compact">
+                    <button data-reader-background="white">White</button>
+                    <button data-reader-background="black">Black</button>
+                  </div>
+                </div>
+              </div>
+              <div class="reader-settings-panel-page" data-reader-settings-panel="image">
+                <div class="reader-setting-group">
+                  <h3>Image Sizing</h3>
+                  <button class="reader-check-row" data-reader-fit-toggle="width"><span class="reader-check-box"></span><span>Contain to width</span></button>
+                  <button class="reader-check-row" data-reader-fit-toggle="height"><span class="reader-check-box"></span><span>Contain to height</span></button>
+                  <button class="reader-check-row" data-reader-fit-toggle="none"><span class="reader-check-box"></span><span>Stretch small pages</span></button>
+                </div>
+                <div class="reader-setting-group">
+                  <button class="reader-check-row" data-reader-fit-toggle="limit-width"><span class="reader-check-box"></span><span>Limit max width</span></button>
+                  <button class="reader-check-row" data-reader-fit-toggle="limit-height"><span class="reader-check-box"></span><span>Limit max height</span></button>
+                </div>
+              </div>
+              <div class="reader-settings-panel-page" data-reader-settings-panel="keybinds">
+                <p class="reader-settings-help">Keybinds are active while reading. Inputs and search boxes are ignored.</p>
+                <div id="reader-keybind-list" class="reader-keybind-list"></div>
+                <button id="reader-reset-keybinds" class="reader-settings-reset"><i data-lucide="rotate-cw"></i><span>Reset All to Default Values</span></button>
+              </div>
+              <div class="reader-settings-panel-page" data-reader-settings-panel="behaviors">
+                <div class="reader-setting-group">
+                  <h3>Automatically advance chapter on last page</h3>
+                  <div class="reader-segmented two">
+                    <button data-reader-auto-advance="false">Disabled</button>
+                    <button data-reader-auto-advance="true">Enabled</button>
+                  </div>
+                </div>
+                <div class="reader-setting-group">
+                  <h3>Turn pages by tapping</h3>
+                  <div class="reader-segmented three">
+                    <button data-reader-tap-mode="directional">Directional</button>
+                    <button data-reader-tap-mode="forward">Always turn forward</button>
+                    <button data-reader-tap-mode="never">Never</button>
+                  </div>
+                </div>
+                <div class="reader-setting-group">
+                  <h3>Turn pages by scrolling</h3>
+                  <div class="reader-segmented four">
+                    <button data-reader-scroll-turn="disabled">Disabled</button>
+                    <button data-reader-scroll-turn="mouse">Mouse wheel</button>
+                    <button data-reader-scroll-turn="keyboard">Keyboard</button>
+                    <button data-reader-scroll-turn="both">Both</button>
+                  </div>
+                </div>
+                <div class="reader-setting-group">
+                  <h3>Double click to toggle fullscreen</h3>
+                  <div class="reader-segmented two">
+                    <button data-reader-double-fullscreen="false">Disabled</button>
+                    <button data-reader-double-fullscreen="true">Enabled</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
     </div>
 
     <script>
       window.__CHAPTER_DETAIL__ = @Html.Raw(chapterJson);
       window.__MANGA_DETAIL__ = @Html.Raw(mangaChaptersJson);
     </script>
-    <script src="/js/common.js?v=3.0"></script>
-    <script src="/js/reader.js?v=3.0"></script>
+    <script src="/js/i18n.js?v=4.0"></script>
+    <script src="/js/common-library.js?v=1.0"></script>
+    <script src="/js/common-auth.js?v=1.0"></script>
+<script src="/js/common.js?v=5.5"></script>
+    <script src="/js/reader-settings.js?v=1.0"></script>
+    <script src="/js/reader.js?v=4.6"></script>
     <style>
       @@media (max-width: 768px) { .desktop-only { display: none !important; } }
     </style>

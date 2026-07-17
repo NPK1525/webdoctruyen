@@ -1,0 +1,58 @@
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title data-i18n="mdlists.title">MN Lists</title>
+    <link rel="stylesheet" href="/css/style.css?v=4.9" />
+    <link rel="stylesheet" href="/css/mdlists.css?v=2.1" />
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="mdlists-page">
+<div id="root">
+    @await Html.PartialAsync("_Header")
+    @await Html.PartialAsync("_Sidebar")
+    @await Html.PartialAsync("_AuthModal")
+    <main id="main-layout" class="mdlists-main">
+        <div id="mdlists-login" class="mdlists-login" style="display:none;">
+            <i data-lucide="list"></i>
+            <h2 data-i18n="mdlists.signedOutTitle">Sign in to manage MN Lists</h2>
+            <button id="mdlists-login-btn" class="btn btn-primary" data-i18n="mdlists.signIn">Sign in</button>
+        </div>
+        <section id="mdlists-overview" class="mdlists-shell" style="display:none;">
+            <div class="mdlists-title-row"><a href="/" class="mdlists-back" aria-label="Back" data-i18n="mdlists.back" data-i18n-attr="title"><i data-lucide="arrow-left"></i></a><h1 data-i18n="mdlists.title">MN Lists</h1></div>
+            <div class="mdlists-tabs" role="tablist"><button class="active" role="tab" aria-selected="true" data-i18n="mdlists.title">MN Lists</button></div>
+            <button id="mdlists-create-btn" class="mdlists-new-button"><i data-lucide="plus"></i><span data-i18n="mdlists.new">New MN List</span></button>
+            <div id="mdlists-overview-status" class="mdlists-status" role="status" hidden></div>
+            <div id="mdlists-grid" class="mdlists-grid"></div>
+            <div id="mdlists-empty" class="mdlists-empty" style="display:none;"><i data-lucide="list-plus"></i><strong data-i18n="mdlists.emptyTitle">No MN Lists yet</strong><span data-i18n="mdlists.emptyBody">Create your first list and collect the titles you love.</span></div>
+        </section>
+        <section id="mdlists-editor" class="mdlists-shell" style="display:none;">
+            <div class="mdlists-title-row"><button id="mdlists-editor-back" class="mdlists-back" aria-label="Back" data-i18n="mdlists.back" data-i18n-attr="title"><i data-lucide="arrow-left"></i></button><h1 id="mdlists-editor-heading">Create MN List</h1></div>
+            <div class="mdlists-editor-top">
+                <div class="mdlists-fields"><input id="mdlists-name" class="mdlists-name-input" placeholder="MN List name" data-i18n="mdlists.namePlaceholder" data-i18n-attr="placeholder" maxlength="200" /><textarea id="mdlists-description" class="mdlists-description-input" placeholder="Description (optional)" data-i18n="mdlists.descriptionPlaceholder" data-i18n-attr="placeholder" maxlength="1000"></textarea></div>
+                <div class="mdlists-visibility"><span data-i18n="mdlists.visibility">Visibility</span><button id="mdlists-visibility-button" type="button"><strong id="mdlists-visibility-value">Private</strong><i data-lucide="chevron-down"></i></button><div id="mdlists-visibility-menu" class="mdlists-dropdown" hidden><button data-visibility="true" data-i18n="mdlists.public">Public</button><button data-visibility="false" data-i18n="mdlists.private">Private</button></div></div>
+            </div>
+            <button id="mdlists-add-titles" class="mdlists-add-titles"><i data-lucide="plus"></i><span data-i18n="mdlists.addTitles">Add some titles</span></button>
+            <div id="mdlists-selected" class="mdlists-selected"></div>
+            <div id="mdlists-status" class="mdlists-status" role="alert" hidden></div>
+            <div class="mdlists-actions"><button id="mdlists-cancel" class="btn btn-secondary" data-i18n="mdlists.cancel">Cancel</button><button id="mdlists-save" class="btn btn-primary">Create</button></div>
+        </section>
+    </main>
+</div>
+<div id="mdlists-title-modal" class="mdlists-modal" hidden>
+    <div class="mdlists-title-panel">
+        <div class="mdlists-panel-heading"><h2 data-i18n="mdlists.searchTitle">Search titles</h2><button id="mdlists-title-close" aria-label="Close" data-i18n="common.close" data-i18n-attr="title"><i data-lucide="x"></i></button></div>
+        <label class="mdlists-search"><i data-lucide="search"></i><input id="mdlists-title-search" placeholder="Search by title or author" data-i18n="mdlists.searchPlaceholder" data-i18n-attr="placeholder" /></label>
+        <div class="mdlists-picker-toolbar"><div class="mdlists-sort"><span data-i18n="mdlists.sortBy">Sort by</span><button id="mdlists-sort-button"><strong id="mdlists-sort-value">Best Match</strong><i data-lucide="chevron-down"></i></button><div id="mdlists-sort-menu" class="mdlists-dropdown" hidden></div></div><div class="mdlists-view-switch"><button data-picker-view="list" class="active" aria-label="List view" data-i18n="mdlists.viewList" data-i18n-attr="title"><i data-lucide="list"></i></button><button data-picker-view="compact" aria-label="Compact view" data-i18n="mdlists.viewCompact" data-i18n-attr="title"><i data-lucide="rows-2"></i></button><button data-picker-view="grid" aria-label="Grid view" data-i18n="mdlists.viewGrid" data-i18n-attr="title"><i data-lucide="grid-2x2"></i></button></div></div>
+        <div id="mdlists-picker-status" class="mdlists-status" role="status" hidden></div>
+        <div id="mdlists-title-results" class="mdlists-title-results"></div>
+        <button id="mdlists-load-more" class="mdlists-load-more" type="button" data-i18n="mdlists.loadMore" hidden>Load more</button>
+    </div>
+</div>
+<script src="/js/i18n.js?v=4.0"></script><script src="/js/common-library.js?v=1.0"></script><script src="/js/common-auth.js?v=1.0"></script><script src="/js/common.js?v=5.5"></script><script src="/js/mdlists-core.js?v=1.0"></script><script src="/js/mdlists.js?v=2.1"></script>
+</body>
+</html>

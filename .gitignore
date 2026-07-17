@@ -1,6 +1,6 @@
 # Build outputs
-backend/bin/
-backend/obj/
+bin/
+obj/
 
 # Node
 node_modules/
@@ -9,6 +9,18 @@ node_modules/
 appsettings.Development.json
 *.user
 .vs/
+.codex/
+
+# Local application data and ASP.NET Data Protection keys
+/App_Data/
+/backend/App_Data/
+
+# Local database files and backups
+*.mdf
+*.ldf
+*.bak
+*.sqlite
+*.sqlite3
 
 # OS
 .DS_Store

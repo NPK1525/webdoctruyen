@@ -5,11 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Đọc Truyện - MangaNPK</title>
     <!-- CSS styles link -->
-    <link rel="stylesheet" href="css/style.css?v=3.0" />
+    <link rel="stylesheet" href="css/style.css?v=4.6" />
     <!-- Lucide Icons CDN -->
     <script src="https://unpkg.com/lucide@latest"></script>
   </head>
-  <body style="background-color: #090B0F;">
+  <body style="background-color: var(--bg-reader);">
     <div id="root">
       
       <!-- Sticky Header (Spans 100% width, absolutely positioned, transitions on scroll) -->
@@ -25,15 +25,15 @@
               <div style="width: 32px; height: 32px; border-radius: 6px; background-color: #FF8C00; display: flex; align-items: center; justify-content: center;">
                 <i data-lucide="book-open" style="width: 16px; height: 16px; color: white;"></i>
               </div>
-              <span style="font-size: 1.15rem; font-weight: 800; letter-spacing: -0.02em; color: white; display: inline-block;">
+              <span style="font-size: 1.15rem; font-weight: 800; letter-spacing: -0.02em; color: var(--text-bright); display: inline-block;" id="logo-text">
                 Manga<span style="color: #FF8C00;">NPK</span>
               </span>
             </div>
             
-            <div style="width: 1px; height: 20px; background-color: rgba(255,255,255,0.1); margin: 0 5px;" class="desktop-only"></div>
+            <div style="width: 1px; height: 20px; background-color: var(--border-subtle); margin: 0 5px;" class="desktop-only"></div>
             
             <!-- Breadcrumbs / Manga Name -->
-            <div id="reader-manga-title-breadcrumb" style="font-size: 0.9rem; font-weight: 700; color: #FF8C00; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; cursor: pointer;" class="desktop-only">
+            <div id="reader-manga-title-breadcrumb" style="font-size: 0.9rem; font-weight: 700; color: #FF8C00; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; cursor: pointer;" class="desktop-only" data-i18n="reader.loading">
               Đang tải...
             </div>
           </div>
@@ -42,14 +42,14 @@
           <div style="display: flex; align-items: center; gap: 8px;">
             
             <!-- Prev Chapter -->
-            <button id="btn-prev-chap" class="btn btn-secondary" style="border-radius: 4px; width: 34px; height: 34px; padding: 0; display: flex; align-items: center; justify-content: center;" title="Chương trước">
+            <button id="btn-prev-chap" class="btn btn-secondary" style="border-radius: 4px; width: 34px; height: 34px; padding: 0; display: flex; align-items: center; justify-content: center;" title="Chương trước" data-i18n="reader.prev">
               <i data-lucide="chevron-left" style="width: 18px; height: 18px;"></i>
             </button>
 
             <!-- Chapters Custom Selector Dropdown -->
             <div style="position: relative;" id="chapter-select-dropdown-container">
-              <div id="chapter-select-trigger" style="display: flex; align-items: center; gap: 8px; background-color: #1A1D24; border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; height: 34px; padding: 0 12px; cursor: pointer; user-select: none; font-size: 0.85rem; font-weight: 700;">
-                <span id="current-chapter-label">Chương --</span>
+              <div id="chapter-select-trigger" style="display: flex; align-items: center; gap: 8px; background-color: var(--bg-input); border: 1px solid var(--border-subtle); border-radius: 4px; height: 34px; padding: 0 12px; cursor: pointer; user-select: none; font-size: 0.85rem; font-weight: 700;">
+                <span id="current-chapter-label" data-i18n="reader.chapterOf">Chương --</span>
                 <i data-lucide="chevron-left" style="width: 14px; height: 14px; transform: rotate(-90deg); color: var(--text-muted);"></i>
               </div>
               
@@ -60,8 +60,8 @@
 
             <!-- Page Custom Selector Dropdown -->
             <div style="position: relative;" id="page-select-dropdown-container">
-              <div id="page-select-trigger" style="display: flex; align-items: center; gap: 8px; background-color: #1A1D24; border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; height: 34px; padding: 0 12px; cursor: pointer; user-select: none; font-size: 0.85rem; font-weight: 700;">
-                <span id="current-page-label">Trang -- / --</span>
+              <div id="page-select-trigger" style="display: flex; align-items: center; gap: 8px; background-color: var(--bg-input); border: 1px solid var(--border-subtle); border-radius: 4px; height: 34px; padding: 0 12px; cursor: pointer; user-select: none; font-size: 0.85rem; font-weight: 700;">
+                <span id="current-page-label" data-i18n="reader.pageOf">Trang -- / --</span>
                 <i data-lucide="chevron-left" style="width: 14px; height: 14px; transform: rotate(-90deg); color: var(--text-muted);"></i>
               </div>
               
@@ -71,7 +71,7 @@
             </div>
 
             <!-- Next Chapter -->
-            <button id="btn-next-chap" class="btn btn-secondary" style="border-radius: 4px; width: 34px; height: 34px; padding: 0; display: flex; align-items: center; justify-content: center;" title="Chương sau">
+            <button id="btn-next-chap" class="btn btn-secondary" style="border-radius: 4px; width: 34px; height: 34px; padding: 0; display: flex; align-items: center; justify-content: center;" title="Chương sau" data-i18n="reader.next">
               <i data-lucide="chevron-right" style="width: 18px; height: 18px;"></i>
             </button>
 
@@ -82,20 +82,20 @@
             
             <!-- Settings Button -->
             <div style="position: relative;" id="reader-settings-dropdown-container">
-              <button id="reader-settings-btn" class="btn btn-secondary" style="border-radius: 4px; width: 34px; height: 34px; padding: 0; display: flex; align-items: center; justify-content: center;" title="Cài đặt giao diện">
+              <button id="reader-settings-btn" class="btn btn-secondary" style="border-radius: 4px; width: 34px; height: 34px; padding: 0; display: flex; align-items: center; justify-content: center;" title="Cài đặt giao diện" data-i18n="reader.settings">
                 <i data-lucide="settings" style="width: 18px; height: 18px;"></i>
               </button>
               
               <!-- Settings Menu -->
-              <div id="reader-settings-options" class="glass" style="display: none; position: absolute; top: 40px; right: 0; width: 260px; border-radius: var(--radius-sm); z-index: 100; box-shadow: var(--shadow-lg); padding: 16px; border: 1px solid rgba(255,255,255,0.08);">
-                <h4 style="font-size: 0.85rem; font-weight: 700; color: white; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.05em;">Cấu hình đọc</h4>
+              <div id="reader-settings-options" class="glass" style="display: none; position: absolute; top: 40px; right: 0; width: 260px; border-radius: var(--radius-sm); z-index: 100; box-shadow: var(--shadow-lg); padding: 16px; border: 1px solid var(--border-subtle);">
+                <h4 style="font-size: 0.85rem; font-weight: 700; color: var(--text-bright); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.05em;" data-i18n="reader.settings">Cấu hình đọc</h4>
                 
                 <!-- Reading Mode -->
                 <div class="settings-group" style="margin-bottom: 15px;">
                   <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 6px; font-weight: 600;">Chế độ đọc:</div>
-                  <div style="display: flex; gap: 6px; background-color: #0B0E14; padding: 3px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.05);">
-                    <button id="opt-mode-scroll" style="flex: 1; padding: 6px 0; font-size: 0.8rem; font-weight: 700; border-radius: 3px; text-align: center; cursor: pointer;">Cuộn dọc</button>
-                    <button id="opt-mode-slide" style="flex: 1; padding: 6px 0; font-size: 0.8rem; font-weight: 700; border-radius: 3px; text-align: center; cursor: pointer;">Từng trang</button>
+                  <div style="display: flex; gap: 6px; background-color: var(--bg-darker); padding: 3px; border-radius: 4px; border: 1px solid var(--border-subtle);">
+                    <button id="opt-mode-scroll" style="flex: 1; padding: 6px 0; font-size: 0.8rem; font-weight: 700; border-radius: 3px; text-align: center; cursor: pointer;" data-i18n="reader.scrollMode">Cuộn dọc</button>
+                    <button id="opt-mode-slide" style="flex: 1; padding: 6px 0; font-size: 0.8rem; font-weight: 700; border-radius: 3px; text-align: center; cursor: pointer;" data-i18n="reader.slideMode">Từng trang</button>
                   </div>
                 </div>
 
@@ -103,14 +103,19 @@
                 <div class="settings-group">
                   <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 6px; font-weight: 600;">Kích thước ảnh:</div>
                   <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px;">
-                    <button class="opt-fit-btn" data-fit="both" style="padding: 6px 0; font-size: 0.75rem; font-weight: 700; background-color: #1C1F26; border-radius: 4px; text-align: center;">Tự động</button>
-                    <button class="opt-fit-btn" data-fit="width" style="padding: 6px 0; font-size: 0.75rem; font-weight: 700; background-color: #1C1F26; border-radius: 4px; text-align: center;">Đầy chiều ngang</button>
-                    <button class="opt-fit-btn" data-fit="height" style="padding: 6px 0; font-size: 0.75rem; font-weight: 700; background-color: #1C1F26; border-radius: 4px; text-align: center;">Đầy chiều dọc</button>
-                    <button class="opt-fit-btn" data-fit="none" style="padding: 6px 0; font-size: 0.75rem; font-weight: 700; background-color: #1C1F26; border-radius: 4px; text-align: center;">Gốc (100%)</button>
+                    <button class="opt-fit-btn" data-fit="both" style="padding: 6px 0; font-size: 0.75rem; font-weight: 700; background-color: var(--bg-input); border: none; border-radius: 4px; text-align: center; color: var(--text-main);" data-i18n="reader.autoFit">Tự động</button>
+                    <button class="opt-fit-btn" data-fit="width" style="padding: 6px 0; font-size: 0.75rem; font-weight: 700; background-color: var(--bg-input); border: none; border-radius: 4px; text-align: center; color: var(--text-main);" data-i18n="reader.fitWidth">Đầy chiều ngang</button>
+                    <button class="opt-fit-btn" data-fit="height" style="padding: 6px 0; font-size: 0.75rem; font-weight: 700; background-color: var(--bg-input); border: none; border-radius: 4px; text-align: center; color: var(--text-main);" data-i18n="reader.fitHeight">Đầy chiều dọc</button>
+                    <button class="opt-fit-btn" data-fit="none" style="padding: 6px 0; font-size: 0.75rem; font-weight: 700; background-color: var(--bg-input); border: none; border-radius: 4px; text-align: center; color: var(--text-main);" data-i18n="reader.originalSize">Gốc (100%)</button>
                   </div>
                 </div>
               </div>
             </div>
+
+            <!-- Language Toggle -->
+            <button id="lang-toggle-btn" class="btn btn-secondary" style="border-radius: 20px; font-weight: 600; padding: 6px 12px; font-size: 0.8rem;">
+              EN
+            </button>
 
             <!-- User Avatar / Info -->
             <div id="header-user-area" style="display: flex; align-items: center;">
@@ -126,14 +131,14 @@
       <div id="sidebar-drawer-overlay" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px); z-index: 1010; opacity: 0; pointer-events: none; transition: opacity 0.3s ease;"></div>
       
       <!-- Sidebar Navigation Drawer -->
-      <div id="sidebar-drawer">
+      <div id="sidebar-drawer" data-use-unified-sidebar="true">
         <!-- Header -->
         <div class="sidebar-header">
           <div style="display: flex; align-items: center; gap: 10px; cursor: pointer;" id="sidebar-logo">
             <div style="width: 32px; height: 32px; border-radius: 6px; background-color: #FF8C00; display: flex; align-items: center; justify-content: center;">
               <i data-lucide="book-open" style="width: 16px; height: 16px; color: white;"></i>
             </div>
-            <span style="font-size: 1.2rem; font-weight: 800; color: white;">Manga<span style="color: #FF8C00;">NPK</span></span>
+            <span style="font-size: 1.2rem; font-weight: 800; color: var(--text-bright);">Manga<span style="color: #FF8C00;">NPK</span></span>
           </div>
           <button id="sidebar-close-btn" style="color: white; cursor: pointer; display: flex; align-items: center;" title="Đóng">
             <i data-lucide="x" style="width: 20px; height: 20px;"></i>
@@ -152,7 +157,7 @@
               </span>
             </button>
             
-            <button class="sidebar-sub-item" onclick="alert('Tính năng đang phát triển!')" style="width: 100%; border: none; background: none; cursor: pointer;">
+            <button class="sidebar-sub-item" onclick="showToast('Tính năng đang phát triển!')" style="width: 100%; border: none; background: none; cursor: pointer;">
               <span style="display: flex; align-items: center; gap: 12px;">
                 <i data-lucide="rss" style="width: 18px; height: 18px;"></i>
                 <span>Bảng tin</span>
@@ -173,14 +178,14 @@
             <div class="sidebar-section-title">
               <span class="sidebar-section-title-left">
                 <i data-lucide="book-open" style="width: 18px; height: 18px;"></i>
-                <span>Truyện Tranh</span>
+                <span data-i18n="nav.comics">Truyện Tranh</span>
               </span>
               <i data-lucide="plus" style="width: 16px; height: 16px; color: white;"></i>
             </div>
             <div class="sidebar-sub-list">
-              <button class="sidebar-sub-item" onclick="document.getElementById('header-search-input').focus();" style="width: 100%; border: none; background: none; cursor: pointer;">Tìm kiếm nâng cao</button>
-              <button class="sidebar-sub-item" onclick="alert('Tính năng mới cập nhật!')" style="width: 100%; border: none; background: none; cursor: pointer;">Mới cập nhật</button>
-              <button class="sidebar-sub-item" onclick="alert('Tính năng ngẫu nhiên!')" style="width: 100%; border: none; background: none; cursor: pointer;">Ngẫu nhiên</button>
+              <button class="sidebar-sub-item" onclick="document.getElementById('header-search-input').focus();" style="width: 100%; border: none; background: none; cursor: pointer;" data-i18n="sidebar.advancedSearch">Tìm kiếm nâng cao</button>
+              <button class="sidebar-sub-item" onclick="showToast(t('sidebar.feature', 'Tính năng mới cập nhật!'))" style="width: 100%; border: none; background: none; cursor: pointer;" data-i18n="sidebar.newlyUpdated">Mới cập nhật</button>
+              <button class="sidebar-sub-item" onclick="showToast(t('sidebar.randomFeature', 'Tính năng ngẫu nhiên!'))" style="width: 100%; border: none; background: none; cursor: pointer;" data-i18n="sidebar.random">Ngẫu nhiên</button>
             </div>
           </div>
 
@@ -189,12 +194,12 @@
             <div class="sidebar-section-title">
               <span class="sidebar-section-title-left">
                 <i data-lucide="users" style="width: 18px; height: 18px;"></i>
-                <span>Cộng đồng</span>
+                <span data-i18n="nav.community">Cộng đồng</span>
               </span>
             </div>
             <div class="sidebar-sub-list">
-              <button class="sidebar-sub-item" onclick="alert('Diễn đàn đang phát triển!')" style="width: 100%; border: none; background: none; cursor: pointer;">Diễn đàn</button>
-              <button class="sidebar-sub-item" onclick="alert('Nhóm dịch đang phát triển!')" style="width: 100%; border: none; background: none; cursor: pointer;">Nhóm dịch</button>
+              <button class="sidebar-sub-item" onclick="showToast('Diễn đàn đang phát triển!')" style="width: 100%; border: none; background: none; cursor: pointer;">Diễn đàn</button>
+              <button class="sidebar-sub-item" onclick="showToast('Nhóm dịch đang phát triển!')" style="width: 100%; border: none; background: none; cursor: pointer;">Nhóm dịch</button>
             </div>
           </div>
 
@@ -209,7 +214,7 @@
             <div class="sidebar-sub-list">
               <button id="nav-info-btn" class="sidebar-sub-item" style="width: 100%; border: none; background: none; cursor: pointer;">Giới thiệu</button>
               <button id="nav-admin-btn" class="sidebar-sub-item" style="display: none; width: 100%; border: none; background: none; cursor: pointer;">Bảng quản trị</button>
-              <button class="sidebar-sub-item" onclick="alert('Liên hệ: contact@manganpk.com')" style="width: 100%; border: none; background: none; cursor: pointer;">Liên hệ</button>
+              <button class="sidebar-sub-item" onclick="showToast('Liên hệ: contact@manganpk.com')" style="width: 100%; border: none; background: none; cursor: pointer;" data-i18n="nav.contact">Liên hệ</button>
             </div>
           </div>
 
@@ -222,7 +227,7 @@
 
       <!-- Auth Modal -->
       <div id="auth-modal" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0,0,0,0.75); backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center; z-index: 2000; padding: 20px;">
-        <div class="glass-card" style="width: 100%; max-width: 400px; padding: 32px; border-radius: var(--radius-lg); position: relative; background-color: #151A22; box-shadow: var(--shadow-lg);" onclick="event.stopPropagation()">
+        <div class="glass-card" style="width: 100%; max-width: 400px; padding: 32px; border-radius: var(--radius-lg); position: relative; background-color: var(--bg-card); box-shadow: var(--shadow-lg);" onclick="event.stopPropagation()">
           <button id="auth-modal-close" style="position: absolute; top: 20px; right: 20px; color: var(--text-muted); cursor: pointer;" title="Đóng">
             <i data-lucide="x" style="width: 20px; height: 20px;"></i>
           </button>
@@ -245,7 +250,7 @@
               <button type="submit" class="btn btn-primary" style="width: 100%; border-radius: 24px; margin-top: 16px; font-weight: 700;">Đăng Nhập</button>
             </form>
             <p style="text-align: center; font-size: 0.85rem; color: var(--text-muted); margin-top: 24px;">
-              Chưa có tài khoản? <span id="switch-to-register" style="color: #FF4552; cursor: pointer; font-weight: 600;">Đăng ký ngay</span>
+              Chưa có tài khoản? <span id="switch-to-register" style="color: var(--accent-primary); cursor: pointer; font-weight: 600;">Đăng ký ngay</span>
             </p>
           </div>
 
@@ -271,7 +276,7 @@
               <button type="submit" class="btn btn-primary" style="width: 100%; border-radius: 24px; margin-top: 16px; font-weight: 700;">Đăng Ký</button>
             </form>
             <p style="text-align: center; font-size: 0.85rem; color: var(--text-muted); margin-top: 24px;">
-              Đã có tài khoản? <span id="switch-to-login" style="color: #FF4552; cursor: pointer; font-weight: 600;">Đăng nhập</span>
+              Đã có tài khoản? <span id="switch-to-login" style="color: var(--accent-primary); cursor: pointer; font-weight: 600;">Đăng nhập</span>
             </p>
           </div>
         </div>
@@ -282,19 +287,19 @@
         
         <!-- Loading chapter -->
         <div id="reader-loading-spinner" style="display: flex; justify-content: center; align-items: center; min-height: 400px;">
-          <div class="loader" style="border: 4px solid rgba(255,255,255,0.1); border-top: 4px solid #FF4552; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite;"></div>
+          <div class="loader"></div>
         </div>
 
         <div id="reader-main-content" style="display: none; width: 100%; position: relative; flex: 1;">
           
           <!-- Chapter information header block inside the viewer -->
-          <div style="text-align: center; padding: 24px 16px 12px 16px; background-color: rgba(0,0,0,0.2);">
-            <h2 id="reader-manga-title-h2" style="font-size: 1.35rem; font-weight: 800; color: white; margin-bottom: 4px;">Tên truyện</h2>
+          <div style="text-align: center; padding: 24px 16px 12px 16px; background-color: var(--bg-reader-info);">
+            <h2 id="reader-manga-title-h2" style="font-size: 1.35rem; font-weight: 800; color: var(--text-bright); margin-bottom: 4px;">Tên truyện</h2>
             <p id="reader-chapter-title-p" style="font-size: 0.9rem; color: var(--text-muted);">Chương ...</p>
           </div>
 
           <!-- Divider line (Gạch ngang phân tách vùng trên và vùng dưới) -->
-          <div style="height: 1px; background-color: rgba(255,255,255,0.08); width: 100%;" id="reader-divider-line"></div>
+          <div style="height: 1px; background-color: var(--border-subtle); width: 100%;" id="reader-divider-line"></div>
 
           <!-- Interactive Full Click Overlay & Images Area -->
           <div id="reader-viewer-pane" style="position: relative; width: 100%; display: flex; flex-direction: column; align-items: center; margin: 0 auto; user-select: none;">
@@ -320,12 +325,12 @@
           </div>
 
           <!-- Bottom bar (Previous and Next chapter quick links) -->
-          <div style="background-color: #111319; border-top: 1px solid rgba(255,255,255,0.05); padding: 24px; display: flex; justify-content: center; align-items: center; gap: 15px;">
-            <button id="btn-bottom-prev" class="btn btn-secondary" style="border-radius: 20px; padding: 8px 24px; font-weight: 700;">
-              <i data-lucide="chevron-left" style="width: 16px; height: 16px;"></i> Chương Trước
+          <div class="reader-bottom-bar">
+            <button id="btn-bottom-prev" class="btn btn-secondary" style="border-radius: 20px; padding: 8px 24px; font-weight: 700;" data-i18n="reader.prev">
+              <i data-lucide="chevron-left" style="width: 16px; height: 16px;"></i> <span data-i18n="reader.prevChapter">Chương Trước</span>
             </button>
-            <button id="btn-bottom-next" class="btn btn-primary" style="border-radius: 20px; padding: 8px 24px; font-weight: 700;">
-              Chương Tiếp Theo <i data-lucide="chevron-right" style="width: 16px; height: 16px;"></i>
+            <button id="btn-bottom-next" class="btn btn-primary" style="border-radius: 20px; padding: 8px 24px; font-weight: 700;" data-i18n="reader.next">
+              <span data-i18n="reader.nextChapter">Chương Tiếp Theo</span> <i data-lucide="chevron-right" style="width: 16px; height: 16px;"></i>
             </button>
           </div>
 
@@ -336,7 +341,10 @@
     </div>
 
     <!-- Scripts -->
-    <script src="js/common.js?v=2.2"></script>
+    <script src="js/i18n.js?v=1.0"></script>
+    <script src="js/common-library.js?v=1.0"></script>
+    <script src="js/common-auth.js?v=1.0"></script>
+    <script src="js/common.js?v=5.5"></script>
     <script src="js/reader.js?v=2.2"></script>
     <style>
       @keyframes spin {

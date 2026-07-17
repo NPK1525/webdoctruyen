@@ -1,9 +1,14 @@
 // Home variables
 let genresList = [];
+let themesList = [];
 let mangas = [];
 let searchVal = '';
 let selectedType = 'All';
 let selectedGenreId = null;
+let selectedThemeId = null;
+let selectedStatus = '';
+let selectedDemographic = '';
+let selectedFormat = '';
 let page = 1;
 const pageSize = 12;
 let totalCount = 0;
@@ -26,11 +31,13 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // Pre-load filters UI
   initFiltersUI();
-  
+
   // Fetch initial data
   await fetchGenres();
+  await fetchThemes();
   await fetchFeaturedMangas();
   await fetchMangas();
+  initAdvancedFilters();
 });
 
 // Callback from common.js search trigger
@@ -60,7 +67,7 @@ async function fetchFeaturedMangas() {
     if (res.ok) {
       const data = await res.json();
       featuredMangas = data;
-      
+
       if (featuredMangas.length > 0) {
         renderFeaturedSlider();
         startFeaturedSlider();
@@ -71,12 +78,26 @@ async function fetchFeaturedMangas() {
   }
 }
 
+// Themes fetching
+async function fetchThemes() {
+  try {
+    const res = await fetch(`${API_BASE}/theme`);
+    if (res.ok) {
+      themesList = await res.json();
+      renderThemesDropdown();
+    }
+  } catch (e) {
+    console.error("Error fetching themes:", e);
+  }
+}
+
 // Mangas fetching
 async function fetchMangas() {
   loading = true;
   toggleLoadingState(true);
-  
+
   try {
+    // Tạo URL gọi API theo bộ lọc hiện tại của trang chủ.
     let url = `${API_BASE}/manga?page=${page}&pageSize=${pageSize}`;
     if (selectedType !== 'All') {
       const typeInt = selectedType === 'Manga' ? 0 : selectedType === 'Manhwa' ? 1 : 2;
@@ -85,6 +106,18 @@ async function fetchMangas() {
     if (selectedGenreId !== null) {
       url += `&genreId=${selectedGenreId}`;
     }
+    if (selectedThemeId !== null) {
+      url += `&themeId=${selectedThemeId}`;
+    }
+    if (selectedStatus !== '') {
+      url += `&status=${selectedStatus}`;
+    }
+    if (selectedDemographic !== '') {
+      url += `&demographic=${selectedDemographic}`;
+    }
+    if (selectedFormat !== '') {
+      url += `&format=${selectedFormat}`;
+    }
     if (searchVal.trim() !== '') {
       url += `&search=${encodeURIComponent(searchVal)}`;
     }
@@ -92,10 +125,10 @@ async function fetchMangas() {
     const res = await fetch(url);
     if (res.ok) {
       const data = await res.json();
+      // Lưu dữ liệu trả về rồi render lại carousel và danh sách cập nhật mới nhất.
       mangas = data.items;
       totalCount = data.totalCount;
       renderMangaGrid();
-      renderPagination();
     }
   } catch (e) {
     console.error("Error fetching mangas list:", e);
@@ -107,20 +140,9 @@ async function fetchMangas() {
 
 function toggleLoadingState(isLoading) {
   const placeholder = document.getElementById('manga-loading-placeholder');
-  const grid = document.getElementById('manga-grid-container');
-  const pagination = document.getElementById('pagination-container');
-
-  if (placeholder && grid && pagination) {
-    if (isLoading) {
-      placeholder.style.display = 'flex';
-      grid.style.display = 'none';
-      pagination.style.display = 'none';
-    } else {
-      placeholder.style.display = 'none';
-      grid.style.display = 'grid';
-      pagination.style.display = 'flex';
-    }
-  }
+  const swiperView = document.getElementById('manga-swiper-view');
+  if (placeholder) placeholder.style.display = isLoading ? 'flex' : 'none';
+  if (swiperView) swiperView.style.display = isLoading ? 'none' : 'block';
 }
 
 // Render genres dropdown
@@ -143,12 +165,12 @@ function renderGenresDropdown() {
 
       const gIdStr = e.currentTarget.dataset.genreId;
       selectedGenreId = (gIdStr === 'null' || !gIdStr) ? null : Number(gIdStr);
-      
+
       const label = document.getElementById('current-genre-label');
       if (label) {
-        label.textContent = selectedGenreId 
-          ? (genresList.find(g => g.id === selectedGenreId)?.name || 'Thể loại') 
-          : 'Thể loại';
+        label.textContent = selectedGenreId
+          ? (genresList.find(g => g.id === selectedGenreId)?.name || t('filter.genre', 'Thể loại'))
+          : t('filter.genre', 'Thể loại');
       }
 
       page = 1;
@@ -176,9 +198,15 @@ function stopFeaturedSlider() {
 }
 
 function getTypeBadgeClass(type) {
-  if (type === 'Manga') return 'badge badge-manga';
-  if (type === 'Manhwa') return 'badge badge-manhwa';
+  if (type === 'Manga' || type === 0) return 'badge badge-manga';
+  if (type === 'Manhwa' || type === 1) return 'badge badge-manhwa';
   return 'badge badge-manhua';
+}
+
+function getTypeLabel(type) {
+  if (type === 'Manga' || type === 0) return 'Manga';
+  if (type === 'Manhwa' || type === 1) return 'Manhwa';
+  return 'Manhua';
 }
 
 function renderFeaturedSlider() {
@@ -186,7 +214,7 @@ function renderFeaturedSlider() {
   if (!container || featuredMangas.length === 0) return;
 
   const manga = featuredMangas[currentSlideIndex];
-  
+
   const demographicMap = { 0: '', 1: 'Shounen', 2: 'Shoujo', 3: 'Seinen', 4: 'Josei' };
   const demographicText = manga.demographic ? (demographicMap[manga.demographic] || '') : '';
 
@@ -194,20 +222,21 @@ function renderFeaturedSlider() {
     <span class="featured-slider-badge-genre">${g}</span>
   `).join(' ') : '';
 
-  const authorNames = manga.authors && manga.authors.length > 0 
-    ? manga.authors.map(a => a.name).join(', ') 
-    : 'Đang cập nhật';
+  const authorNames = manga.authors && manga.authors.length > 0
+    ? manga.authors.map(a => a.name).join(', ')
+    : t('common.updating', 'Đang cập nhật');
 
   container.innerHTML = `
     <div class="featured-slider-card animate-fade-only">
       <!-- Background blurred cover -->
       <img class="featured-slider-bg" src="${manga.coverUrl}" alt="" />
+      <div class="banner-blur-overlay"></div>
       <div class="featured-slider-overlay"></div>
 
       <!-- Centered Content Wrapper -->
       <div class="container" style="position: relative; z-index: 3; height: 100%; display: flex; flex-direction: column; justify-content: flex-start; padding-top: 85px; padding-bottom: 24px;">
         <h3 class="section-title" style="margin-bottom: 16px; margin-top: 0; color: white;">Popular New Titles</h3>
-        
+
         <div class="featured-slider-content ${slideDirection === 'right' ? 'animate-slide-right' : 'animate-slide-left'}">
           <!-- Left: Cover Image -->
           <div class="featured-slider-cover-wrapper" id="slider-manga-cover">
@@ -218,24 +247,24 @@ function renderFeaturedSlider() {
           <div class="featured-slider-info">
             <div class="featured-slider-info-top">
               <h2 class="featured-slider-title" id="slider-manga-title">${manga.title}</h2>
-              
+
               <div class="featured-slider-badges">
                 <span class="${getTypeBadgeClass(manga.type)}" style="padding: 2px 8px; font-size: 0.68rem; line-height: 1;">${manga.type}</span>
                 ${demographicText ? `<span class="featured-slider-badge-genre" style="background-color: rgba(255, 140, 0, 0.15); border-color: rgba(255, 140, 0, 0.3); color: #FF8C00;">${demographicText}</span>` : ''}
                 ${genresBadge}
               </div>
 
-              <p class="featured-slider-desc">${manga.description || 'Chưa có tóm tắt cho truyện này.'}</p>
+              <p class="featured-slider-desc">${manga.description || t('common.noDescription', 'Chưa có tóm tắt cho truyện này.')}</p>
             </div>
 
             <div class="featured-slider-info-bottom">
               <div class="featured-slider-author">${authorNames}</div>
               <div class="featured-slider-nav">
                 <span class="featured-slider-nav-number">NO. ${currentSlideIndex + 1}</span>
-                <button id="slider-prev-btn" class="featured-slider-nav-btn" title="Trở lại">
+                <button id="slider-prev-btn" class="featured-slider-nav-btn" title="${t('slider.prev', 'Trở lại')}">
                   <i data-lucide="chevron-left" style="width: 16px; height: 16px;"></i>
                 </button>
-                <button id="slider-next-btn" class="featured-slider-nav-btn" title="Tiếp theo">
+                <button id="slider-next-btn" class="featured-slider-nav-btn" title="${t('slider.next', 'Tiếp theo')}">
                   <i data-lucide="chevron-right" style="width: 16px; height: 16px;"></i>
                 </button>
               </div>
@@ -272,6 +301,142 @@ function renderFeaturedSlider() {
   if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 
+// Render themes dropdown
+function renderThemesDropdown() {
+  const container = document.getElementById('themes-list-container');
+  if (!container) return;
+
+  container.innerHTML = themesList.map(theme => `
+    <div class="dropdown-item ${selectedThemeId === theme.id ? 'active' : ''}" data-theme-id="${theme.id}">
+      ${theme.name}
+    </div>
+  `).join('');
+
+  document.querySelectorAll('#theme-select-options .dropdown-item').forEach(item => {
+    item.addEventListener('click', (e) => {
+      document.querySelectorAll('#theme-select-options .dropdown-item').forEach(i => i.classList.remove('active'));
+      e.currentTarget.classList.add('active');
+
+      const tIdStr = e.currentTarget.dataset.themeId;
+      selectedThemeId = (tIdStr === 'null' || !tIdStr) ? null : Number(tIdStr);
+
+      const label = document.getElementById('current-theme-label');
+      if (label) {
+        label.textContent = selectedThemeId
+          ? (themesList.find(th => th.id === selectedThemeId)?.name || t('filter.theme', 'Chủ đề'))
+          : t('filter.theme', 'Chủ đề');
+      }
+
+      page = 1;
+      fetchMangas();
+    });
+  });
+}
+
+// Advanced filters initialization
+function initAdvancedFilters() {
+  // Status filter
+  const statusEl = document.getElementById('filter-status');
+  if (statusEl) {
+    statusEl.addEventListener('change', () => {
+      selectedStatus = statusEl.value;
+      page = 1;
+      fetchMangas();
+    });
+  }
+
+  // Demographic filter
+  const demoEl = document.getElementById('filter-demographic');
+  if (demoEl) {
+    demoEl.addEventListener('change', () => {
+      selectedDemographic = demoEl.value;
+      page = 1;
+      fetchMangas();
+    });
+  }
+
+  // Format filter
+  const formatEl = document.getElementById('filter-format');
+  if (formatEl) {
+    formatEl.addEventListener('change', () => {
+      selectedFormat = formatEl.value;
+      page = 1;
+      fetchMangas();
+    });
+  }
+
+  // Theme dropdown toggle
+  const themeTrigger = document.getElementById('theme-select-trigger');
+  const themeOptions = document.getElementById('theme-select-options');
+  const themeChevron = document.getElementById('theme-dropdown-chevron');
+
+  if (themeTrigger && themeOptions) {
+    themeTrigger.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const isHidden = themeOptions.style.display === 'none';
+      themeOptions.style.display = isHidden ? 'block' : 'none';
+      if (themeChevron) themeChevron.style.transform = isHidden ? 'rotate(90deg)' : 'rotate(-90deg)';
+    });
+
+    document.addEventListener('click', () => {
+      themeOptions.style.display = 'none';
+      if (themeChevron) themeChevron.style.transform = 'rotate(-90deg)';
+    });
+  }
+
+  // Clear filters button
+  const clearBtn = document.getElementById('clear-filters-btn');
+  if (clearBtn) {
+    clearBtn.addEventListener('click', clearAllFilters);
+  }
+}
+
+function clearAllFilters() {
+  selectedType = 'All';
+  selectedGenreId = null;
+  selectedThemeId = null;
+  selectedStatus = '';
+  selectedDemographic = '';
+  selectedFormat = '';
+  searchVal = '';
+  page = 1;
+
+  // Reset type buttons
+  document.querySelectorAll('.type-filter-btn').forEach(b => {
+    b.classList.remove('active');
+    b.style.backgroundColor = 'transparent';
+    b.style.color = 'var(--text-muted)';
+  });
+  const allBtn = document.querySelector('.type-filter-btn[data-type="All"]');
+  if (allBtn) {
+    allBtn.classList.add('active');
+    allBtn.style.backgroundColor = 'var(--accent-primary)';
+    allBtn.style.color = 'white';
+  }
+
+  // Reset genre label
+  const genreLabel = document.getElementById('current-genre-label');
+  if (genreLabel) genreLabel.textContent = t('filter.genre', 'Thể loại');
+  document.querySelectorAll('#genre-select-options .dropdown-item').forEach(i => i.classList.remove('active'));
+  const allGenreItem = document.querySelector('#genre-select-options .dropdown-item[data-genre-id="null"]');
+  if (allGenreItem) allGenreItem.classList.add('active');
+
+  // Reset theme label
+  const themeLabel = document.getElementById('current-theme-label');
+  if (themeLabel) themeLabel.textContent = t('filter.theme', 'Chủ đề');
+  document.querySelectorAll('#theme-select-options .dropdown-item').forEach(i => i.classList.remove('active'));
+  const allThemeItem = document.querySelector('#theme-select-options .dropdown-item[data-theme-id="null"]');
+  if (allThemeItem) allThemeItem.classList.add('active');
+
+  // Reset selects
+  document.getElementById('filter-status') && (document.getElementById('filter-status').value = '');
+  document.getElementById('filter-demographic') && (document.getElementById('filter-demographic').value = '');
+  document.getElementById('filter-format') && (document.getElementById('filter-format').value = '');
+  document.getElementById('header-search-input') && (document.getElementById('header-search-input').value = '');
+
+  fetchMangas();
+}
+
 // Filters triggers init
 function initFiltersUI() {
   // Filters dropdown toggle
@@ -303,10 +468,10 @@ function initFiltersUI() {
         b.style.backgroundColor = 'transparent';
         b.style.color = 'var(--text-muted)';
       });
-      
+
       const target = e.currentTarget;
       target.classList.add('active');
-      target.style.backgroundColor = '#FF4552';
+      target.style.backgroundColor = 'var(--accent-primary)';
       target.style.color = 'white';
 
       selectedType = target.dataset.type || 'All';
@@ -316,119 +481,109 @@ function initFiltersUI() {
   });
 }
 
-// Render Manga List Grid
+// Swiper instance
+let mangaSwiperInstance = null;
+
 function renderMangaGrid() {
-  const container = document.getElementById('manga-grid-container');
-  if (!container) return;
+  // Container này là swiper-wrapper ngoài trang chủ, nơi từng card truyện được đổ vào.
+  const swiperWrapper = document.getElementById('manga-grid-container');
+  if (!swiperWrapper) return;
+
+  const cardHTML = (m) => `
+    <div class="glass-card manga-card" style="display:flex;flex-direction:column;overflow:hidden;border-radius:var(--radius-md);cursor:pointer;" data-manga-id="${m.id}">
+      <div style="position:relative;aspect-ratio:2/3;overflow:hidden;border-radius:var(--radius-md);">
+        <img src="${m.coverUrl || ''}" alt="${m.title}" style="width:100%;height:100%;object-fit:cover;" loading="lazy" />
+        <span class="${getTypeBadgeClass(m.type)}" style="position:absolute;top:8px;left:8px;font-size:0.65rem;">${getTypeLabel(m.type)}</span>
+      </div>
+      <div style="padding:8px 6px 6px;">
+        <h4 style="font-size:0.85rem;font-weight:700;color:var(--text-main);margin:0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;line-height:1.3;">${m.title}</h4>
+      </div>
+    </div>`;
 
   if (mangas.length === 0) {
-    container.innerHTML = `
-      <div style="grid-column: 1 / -1; text-align: center; color: var(--text-muted); padding: 40px 0;">
-        Không tìm thấy truyện tranh phù hợp.
-      </div>
-    `;
-    return;
+    swiperWrapper.innerHTML = `<div class="swiper-slide" style="text-align:center;color:var(--text-muted);padding:40px 0;">Không tìm thấy truyện tranh phù hợp.</div>`;
+  } else {
+    swiperWrapper.innerHTML = mangas.map(m => `<div class="swiper-slide">${cardHTML(m)}</div>`).join('');
   }
 
-  container.innerHTML = mangas.map(m => {
-    const chaptersMarkup = m.latestChapters.slice(0, 2).map(c => `
-      <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; border-top: 1px solid rgba(255,255,255,0.03); padding-top: 8px; margin-top: 6px;">
-        <a href="/chapter/${c.id}" class="chapter-link" style="color: white; font-weight: 600; cursor: pointer; transition: color 0.15s;">Chương ${c.chapterNumber}</a>
-        <span style="color: var(--text-muted); font-size: 0.75rem;">${new Date(c.uploadedAt).toLocaleDateString('vi-VN')}</span>
-      </div>
-    `).join('');
+  if (mangaSwiperInstance) { mangaSwiperInstance.destroy(true, true); mangaSwiperInstance = null; }
 
-    return `
-      <div class="glass-card manga-card" style="display: flex; flex-direction: column; overflow: hidden; border-radius: var(--radius-md); padding: 12px;">
-        <div style="position: relative; height: 220px; overflow: hidden; border-radius: var(--radius-sm); cursor: pointer;" class="card-cover" data-manga-id="${m.id}">
-          <img src="${m.coverUrl}" alt="${m.title}" style="width: 100%; height: 100%; object-fit: cover;" />
-          <span class="${getTypeBadgeClass(m.type)}" style="position: absolute; top: 10px; left: 10px;">${m.type}</span>
-        </div>
-        
-        <div style="padding: 12px 4px 4px 4px; display: flex; flex-direction: column; flex: 1;">
-          <h4 class="manga-title" data-manga-id="${m.id}" style="font-size: 1rem; font-weight: 700; color: white; margin: 0 0 6px 0; cursor: pointer; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; transition: color 0.15s;">
-            ${m.title}
-          </h4>
-          <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 12px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; height: 36px;">
-            ${m.description || 'Chưa có mô tả.'}
-          </p>
-          <div style="margin-top: auto;">${chaptersMarkup}</div>
-        </div>
-      </div>
-    `;
-  }).join('');
-
-  // Attach card navigation
-  document.querySelectorAll('.card-cover, .manga-title').forEach(el => {
-    el.addEventListener('click', (e) => {
-      const mId = e.currentTarget.dataset.mangaId;
-      if (mId) {
-        window.location.href = `/manga/${mId}`;
+  if (typeof Swiper !== 'undefined') {
+    mangaSwiperInstance = new Swiper('.manga-swiper', {
+      slidesPerView: 2,
+      spaceBetween: 12,
+      loop: true,
+      autoplay: { delay: 2500, disableOnInteraction: false, pauseOnMouseEnter: true },
+      pagination: { el: '.swiper-pagination', clickable: true },
+      navigation: {
+        nextEl: '.swiper-button-next',
+        prevEl: '.swiper-button-prev',
+      },
+      grabCursor: true,
+      breakpoints: {
+        480:  { slidesPerView: 3, spaceBetween: 12 },
+        768:  { slidesPerView: 4, spaceBetween: 16 },
+        1024: { slidesPerView: 5, spaceBetween: 18 },
+        1280: { slidesPerView: 6, spaceBetween: 20 },
       }
+    });
+  }
+
+  document.querySelectorAll('.manga-card[data-manga-id]').forEach(card => {
+    card.addEventListener('click', () => {
+      window.location.href = `/manga/${card.dataset.mangaId}`;
     });
   });
 
-  // Adding hover style fixes
-  document.querySelectorAll('.chapter-link').forEach(el => {
-    el.addEventListener('mouseover', (e) => e.target.style.color = '#FF8C00');
-    el.addEventListener('mouseout', (e) => e.target.style.color = 'white');
-  });
-  
-  document.querySelectorAll('.manga-title').forEach(el => {
-    el.addEventListener('mouseover', (e) => e.target.style.color = '#FF8C00');
-    el.addEventListener('mouseout', (e) => e.target.style.color = 'white');
-  });
+  // Render Latest Updates
+  renderLatestUpdates();
 }
 
-// Render Pagination
-function renderPagination() {
-  const pageLabel = document.getElementById('page-number-label');
-  const prevBtn = document.getElementById('prev-page-btn');
-  const nextBtn = document.getElementById('next-page-btn');
-  const totalPages = Math.ceil(totalCount / pageSize) || 1;
 
-  if (pageLabel) pageLabel.textContent = `Trang ${page} / ${totalPages}`;
 
-  if (prevBtn) {
-    if (page === 1) {
-      prevBtn.disabled = true;
-      prevBtn.style.opacity = '0.5';
-      prevBtn.style.cursor = 'not-allowed';
-    } else {
-      prevBtn.disabled = false;
-      prevBtn.style.opacity = '1';
-      prevBtn.style.cursor = 'pointer';
-    }
+
+// ========== LATEST UPDATES ==========
+function renderLatestUpdates() {
+  const container = document.getElementById('latest-updates-container');
+  if (!container) return;
+
+  if (!mangas || mangas.length === 0) {
+    container.innerHTML = `<div class="latest-update-empty">${t('common.noData', 'Chưa có truyện để hiển thị.')}</div>`;
+    return;
   }
 
-  if (nextBtn) {
-    if (page >= totalPages) {
-      nextBtn.disabled = true;
-      nextBtn.style.opacity = '0.5';
-      nextBtn.style.cursor = 'not-allowed';
-    } else {
-      nextBtn.disabled = false;
-      nextBtn.style.opacity = '1';
-      nextBtn.style.cursor = 'pointer';
-    }
-  }
+  const items = [...mangas]
+    .map(m => ({ ...m, latest: (m.latestChapters || [])[0] || null }))
+    .sort((a, b) => {
+      const aTime = a.latest?.uploadedAt ? new Date(a.latest.uploadedAt).getTime() : 0;
+      const bTime = b.latest?.uploadedAt ? new Date(b.latest.uploadedAt).getTime() : 0;
+      return bTime - aTime;
+    });
+
+  container.innerHTML = `<div class="latest-updates-list">${items.map(m => {
+    const latest = m.latest;
+    const dateText = latest?.uploadedAt ? new Date(latest.uploadedAt).toLocaleDateString('vi-VN') : '';
+    return `
+      <div class="latest-update-item" data-manga-id="${m.id}">
+        <img class="latest-update-cover" src="${m.coverUrl || MOCK_WHITE_IMAGE}" alt="${m.title}" loading="lazy" />
+        <div class="latest-update-info">
+          <p class="latest-update-title">${m.title}</p>
+          <div class="latest-update-meta">
+            ${latest
+              ? `<a class="latest-update-chapter" href="/chapter/${latest.id}" onclick="event.stopPropagation()">${t('common.chapter', 'Chương')} ${latest.chapterNumber}</a>
+                 <span>${dateText}</span>`
+              : `<span>${t('detail.noChapters', 'Chưa có chương')}</span>`
+            }
+          </div>
+        </div>
+        <span class="${getTypeBadgeClass(m.type)}" style="font-size:0.65rem;flex-shrink:0;">${getTypeLabel(m.type)}</span>
+      </div>`;
+  }).join('')}</div>`;
+
+  container.querySelectorAll('.latest-update-item').forEach(item => {
+    item.addEventListener('click', () => {
+      window.location.href = `/manga/${item.dataset.mangaId}`;
+    });
+  });
+  if (typeof lucide !== 'undefined') lucide.createIcons();
 }
-
-// Attach Pagination clicks
-document.getElementById('prev-page-btn')?.addEventListener('click', () => {
-  if (page > 1) {
-    page--;
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    fetchMangas();
-  }
-});
-
-document.getElementById('next-page-btn')?.addEventListener('click', () => {
-  const totalPages = Math.ceil(totalCount / pageSize);
-  if (page < totalPages) {
-    page++;
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    fetchMangas();
-  }
-});
-

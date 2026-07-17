@@ -1,9 +1,8 @@
 using MangaNPK.Data;
 using MangaNPK.Models;
+using MangaNPK.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Security.Cryptography;
-using System.Text;
 
 namespace MangaNPK.Controllers
 {
@@ -27,23 +26,31 @@ namespace MangaNPK.Controllers
         {
             if (string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(password))
             {
-                ViewBag.Error = "Vui lòng nhập tên đăng nhập và mật khẩu.";
+                ViewBag.Error = "Vui lòng nhập tên đăng nhập/email và mật khẩu.";
                 return View();
             }
 
-            var hash = HashPassword(password);
-            var user = await _context.Users
-                .FirstOrDefaultAsync(u => u.Username.ToLower() == username.Trim().ToLower() && u.PasswordHash == hash);
+            var loginClean = username.Trim().ToLowerInvariant();
 
-            if (user == null)
+#pragma warning disable CA1862
+            var user = await _context.Users.FirstOrDefaultAsync(u =>
+                u.Username.ToLower() == loginClean || u.Email.ToLower() == loginClean);
+#pragma warning restore CA1862
+
+            if (user == null || !AuthService.VerifyPassword(password, user.PasswordHash))
             {
-                ViewBag.Error = "Tên đăng nhập hoặc mật khẩu không chính xác!";
+                ViewBag.Error = "Tên đăng nhập/email hoặc mật khẩu không chính xác.";
                 return View();
             }
 
-            HttpContext.Session.SetString("Username", user.Username);
-            HttpContext.Session.SetString("Role", user.Role);
-            HttpContext.Session.SetInt32("UserId", user.Id);
+            // Automatically upgrade legacy SHA-256 hash to BCrypt on next login
+            if (AuthService.IsLegacyHash(user.PasswordHash))
+            {
+                user.PasswordHash = AuthService.HashPassword(password);
+                await _context.SaveChangesAsync();
+            }
+
+            SetUserSession(user);
 
             if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
                 return Redirect(returnUrl);
@@ -63,9 +70,24 @@ namespace MangaNPK.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Register(string username, string email, string password, string confirmPassword)
         {
-            if (string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(password))
+            var usernameClean = (username ?? string.Empty).Trim();
+            var emailClean = (email ?? string.Empty).Trim().ToLowerInvariant();
+
+            if (!AuthService.IsValidUsername(usernameClean))
             {
-                ViewBag.Error = "Tên đăng nhập và mật khẩu không được trống.";
+                ViewBag.Error = "Tên đăng nhập phải dài 3-24 ký tự và chỉ gồm chữ, số, dấu gạch dưới hoặc gạch ngang.";
+                return View();
+            }
+
+            if (!AuthService.IsValidEmail(emailClean))
+            {
+                ViewBag.Error = "Vui lòng nhập email hợp lệ.";
+                return View();
+            }
+
+            if (!AuthService.IsValidPassword(password))
+            {
+                ViewBag.Error = "Mật khẩu phải có ít nhất 8 ký tự, gồm chữ và số.";
                 return View();
             }
 
@@ -75,17 +97,27 @@ namespace MangaNPK.Controllers
                 return View();
             }
 
-            if (await _context.Users.AnyAsync(u => u.Username.ToLower() == username.Trim().ToLower()))
+#pragma warning disable CA1862
+            if (await _context.Users.AnyAsync(u => u.Username.ToLower() == usernameClean.ToLower()))
+#pragma warning restore CA1862
             {
-                ViewBag.Error = "Tài khoản đã tồn tại trong hệ thống.";
+                ViewBag.Error = "Tên đăng nhập đã tồn tại.";
+                return View();
+            }
+
+#pragma warning disable CA1862
+            if (await _context.Users.AnyAsync(u => u.Email.ToLower() == emailClean))
+#pragma warning restore CA1862
+            {
+                ViewBag.Error = "Email đã được sử dụng.";
                 return View();
             }
 
             var user = new User
             {
-                Username = username.Trim(),
-                Email = email?.Trim() ?? string.Empty,
-                PasswordHash = HashPassword(password),
+                Username = usernameClean,
+                Email = emailClean,
+                PasswordHash = AuthService.HashPassword(password),
                 Role = await _context.Users.AnyAsync() ? "User" : "Admin",
                 CreatedAt = DateTime.UtcNow
             };
@@ -93,9 +125,7 @@ namespace MangaNPK.Controllers
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
 
-            HttpContext.Session.SetString("Username", user.Username);
-            HttpContext.Session.SetString("Role", user.Role);
-            HttpContext.Session.SetInt32("UserId", user.Id);
+            SetUserSession(user);
 
             return RedirectToAction("Index", "Home");
         }
@@ -107,10 +137,11 @@ namespace MangaNPK.Controllers
             return RedirectToAction("Index", "Home");
         }
 
-        private static string HashPassword(string password)
+        private void SetUserSession(User user)
         {
-            var bytes = SHA256.HashData(Encoding.UTF8.GetBytes(password));
-            return Convert.ToHexString(bytes).ToLower();
+            HttpContext.Session.SetString("Username", user.Username);
+            HttpContext.Session.SetString("Role", user.Role);
+            HttpContext.Session.SetInt32("UserId", user.Id);
         }
     }
 }

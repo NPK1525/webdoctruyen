@@ -5,8 +5,8 @@
       "name": "Chạy Dự Án (F5)",
       "type": "coreclr",
       "request": "launch",
-      "preLaunchTask": "prepare-all",
-      "program": "${workspaceFolder}/backend/bin/Debug/net10.0/backend.dll",
+      "preLaunchTask": "build-backend",
+      "program": "${workspaceFolder}/backend/bin/Debug/net10.0/MangaNPK.dll",
       "args": [],
       "cwd": "${workspaceFolder}/backend",
       "stopAtEntry": false,
@@ -16,8 +16,8 @@
       },
       "serverReadyAction": {
         "action": "openExternally",
-        "pattern": "Now listening on:\\s+(https?://localhost):\\d+",
-        "uriFormat": "%s:5000/index.html"
+        "pattern": "Now listening on:\\s+(https?://\\S+)",
+        "uriFormat": "%s"
       }
     }
   ]

@@ -2,16 +2,19 @@ namespace MangaNPK.Models
 {
     public enum MangaType
     {
-        Manga = 0,   // Nhật Bản
-        Manhwa = 1,  // Hàn Quốc
-        Manhua = 2   // Trung Quốc
+        Manga = 0,   // Nhat Ban
+        Manhwa = 1,  // Han Quoc
+        Manhua = 2,  // Trung Quoc
+        Webtoon = 3,
+        Comic = 4
     }
 
     public enum MangaStatus
     {
-        Ongoing = 0,    // Đang tiến hành
-        Completed = 1,  // Đã hoàn thành
-        Hiatus = 2      // Tạm ngưng
+        Ongoing = 0,    // Dang tien hanh
+        Completed = 1,  // Da hoan thanh
+        Hiatus = 2,     // Tam ngung
+        Cancelled = 3
     }
 
     public enum MangaDemographic
@@ -31,5 +34,21 @@ namespace MangaNPK.Models
         OneShot = 3,
         Comic = 4,
         Book = 5
+    }
+
+    public enum TitleDraftReviewStatus
+    {
+        Draft = 0,
+        Pending = 1,
+        Approved = 2,
+        Rejected = 3
+    }
+
+    public enum MangaAgeRating
+    {
+        AllAges = 0,
+        Teen13 = 1,
+        Teen16 = 2,
+        Adult18 = 3
     }
 }

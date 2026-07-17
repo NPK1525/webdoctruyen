@@ -12,51 +12,9 @@ namespace MangaNPK.Controllers
 
         // GET /manga
         [HttpGet("")]
-        public async Task<IActionResult> Index(
-            MangaType? type = null,
-            int? genreId = null,
-            MangaDemographic? demographic = null,
-            string? search = null,
-            int page = 1)
+        public IActionResult Index()
         {
-            int pageSize = 16;
-            var query = _context.Mangas
-                .Include(m => m.MangaGenres).ThenInclude(mg => mg.Genre)
-                .Include(m => m.Chapters)
-                .AsQueryable();
-
-            if (type.HasValue)
-                query = query.Where(m => m.Type == type.Value);
-
-            if (genreId.HasValue)
-                query = query.Where(m => m.MangaGenres.Any(mg => mg.GenreId == genreId.Value));
-
-            if (demographic.HasValue)
-                query = query.Where(m => m.Demographic == demographic.Value);
-
-            if (!string.IsNullOrWhiteSpace(search))
-            {
-                var s = search.Trim();
-                query = query.Where(m => m.Title.Contains(s) || m.AlternativeTitle.Contains(s));
-            }
-
-            var totalCount = await query.CountAsync();
-            var mangas = await query
-                .OrderByDescending(m => m.CreatedAt)
-                .Skip((page - 1) * pageSize)
-                .Take(pageSize)
-                .ToListAsync();
-
-            ViewBag.Genres = await _context.Genres.OrderBy(g => g.Name).ToListAsync();
-            ViewBag.TotalCount = totalCount;
-            ViewBag.Page = page;
-            ViewBag.PageSize = pageSize;
-            ViewBag.Search = search;
-            ViewBag.SelectedType = type;
-            ViewBag.SelectedGenreId = genreId;
-            ViewBag.SelectedDemographic = demographic;
-
-            return View(mangas);
+            return View();
         }
 
         // GET /manga/{id}
@@ -82,6 +40,9 @@ namespace MangaNPK.Controllers
                 .ToListAsync();
 
             ViewBag.Recommendations = recommendations;
+            var userId = HttpContext.Session.GetInt32("UserId");
+            ViewBag.CanManageChapters = string.Equals(HttpContext.Session.GetString("Role"), "Admin", StringComparison.OrdinalIgnoreCase)
+                || (userId.HasValue && await _context.MangaContributors.AsNoTracking().AnyAsync(c => c.MangaId == id && c.UserId == userId.Value));
             return View(manga);
         }
     }

@@ -1,0 +1,68 @@
+@{
+    Layout = null;
+    var isAuthenticated = ViewBag.IsAuthenticated is true;
+    var updatesJson = ViewBag.UpdatesJson as string ?? "[]";
+}
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cập nhật đang theo dõi - MangaNPK</title>
+    <link rel="stylesheet" href="/css/style.css?v=4.9" />
+    <script src="https://unpkg.com/lucide@latest"></script>
+  </head>
+  <body class="library-page updates-page">
+    <div id="root">
+      @await Html.PartialAsync("_Header")
+      @await Html.PartialAsync("_Sidebar")
+      @await Html.PartialAsync("_AuthModal")
+
+      <main id="main-layout" style="flex: 1; display: flex; flex-direction: column; width: 100%;">
+        <div class="library-shell history-shell updates-shell">
+          <div class="library-title-row">
+            <a href="/" class="library-back-btn" title="Quay lại"><i data-lucide="arrow-left"></i></a>
+            <h1>Cập nhật đang theo dõi</h1>
+          </div>
+
+          @if (isAuthenticated)
+          {
+            <div id="updates-content">
+              <div class="library-toolbar history-toolbar">
+                <h2 id="updates-count-label">0 Titles</h2>
+              </div>
+              <div id="updates-items" class="history-groups"></div>
+              <div id="updates-empty" class="library-empty" style="display: none;">Chưa có chương mới từ truyện đang theo dõi.</div>
+            </div>
+          }
+          else
+          {
+            <div class="library-login-prompt" style="display: grid;">
+              <i data-lucide="lock"></i>
+              <h2>Đăng nhập để xem cập nhật</h2>
+              <p>Trang này chỉ hiển thị chương mới từ những truyện có trong Thư viện của bạn.</p>
+              <button id="followed-updates-login-btn" class="btn btn-primary">Đăng nhập</button>
+            </div>
+          }
+        </div>
+      </main>
+    </div>
+
+    <script>
+      window.__LATEST_UPDATES__ = @Html.Raw(updatesJson);
+      window.__UPDATES_EMPTY_MESSAGE__ = 'Chưa có chương mới từ truyện đang theo dõi.';
+    </script>
+    <script src="/js/i18n.js?v=4.0"></script>
+    <script src="/js/common-library.js?v=1.0"></script>
+    <script src="/js/common-auth.js?v=1.0"></script>
+    <script src="/js/common.js?v=5.5"></script>
+    @if (isAuthenticated)
+    {
+      <script src="/js/updates.js?v=1.1"></script>
+    }
+    else
+    {
+      <script>document.getElementById('followed-updates-login-btn')?.addEventListener('click', () => openAuthModal('login'));</script>
+    }
+  </body>
+</html>

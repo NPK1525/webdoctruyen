@@ -1,0 +1,30 @@
+@using MangaNPK.Models
+@{
+    Layout = "_Layout";
+    var authors = ViewBag.Authors as List<Author> ?? [];
+    var genres = ViewBag.Genres as List<Genre> ?? [];
+    var themes = ViewBag.Themes as List<Theme> ?? [];
+}
+<main class="container" style="max-width:980px;padding:40px 16px;">
+  <section class="glass-card" style="padding:28px;">
+    <h1 style="margin:0 0 8px;">Đóng góp truyện</h1>
+    <p style="color:var(--text-muted);margin-top:0;">Truyện sẽ được Admin kiểm duyệt trước khi xuất hiện công khai.</p>
+    <form id="title-submission-form">
+      <div class="draft-grid two">
+        <label class="form-group"><span class="form-label">Tên truyện *</span><input id="title" class="form-control" required /></label>
+        <label class="form-group"><span class="form-label">Tên gốc</span><input id="originalTitle" class="form-control" /></label>
+      </div>
+      <label class="form-group"><span class="form-label">Mô tả *</span><textarea id="description" class="form-control" required style="min-height:130px;"></textarea></label>
+      <div class="draft-grid two">
+        <label class="form-group"><span class="form-label">Ảnh bìa *</span><input id="coverUrl" type="url" class="form-control" required /></label>
+        <label class="form-group"><span class="form-label">Format chính</span><select id="format" class="form-control"><option value="0">Không có</option><option value="1">Adaptation</option><option value="2">WebComic</option><option value="3">OneShot</option><option value="4">Comic</option><option value="5">Book</option></select></label>
+      </div>
+      <div class="form-group"><span class="form-label">Tác giả</span><div style="display:grid;grid-template-columns:2fr 1fr auto;gap:10px;"><select id="authorId" class="form-control"><option value="">-- Chọn tác giả --</option>@foreach (var author in authors) { <option value="@author.Id">@author.Name</option> }</select><select id="authorRole" class="form-control"><option>Story &amp; Art</option><option>Story</option><option>Art</option></select><button type="button" id="addAuthor" class="btn btn-secondary">Thêm</button></div><input id="newAuthor" class="form-control" placeholder="Hoặc nhập tác giả mới" style="margin-top:10px;" /><div id="authorList" class="taxonomy-chip-list" style="margin-top:10px;"></div></div>
+      <div class="form-group"><span class="form-label">Genre</span><div id="genreList" class="taxonomy-chip-grid">@foreach (var genre in genres) { <label class="taxonomy-chip"><input type="checkbox" value="@genre.Id" /><span>@genre.Name</span></label> }</div></div>
+      <div class="form-group"><span class="form-label">Theme</span><div id="themeList" class="taxonomy-chip-grid">@foreach (var theme in themes) { <label class="taxonomy-chip"><input type="checkbox" value="@theme.Id" /><span>@theme.Name</span></label> }</div></div>
+      <div class="form-group"><span class="form-label">Content Warning</span><div class="taxonomy-chip-list"><label class="taxonomy-chip warning-chip"><input type="checkbox" value="Gore" /><span>Gore</span></label><label class="taxonomy-chip warning-chip"><input type="checkbox" value="Sexual Violence" /><span>Sexual Violence</span></label></div></div>
+      <button class="btn btn-primary" type="submit">Gửi duyệt</button><span id="submission-message" style="margin-left:12px;color:var(--text-muted);"></span>
+    </form>
+  </section>
+</main>
+<script src="/js/title-submission.js?v=1.0"></script>

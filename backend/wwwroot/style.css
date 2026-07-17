@@ -16,7 +16,10 @@
   --accent-manga: #FF4552;       /* Japanese Manga - Red */
   --accent-manhwa: #10B981;      /* Korean Manhwa - Green */
   --accent-manhua: #3B82F6;      /* Chinese Manhua - Blue */
-  --accent-primary: #FF4552;     /* Default Main Accent */
+  --accent-primary: #FF8C00;     /* Brand accent */
+  --accent-primary-hover: #E67E00;
+  --accent-primary-soft: rgba(255, 140, 0, 0.15);
+  --accent-primary-border: rgba(255, 140, 0, 0.3);
   
   --bg-input: #1C2330;
   --bg-input-focus: #242E3F;
@@ -263,9 +266,9 @@ button {
 }
 
 .btn-primary:hover {
-  background-color: #E03541;
+  background-color: var(--accent-primary-hover);
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(255, 69, 82, 0.3);
+  box-shadow: 0 4px 12px var(--accent-primary-border);
 }
 
 .btn-secondary {
@@ -1113,12 +1116,12 @@ body.sidebar-open #sidebar-drawer {
 
 .sidebar-sub-item.active {
   color: white !important;
-  background-color: #FF4552 !important;
+  background-color: var(--accent-primary) !important;
 }
 
 /* Badge for Feed or Notice */
 .sidebar-badge-red {
-  background-color: #FF4552;
+  background-color: var(--accent-primary);
   color: white;
   font-size: 0.65rem;
   font-weight: 700;
@@ -1201,4 +1204,83 @@ body.sidebar-open #sidebar-drawer {
 .sidebar-payment-icon:hover {
   opacity: 0.9;
   filter: none;
+}
+
+/* ========== BRAND BUTTON COLOR NORMALIZATION ========== */
+.btn-primary,
+button.btn-primary,
+a.btn-primary,
+#header-register-btn,
+#lists-login-btn,
+#btn-create-list,
+#btn-save-list,
+#profile-login-btn,
+#btn-submit-comment,
+#btn-bottom-next,
+.btn-save-edit,
+.btn-continue-read,
+.type-filter-btn.active,
+.library-tab.active,
+.admin-tab-btn.active,
+.sidebar-sub-item.active,
+#sidebar-drawer .sidebar-sub-item.active {
+  background-color: var(--accent-primary) !important;
+  border-color: var(--accent-primary) !important;
+  color: #ffffff !important;
+}
+
+.btn-primary:hover,
+button.btn-primary:hover,
+a.btn-primary:hover,
+#header-register-btn:hover,
+#lists-login-btn:hover,
+#btn-create-list:hover,
+#btn-save-list:hover,
+#profile-login-btn:hover,
+#btn-submit-comment:hover,
+#btn-bottom-next:hover,
+.btn-save-edit:hover,
+.btn-continue-read:hover,
+.type-filter-btn.active:hover,
+.library-tab.active:hover,
+.admin-tab-btn.active:hover,
+.sidebar-sub-item.active:hover,
+#sidebar-drawer .sidebar-sub-item.active:hover {
+  background-color: var(--accent-primary-hover) !important;
+  border-color: var(--accent-primary-hover) !important;
+  color: #ffffff !important;
+}
+
+button:active,
+.btn:active,
+.md-btn:active,
+.type-filter-btn:active,
+.library-tab:active,
+.admin-tab-btn:active,
+.sidebar-sub-item:active {
+  transform: translateY(1px);
+}
+
+.dropdown-item.active,
+.swiper-pagination-bullet-active {
+  background-color: var(--accent-primary) !important;
+  color: #ffffff !important;
+}
+
+.form-control:focus,
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: var(--accent-primary) !important;
+}
+
+input[type="checkbox"],
+input[type="radio"] {
+  accent-color: var(--accent-primary) !important;
+}
+
+.accent,
+.header .section-title.link:hover,
+.header a.section-title:hover {
+  color: var(--accent-primary) !important;
 }

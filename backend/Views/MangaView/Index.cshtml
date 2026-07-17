@@ -1,84 +1,132 @@
-@model List<MangaNPK.Models.Manga>
-@{
-    ViewData["Title"] = "Thư viện";
-    var genres = ViewBag.Genres as List<MangaNPK.Models.Genre> ?? new();
-    int totalCount = ViewBag.TotalCount ?? 0;
-    int page = ViewBag.Page ?? 1;
-    int pageSize = ViewBag.PageSize ?? 16;
-    int totalPages = (int)Math.Ceiling((double)totalCount / pageSize);
-    string? search = ViewBag.Search;
-    MangaType? selectedType = ViewBag.SelectedType;
-    int? selectedGenreId = ViewBag.SelectedGenreId;
+﻿@{
+    Layout = null;
 }
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Advanced Search - MangaNPK</title>
+    <link rel="stylesheet" href="/css/style.css?v=4.9" />
+    <script src="https://unpkg.com/lucide@latest"></script>
+  </head>
+  <body class="library-page advanced-search-page">
+    <div id="root">
+      @await Html.PartialAsync("_Header")
+      @await Html.PartialAsync("_Sidebar")
+      @await Html.PartialAsync("_AuthModal")
 
-<div class="container py-4">
-    <h1 class="section-title mb-4">Thư viện</h1>
-
-    @* Filters *@
-    <form method="get" class="row g-2 mb-4">
-        <div class="col-12 col-md-4">
-            <input type="text" name="search" class="form-control" placeholder="Tìm kiếm tên manga..." value="@search" />
-        </div>
-        <div class="col-6 col-md-2">
-            <select name="type" class="form-select">
-                <option value="">Tất cả loại</option>
-                @foreach (MangaType t in Enum.GetValues<MangaType>())
-                {
-                    <option value="@((int)t)" selected="@(selectedType == t ? "selected" : null)">@t</option>
-                }
-            </select>
-        </div>
-        <div class="col-6 col-md-3">
-            <select name="genreId" class="form-select">
-                <option value="">Tất cả thể loại</option>
-                @foreach (var g in genres)
-                {
-                    <option value="@g.Id" selected="@(selectedGenreId == g.Id ? "selected" : null)">@g.Name</option>
-                }
-            </select>
-        </div>
-        <div class="col-auto">
-            <button type="submit" class="btn btn-primary">
-                <i class="bi bi-search me-1"></i>Lọc
+      <main id="main-layout">
+        <div class="library-shell advanced-search-shell">
+          <div class="library-page-title">
+            <button type="button" onclick="history.back()" aria-label="Back">
+              <i data-lucide="arrow-left"></i>
             </button>
-            <a asp-action="Index" class="btn btn-outline-secondary ms-1">Xóa lọc</a>
-        </div>
-    </form>
+            <h1>Advanced Search</h1>
+          </div>
 
-    <p class="text-secondary mb-3">Tìm thấy <strong class="text-white">@totalCount</strong> manga</p>
+          <section class="advanced-search-panel">
+            <div class="advanced-search-top">
+              <label class="advanced-search-input">
+                <i data-lucide="search"></i>
+                <input id="advanced-search-input" type="search" placeholder="Search" autocomplete="off" />
+              </label>
+              <button id="advanced-toggle-filters" type="button" class="advanced-filter-toggle">
+                <i data-lucide="chevron-down"></i>
+                <span>Show filters</span>
+              </button>
+            </div>
 
-    @if (Model.Any())
-    {
-        <div class="row g-3">
-            @foreach (var m in Model)
-            {
-                <div class="col-6 col-sm-4 col-md-3 col-lg-2">
-                    @await Html.PartialAsync("_MangaCard", m)
-                </div>
-            }
-        </div>
+            <div id="advanced-filters" class="advanced-filters" hidden>
+              <label>
+                <span>Sort by</span>
+                <select id="advanced-sort">
+                  <option value="">None</option>
+                  <option value="latest">Latest upload</option>
+                  <option value="title">Title</option>
+                  <option value="year">Publication year</option>
+                  <option value="views">Most viewed</option>
+                </select>
+              </label>
+              <label>
+                <span>Type</span>
+                <select id="advanced-type">
+                  <option value="">Any</option>
+                  <option value="0">Manga</option>
+                  <option value="1">Manhwa</option>
+                  <option value="2">Manhua</option>
+                </select>
+              </label>
+              <label>
+                <span>Magazine Demographic</span>
+                <select id="advanced-demographic">
+                  <option value="">Any</option>
+                  <option value="1">Shounen</option>
+                  <option value="2">Shoujo</option>
+                  <option value="3">Seinen</option>
+                  <option value="4">Josei</option>
+                </select>
+              </label>
+              <label>
+                <span>Publication Status</span>
+                <select id="advanced-status">
+                  <option value="">Any</option>
+                  <option value="0">Ongoing</option>
+                  <option value="1">Completed</option>
+                  <option value="2">Hiatus</option>
+                </select>
+              </label>
+              <label>
+                <span>Publication year</span>
+                <input id="advanced-year" type="number" min="1900" max="2100" placeholder="Any" />
+              </label>
+              <label>
+                <span>Content Rating</span>
+                <select id="advanced-rating">
+                  <option value="">Any</option>
+                  <option value="safe">Safe</option>
+                  <option value="suggestive">Suggestive</option>
+                </select>
+              </label>
+            </div>
 
-        @* Pagination *@
-        @if (totalPages > 1)
-        {
-            <nav class="mt-4">
-                <ul class="pagination justify-content-center flex-wrap">
-                    @for (int i = 1; i <= totalPages; i++)
-                    {
-                        <li class="page-item @(i == page ? "active" : "")">
-                            <a class="page-link" style="background:@(i==page?"#e94560":"#1a1a2e"); border-color:#2a2a4a; color:@(i==page?"#fff":"#ccc");"
-                               asp-action="Index" asp-route-page="@i" asp-route-search="@search" asp-route-type="@((int?)selectedType)" asp-route-genreId="@selectedGenreId">@i</a>
-                        </li>
-                    }
-                </ul>
-            </nav>
-        }
-    }
-    else
-    {
-        <div class="text-center py-5 text-secondary">
-            <i class="bi bi-search fs-1 d-block mb-3"></i>
-            <p>Không tìm thấy manga nào phù hợp.</p>
+            <div class="advanced-actions">
+              <button id="advanced-reset" type="button" class="advanced-reset-btn">Reset filters</button>
+              <button id="advanced-lucky" type="button" class="advanced-lucky-btn">I'm feeling lucky</button>
+              <button id="advanced-search-btn" type="button" class="advanced-search-btn">
+                <i data-lucide="search"></i>
+                <span>Search</span>
+              </button>
+            </div>
+          </section>
+
+          <div class="library-toolbar advanced-results-toolbar">
+            <h2 id="advanced-count-label">0 Titles</h2>
+            <div class="library-view-switcher">
+              <button type="button" data-advanced-view="list" title="List view">
+                <i data-lucide="list"></i>
+              </button>
+              <button type="button" data-advanced-view="compact" title="Compact view">
+                <i data-lucide="rows-2"></i>
+              </button>
+              <button type="button" data-advanced-view="grid" title="Grid view">
+                <i data-lucide="grid-2x2"></i>
+              </button>
+            </div>
+          </div>
+
+          <div id="advanced-loading" class="library-empty" style="display: none;">Loading...</div>
+          <div id="advanced-empty" class="library-empty" style="display: none;"></div>
+          <div id="advanced-results" class="library-items list"></div>
+          <div id="advanced-pagination" class="library-pagination"></div>
         </div>
-    }
-</div>
+      </main>
+    </div>
+
+    <script src="/js/i18n.js?v=4.0"></script>
+    <script src="/js/common-library.js?v=1.0"></script>
+    <script src="/js/common-auth.js?v=1.0"></script>
+<script src="/js/common.js?v=5.5"></script>
+    <script src="/js/advanced-search.js?v=1.0"></script>
+  </body>
+</html>

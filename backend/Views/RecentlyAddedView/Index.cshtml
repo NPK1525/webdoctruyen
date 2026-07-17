@@ -1,0 +1,51 @@
+﻿@{
+    Layout = null;
+    var recentlyAddedJson = ViewBag.RecentlyAddedJson as string ?? "[]";
+}
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Recently Added - MangaNPK</title>
+    <link rel="stylesheet" href="/css/style.css?v=4.9" />
+    <script src="https://unpkg.com/lucide@latest"></script>
+  </head>
+  <body class="library-page recently-added-page">
+    <div id="root">
+      @await Html.PartialAsync("_Header")
+      @await Html.PartialAsync("_Sidebar")
+      @await Html.PartialAsync("_AuthModal")
+
+      <main id="main-layout" style="flex: 1; display: flex; flex-direction: column; width: 100%;">
+        <div class="library-shell recently-added-shell">
+          <div class="library-title-row">
+            <a href="/" class="library-back-btn" title="Back"><i data-lucide="arrow-left"></i></a>
+            <h1 data-i18n="recentlyAdded.title">Recently Added</h1>
+          </div>
+
+          <div class="library-toolbar">
+            <h2 id="recently-added-count-label">0 Titles</h2>
+            <div class="library-view-switcher">
+              <button type="button" data-recent-view="list" title="List"><i data-lucide="list"></i></button>
+              <button type="button" data-recent-view="compact" title="Compact"><i data-lucide="rows-2"></i></button>
+              <button type="button" data-recent-view="grid" title="Grid"><i data-lucide="grid-2x2"></i></button>
+            </div>
+          </div>
+
+          <div id="recently-added-items" class="library-items list"></div>
+          <div id="recently-added-empty" class="library-empty" style="display: none;"></div>
+        </div>
+      </main>
+    </div>
+
+    <script>
+      window.__RECENTLY_ADDED__ = @Html.Raw(recentlyAddedJson);
+    </script>
+    <script src="/js/i18n.js?v=4.0"></script>
+    <script src="/js/common-library.js?v=1.0"></script>
+    <script src="/js/common-auth.js?v=1.0"></script>
+<script src="/js/common.js?v=5.5"></script>
+    <script src="/js/recently-added.js?v=1.0"></script>
+  </body>
+</html>

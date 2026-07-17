@@ -28,6 +28,7 @@
             </div>
         </div>
         <div class="col-md-8">
+            <input id="genre-search" type="search" class="form-control mb-3" placeholder="Tìm thể loại..." />
             <table class="table table-dark table-hover">
                 <thead><tr><th>#</th><th>Tên</th><th>Slug</th><th></th></tr></thead>
                 <tbody>
@@ -54,3 +55,15 @@
         </div>
     </div>
 </div>
+
+<script>
+(() => {
+  const input = document.getElementById('genre-search');
+  if (!input) return;
+  const rows = [...document.querySelectorAll('table tbody tr')].filter(row => !row.querySelector('td[colspan]'));
+  input.addEventListener('input', () => {
+    const term = input.value.trim().toLocaleLowerCase();
+    rows.forEach(row => { row.style.display = row.textContent.toLocaleLowerCase().includes(term) ? '' : 'none'; });
+  });
+})();
+</script>

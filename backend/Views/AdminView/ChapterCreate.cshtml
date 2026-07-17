@@ -3,33 +3,100 @@
     var manga = ViewBag.Manga as MangaNPK.Models.Manga;
 }
 
-<div class="container py-4">
+@section Head {
+    <link rel="stylesheet" href="~/css/chapter-upload.css" asp-append-version="true" />
+}
+
+<div class="container py-4 chapter-upload-page">
     <div class="d-flex align-items-center mb-4 gap-3">
-        <a asp-controller="MangaView" asp-action="Detail" asp-route-id="@manga?.Id" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-left"></i></a>
-        <h1 class="section-title mb-0">Thêm chương — @manga?.Title</h1>
+        <a asp-controller="MangaView" asp-action="Detail" asp-route-id="@manga?.Id" class="btn btn-outline-secondary btn-sm" aria-label="Quay lại">
+            <i class="bi bi-arrow-left"></i>
+        </a>
+        <div>
+            <div class="text-secondary small mb-1">UPLOAD CHAPTER</div>
+            <h1 class="section-title mb-0">@manga?.Title</h1>
+        </div>
     </div>
 
     <div class="row justify-content-center">
-        <div class="col-lg-7">
-            <div class="card p-4">
-                <form asp-action="ChapterCreate" asp-route-mangaId="@manga?.Id" method="post">
+        <div class="col-xl-10 col-lg-11">
+            <div class="card chapter-upload-card p-4 p-lg-5">
+                @if (ViewBag.Error != null)
+                {
+                    <div class="alert alert-danger" role="alert">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>@ViewBag.Error
+                    </div>
+                }
+
+                <form id="chapter-upload-form" asp-action="ChapterCreate" asp-route-mangaId="@manga?.Id"
+                      method="post" enctype="multipart/form-data" novalidate>
                     @Html.AntiForgeryToken()
-                    <div class="mb-3">
-                        <label class="form-label">Số chương <span class="text-danger">*</span></label>
-                        <input type="number" name="chapterNumber" class="form-control" step="0.1" min="0" required placeholder="1" />
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-4">
+                            <label class="form-label" for="chapter-number">Số chương <span class="text-danger">*</span></label>
+                            <input id="chapter-number" type="number" name="chapterNumber" value="@ViewBag.ChapterNumber"
+                                   class="form-control" step="0.1" min="0" required placeholder="1" />
+                        </div>
+                        <div class="col-md-8">
+                            <label class="form-label" for="chapter-title">Tiêu đề chương <span class="text-secondary">(tùy chọn)</span></label>
+                            <input id="chapter-title" type="text" name="title" value="@ViewBag.ChapterTitle"
+                                   class="form-control" placeholder="Để trống sẽ tự đặt tên theo số chương" />
+                        </div>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label">Tiêu đề chương <span class="text-secondary">(tuỳ chọn)</span></label>
-                        <input type="text" name="title" class="form-control" placeholder="Để trống sẽ tự đặt tên" />
+
+                    <div class="d-flex justify-content-between align-items-end gap-3 mb-2 flex-wrap">
+                        <div>
+                            <label class="form-label mb-1">Trang truyện <span class="text-danger">*</span></label>
+                            <div class="text-secondary small">Kéo thả ảnh hoặc chọn nhiều ảnh cùng lúc. Bạn có thể đổi thứ tự trước khi tải.</div>
+                        </div>
+                        <span id="chapter-page-count" class="chapter-page-count">0 trang</span>
                     </div>
-                    <div class="mb-4">
-                        <label class="form-label">URL ảnh các trang <span class="text-secondary">(mỗi dòng một URL)</span></label>
-                        <textarea name="pageUrls" class="form-control" rows="10" placeholder="https://example.com/page1.jpg&#10;https://example.com/page2.jpg&#10;..."></textarea>
-                        <small class="text-secondary">Mỗi dòng là URL ảnh của một trang, theo thứ tự.</small>
+
+                    <div id="chapter-drop-zone" class="chapter-drop-zone" tabindex="0" role="button"
+                         aria-controls="chapter-page-files" aria-label="Chọn ảnh trang truyện">
+                        <input id="chapter-page-files" name="pageFiles" type="file" multiple hidden
+                               accept="image/jpeg,image/png,image/webp,image/gif" />
+                        <i class="bi bi-cloud-arrow-up chapter-drop-icon"></i>
+                        <strong>Thả ảnh vào đây</strong>
+                        <span class="text-secondary">hoặc</span>
+                        <button id="chapter-choose-files" type="button" class="btn btn-primary px-4">Chọn ảnh</button>
+                        <small class="text-secondary">JPG, PNG, WebP, GIF · tối đa 15 MB/ảnh</small>
                     </div>
-                    <button type="submit" class="btn btn-success w-100"><i class="bi bi-plus-circle me-2"></i>Tạo chương</button>
+
+                    <div id="chapter-upload-message" class="chapter-upload-message mt-3" role="status" aria-live="polite"></div>
+                    <div id="chapter-pages-preview" class="chapter-pages-preview mt-3" aria-label="Danh sách trang đã chọn"></div>
+
+                    <div class="accordion chapter-url-accordion mt-4" id="chapter-url-options">
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#chapter-url-panel">
+                                    <i class="bi bi-link-45deg me-2"></i>Dùng URL ảnh thay thế
+                                </button>
+                            </h2>
+                            <div id="chapter-url-panel" class="accordion-collapse collapse" data-bs-parent="#chapter-url-options">
+                                <div class="accordion-body">
+                                    <label class="form-label" for="chapter-page-urls">Mỗi dòng một URL, theo đúng thứ tự trang</label>
+                                    <textarea id="chapter-page-urls" name="pageUrls" class="form-control" rows="5"
+                                              placeholder="https://example.com/page1.jpg&#10;https://example.com/page2.jpg">@ViewBag.PageUrls</textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2 mt-4 pt-2">
+                        <a asp-controller="MangaView" asp-action="Detail" asp-route-id="@manga?.Id" class="btn btn-outline-secondary px-4">Hủy</a>
+                        <button id="chapter-submit" type="submit" class="btn btn-success px-4">
+                            <i class="bi bi-cloud-check me-2"></i><span>Tải chapter lên</span>
+                        </button>
+                    </div>
                 </form>
             </div>
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script src="~/js/chapter-file-order.js" asp-append-version="true"></script>
+    <script src="~/js/chapter-upload.js" asp-append-version="true"></script>
+}

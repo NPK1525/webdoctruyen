@@ -6,14 +6,12 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Bảng Quản Trị - MangaNPK</title>
-    <link rel="stylesheet" href="/css/style.css?v=3.0" />
+    <title>B&#7843;ng Qu&#7843;n Tr&#7883; - MangaNPK</title>
+    <link rel="stylesheet" href="/css/style.css?v=4.9" />
     <script src="https://unpkg.com/lucide@latest"></script>
   </head>
   <body>
     <div id="root">
-
-      <!-- Global Sticky Header -->
       <header id="global-header" class="glass" style="position: sticky; top: 0; z-index: 1000;">
         <div class="container" style="display: flex; align-items: center; justify-content: space-between; height: 70px;">
           <div style="display: flex; align-items: center; gap: 15px;">
@@ -38,147 +36,326 @@
       @await Html.PartialAsync("_Sidebar")
       @await Html.PartialAsync("_AuthModal")
 
-      <!-- Main Layout -->
       <main id="main-layout" style="flex: 1; display: flex; flex-direction: column; width: 100%; margin-top: 24px; margin-bottom: 50px;">
         <div class="container">
-
-          <!-- Access denied -->
           <div id="admin-access-denied" class="glass-card" style="padding: 40px; text-align: center; border-radius: var(--radius-lg); margin-top: 30px; display: none;">
             <i data-lucide="alert-circle" style="width: 48px; height: 48px; color: #FF4552; margin-bottom: 16px;"></i>
-            <h2 style="font-size: 1.5rem; font-weight: 800; color: white; margin-bottom: 10px;">Truy Cập Bị Từ Chối</h2>
-            <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 24px;">Bạn cần đăng nhập bằng tài khoản Admin để truy cập.</p>
-            <a href="/" class="btn btn-primary" style="border-radius: 20px;">Về trang chủ</a>
+            <h2 style="font-size: 1.5rem; font-weight: 800; color: white; margin-bottom: 10px;">Truy c&#7853;p b&#7883; t&#7915; ch&#7889;i</h2>
+            <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 24px;">B&#7841;n c&#7847;n &#273;&#259;ng nh&#7853;p b&#7857;ng t&#224;i kho&#7843;n Admin &#273;&#7875; truy c&#7853;p.</p>
+            <a href="/" class="btn btn-primary" style="border-radius: 20px;">V&#7873; trang ch&#7911;</a>
           </div>
 
-          <!-- Admin Panel -->
           <div id="admin-panel-wrapper" style="display: none;">
             <div style="display: flex; gap: 30px; flex-wrap: wrap;">
-
-              <!-- Left: Tab nav -->
               <div style="width: 250px; flex-shrink: 0; display: flex; flex-direction: column; gap: 6px;">
-                <h4 style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; padding: 10px 16px; margin: 0;">Quản lý</h4>
+                <h4 style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; padding: 10px 16px; margin: 0;">Qu&#7843;n l&#253;</h4>
                 <button class="admin-tab-btn active" data-tab="manga-list" style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 6px; font-size: 0.9rem; font-weight: 600; text-align: left; width: 100%; transition: all 0.2s;">
-                  <i data-lucide="book-open" style="width: 18px; height: 18px;"></i><span>Danh sách truyện</span>
+                  <i data-lucide="book-open" style="width: 18px; height: 18px;"></i><span>Danh s&#225;ch truy&#7879;n</span>
                 </button>
-                <button class="admin-tab-btn" data-tab="manga" style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 6px; font-size: 0.9rem; font-weight: 600; text-align: left; width: 100%; transition: all 0.2s;">
-                  <i data-lucide="plus" style="width: 18px; height: 18px;"></i><span id="tab-label-manga-form">Đăng truyện mới</span>
+                <button class="admin-tab-btn" data-tab="title-draft" style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 6px; font-size: 0.9rem; font-weight: 600; text-align: left; width: 100%; transition: all 0.2s;">
+                  <i data-lucide="file-plus-2" style="width: 18px; height: 18px;"></i><span>Đăng truyện</span>
+                </button>
+                <button class="admin-tab-btn" data-tab="manga" style="display: none; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 6px; font-size: 0.9rem; font-weight: 600; text-align: left; width: 100%; transition: all 0.2s;">
+                  <i data-lucide="plus" style="width: 18px; height: 18px;"></i><span id="tab-label-manga-form">&#272;&#259;ng truy&#7879;n m&#7899;i</span>
                 </button>
                 <button class="admin-tab-btn" data-tab="chapter" style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 6px; font-size: 0.9rem; font-weight: 600; text-align: left; width: 100%; transition: all 0.2s;">
-                  <i data-lucide="layers" style="width: 18px; height: 18px;"></i><span>Thêm chương mới</span>
+                  <i data-lucide="layers" style="width: 18px; height: 18px;"></i><span>Th&#234;m ch&#432;&#417;ng m&#7899;i</span>
+                </button>
+                <button class="admin-tab-btn" data-tab="mangadex" style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 6px; font-size: 0.9rem; font-weight: 600; text-align: left; width: 100%; transition: all 0.2s;">
+                  <i data-lucide="download-cloud" style="width: 18px; height: 18px;"></i><span>Nh&#7853;p MangaDex</span>
                 </button>
                 <button class="admin-tab-btn" data-tab="author" style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 6px; font-size: 0.9rem; font-weight: 600; text-align: left; width: 100%; transition: all 0.2s;">
-                  <i data-lucide="users" style="width: 18px; height: 18px;"></i><span>Quản lý tác giả</span>
+                  <i data-lucide="users" style="width: 18px; height: 18px;"></i><span>Qu&#7843;n l&#253; t&#225;c gi&#7843;</span>
                 </button>
                 <button class="admin-tab-btn" data-tab="genre" style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 6px; font-size: 0.9rem; font-weight: 600; text-align: left; width: 100%; transition: all 0.2s;">
-                  <i data-lucide="tag" style="width: 18px; height: 18px;"></i><span>Quản lý thể loại</span>
+                  <i data-lucide="tag" style="width: 18px; height: 18px;"></i><span>Qu&#7843;n l&#253; th&#7875; lo&#7841;i</span>
                 </button>
               </div>
 
-              <!-- Right: Content -->
               <div style="flex: 1; min-width: 320px;">
                 <div class="glass-card" style="padding: 30px; border-radius: var(--radius-lg);">
-
                   <div id="admin-toast-message" style="display: none; padding: 12px 16px; border-radius: 6px; margin-bottom: 24px; font-size: 0.85rem; align-items: center; gap: 8px;">
                     <i data-lucide="check" class="icon-success" style="width: 16px; height: 16px; display: none;"></i>
                     <i data-lucide="alert-circle" class="icon-error" style="width: 16px; height: 16px; display: none;"></i>
-                    <span class="msg-text">Hoạt động thành công.</span>
+                    <span class="msg-text"></span>
                   </div>
 
-                  <!-- Manga List -->
                   <div id="adm-content-manga-list" class="admin-tab-pane">
-                    <h3 style="font-size: 1.25rem; font-weight: 800; color: white; margin-bottom: 20px;">Danh Sách Truyện Tranh</h3>
+                    <h3 style="font-size: 1.25rem; font-weight: 800; color: white; margin-bottom: 20px;">Danh s&#225;ch truy&#7879;n tranh</h3>
+                    <div class="admin-manga-filters" id="admin-manga-filters">
+                      <div class="admin-manga-search-row">
+                        <div class="admin-manga-search-wrap"><i data-lucide="search"></i><input id="admin-manga-search" class="form-control" type="search" placeholder="Tìm theo tên truyện hoặc tác giả..." /></div>
+                        <button type="button" id="admin-manga-reset" class="btn btn-secondary">Đặt lại</button>
+                      </div>
+                      <div class="admin-manga-filter-grid">
+                        <select id="admin-manga-type" class="form-control"><option value="">Tất cả loại</option><option value="0">Manga</option><option value="1">Manhwa</option><option value="2">Manhua</option><option value="3">Webtoon</option><option value="4">Comic</option></select>
+                        <select id="admin-manga-status" class="form-control"><option value="">Tất cả trạng thái</option><option value="0">Ongoing</option><option value="1">Completed</option><option value="2">Hiatus</option><option value="3">Cancelled</option></select>
+                        <select id="admin-manga-source" class="form-control"><option value="">Tất cả nguồn</option><option value="Local">Local</option><option value="MangaDex">MangaDex</option></select>
+                        <select id="admin-manga-chapter-state" class="form-control"><option value="">Tất cả chapter</option><option value="with-chapters">Đã có chapter</option><option value="without-chapters">Chưa có chapter</option></select>
+                        <select id="admin-manga-sort" class="form-control"><option value="newest">Mới nhất</option><option value="oldest">Cũ nhất</option><option value="title-asc">Tên A-Z</option><option value="chapter-count">Nhiều chapter nhất</option></select>
+                        <select id="admin-manga-page-size" class="form-control"><option value="20" selected>20 truyện/trang</option><option value="50">50 truyện/trang</option><option value="100">100 truyện/trang</option></select>
+                      </div>
+                      <div id="admin-manga-count-label" class="admin-manga-count-label"></div>
+                    </div>
                     <div style="overflow-x: auto;">
                       <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.85rem;">
                         <thead>
                           <tr style="border-bottom: 2px solid rgba(255,255,255,0.08); color: var(--text-muted);">
-                            <th style="padding: 12px 8px; font-weight: 700;">Ảnh bìa</th>
-                            <th style="padding: 12px 8px; font-weight: 700;">Tên truyện</th>
-                            <th style="padding: 12px 8px; font-weight: 700;">Loại</th>
-                            <th style="padding: 12px 8px; font-weight: 700;">Trạng thái</th>
-                            <th style="padding: 12px 8px; font-weight: 700; text-align: right;">Hành động</th>
+                            <th style="padding: 12px 8px; font-weight: 700;">&#7842;nh b&#236;a</th>
+                            <th style="padding: 12px 8px; font-weight: 700;">T&#234;n truy&#7879;n</th>
+                            <th style="padding: 12px 8px; font-weight: 700;">Lo&#7841;i</th>
+                            <th style="padding: 12px 8px; font-weight: 700;">Tr&#7841;ng th&#225;i</th>
+                            <th style="padding: 12px 8px; font-weight: 700; text-align: right;">H&#224;nh &#273;&#7897;ng</th>
                           </tr>
                         </thead>
                         <tbody id="admin-mangas-table-body"></tbody>
                       </table>
                     </div>
+                    <div id="admin-manga-pagination" class="admin-manga-pagination"></div>
                   </div>
 
-                  <!-- Add/Edit Manga -->
+                  <div id="adm-content-title-draft" class="admin-tab-pane" style="display: none;">
+                    <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:20px;flex-wrap:wrap;">
+                      <div>
+                        <h3 style="font-size:1.25rem;font-weight:800;color:white;margin:0 0 6px;">Đăng truyện mới</h3>
+                        <p style="color:var(--text-muted);font-size:0.88rem;margin:0;">Điền thông tin truyện và đăng trực tiếp lên hệ thống.</p>
+                      </div>
+                      <button type="button" id="btn-new-title-draft" class="btn btn-primary" style="border-radius:20px;font-weight:700;padding:10px 20px;">
+                        <i data-lucide="file-plus-2" style="width:18px;height:18px;"></i> B&#7843;n nh&#225;p m&#7899;i
+                      </button>
+                    </div>
+
+                    <div id="title-draft-list-panel" style="margin-bottom:22px;border:1px solid rgba(255,255,255,0.08);border-radius:8px;overflow:hidden;background:rgba(255,255,255,0.02);">
+                      <table style="width:100%;border-collapse:collapse;text-align:left;font-size:0.85rem;">
+                        <thead>
+                          <tr style="border-bottom:1px solid rgba(255,255,255,0.08);color:var(--text-muted);">
+                            <th style="padding:10px;">&#7842;nh</th>
+                            <th style="padding:10px;">T&#234;n truy&#7879;n</th>
+                            <th style="padding:10px;">Tr&#7841;ng th&#225;i duy&#7879;t</th>
+                            <th style="padding:10px;">C&#7853;p nh&#7853;t</th>
+                            <th style="padding:10px;text-align:right;">H&#224;nh &#273;&#7897;ng</th>
+                          </tr>
+                        </thead>
+                        <tbody id="title-drafts-table-body"></tbody>
+                      </table>
+                    </div>
+
+                    <form id="title-draft-form" style="display:none;">
+                      <input type="hidden" id="title-draft-id" />
+                      <div class="title-draft-shell">
+                        <aside class="title-draft-nav">
+                          <button type="button" class="title-draft-section-btn active" data-section="basic"><i data-lucide="book-open"></i><span>Ti&#234;u &#273;&#7873;</span></button>
+                          <button type="button" class="title-draft-section-btn" data-section="publish"><i data-lucide="list"></i><span>Xu&#7845;t b&#7843;n</span></button>
+                          <button type="button" class="title-draft-section-btn" data-section="authors"><i data-lucide="users"></i><span>T&#225;c gi&#7843;</span></button>
+                          <button type="button" class="title-draft-section-btn" data-section="tags"><i data-lucide="tag"></i><span>Ph&#226;n lo&#7841;i</span></button>
+                          <button type="button" class="title-draft-section-btn" data-section="images"><i data-lucide="image"></i><span>H&#236;nh &#7843;nh</span></button>
+                          <button type="button" class="title-draft-section-btn" data-section="links"><i data-lucide="globe"></i><span>Li&#234;n k&#7871;t</span></button>
+                          <button type="button" class="title-draft-section-btn" data-section="translation"><i data-lucide="languages"></i><span>D&#7883;ch thu&#7853;t</span></button>
+                          <button type="button" class="title-draft-section-btn" data-section="review"><i data-lucide="shield-check"></i><span>Qu&#7843;n tr&#7883;</span></button>
+                        </aside>
+
+                        <section class="title-draft-main">
+                          <div class="title-draft-section active" data-section-panel="basic">
+                            <h4>Th&#244;ng tin c&#417; b&#7843;n</h4>
+                            <div class="draft-grid two">
+                              <label class="form-group"><span class="form-label">T&#234;n truy&#7879;n *</span><input id="draft-title" class="form-control" required /></label>
+                              <label class="form-group"><span class="form-label">T&#234;n g&#7889;c</span><input id="draft-original-title" class="form-control" /></label>
+                              <label class="form-group"><span class="form-label">T&#234;n ti&#7871;ng Anh</span><input id="draft-english-title" class="form-control" /></label>
+                              <label class="form-group"><span class="form-label">T&#234;n kh&#225;c</span><input id="draft-alternative-titles" class="form-control" placeholder="C&#225;ch nhau b&#7857;ng d&#7845;u |" /></label>
+                            </div>
+                            <label class="form-group" style="margin-top:14px;"><span class="form-label">M&#244; t&#7843; / Synopsis *</span><textarea id="draft-description" class="form-control" style="min-height:140px;resize:vertical;" required></textarea></label>
+                          </div>
+
+                          <div class="title-draft-section" data-section-panel="publish">
+                            <h4>Th&#244;ng tin xu&#7845;t b&#7843;n</h4>
+                            <div class="draft-grid three">
+                              <label class="form-group"><span class="form-label">Ng&#244;n ng&#7919; g&#7889;c</span><select id="draft-original-language" class="form-control"><option value="vi">Ti&#7871;ng Vi&#7879;t</option><option value="ja">Ti&#7871;ng Nh&#7853;t</option><option value="ko">Ti&#7871;ng H&#224;n</option><option value="zh">Ti&#7871;ng Trung</option><option value="en">Ti&#7871;ng Anh</option></select></label>
+                              <label class="form-group"><span class="form-label">Lo&#7841;i truy&#7879;n</span><select id="draft-type" class="form-control"><option value="0">Manga</option><option value="1">Manhwa</option><option value="2">Manhua</option><option value="3">Webtoon</option><option value="4">Comic</option></select></label>
+                              <label class="form-group"><span class="form-label">T&#236;nh tr&#7841;ng</span><select id="draft-status" class="form-control"><option value="0">&#272;ang ph&#225;t h&#224;nh</option><option value="1">Ho&#224;n th&#224;nh</option><option value="2">T&#7841;m ng&#432;ng</option><option value="3">&#272;&#227; h&#7911;y</option></select></label>
+                              <label class="form-group"><span class="form-label">N&#259;m ph&#225;t h&#224;nh</span><input id="draft-release-year" type="number" min="1900" max="2100" class="form-control" /></label>
+                            </div>
+                          </div>
+
+                          <div class="title-draft-section" data-section-panel="authors">
+                            <h4>T&#225;c gi&#7843;</h4>
+                            <div style="display:grid;grid-template-columns:2fr 1fr auto;gap:10px;align-items:end;">
+                              <label class="form-group"><span class="form-label">Tác giả có sẵn</span><select id="draft-author-select" class="form-control"><option value="">-- Chọn tác giả --</option></select></label>
+                              <label class="form-group"><span class="form-label">Vai trò</span><select id="draft-author-role" class="form-control"><option value="Story &amp; Art">Story &amp; Art</option><option value="Story">Story</option><option value="Art">Art</option></select></label>
+                              <button type="button" id="btn-add-draft-author" class="btn btn-secondary">Thêm</button>
+                            </div>
+                            <div style="display:grid;grid-template-columns:2fr 1fr auto;gap:10px;align-items:end;margin-top:10px;">
+                              <label class="form-group"><span class="form-label">Hoặc nhập tác giả mới</span><input id="draft-new-author-name" class="form-control" /></label>
+                              <span></span><span></span>
+                            </div>
+                            <div id="draft-authors-list" class="taxonomy-chip-list" style="margin-bottom:14px;"></div>
+                            <label class="form-group"><span class="form-label">Nhà xuất bản</span><input id="draft-publisher" class="form-control" /></label>
+                          </div>
+
+                          <div class="title-draft-section" data-section-panel="tags">
+                            <h4>Ph&#226;n lo&#7841;i</h4>
+                            <div class="draft-grid two">
+                              <label class="form-group"><span class="form-label">&#272;&#7889;i t&#432;&#7907;ng</span><select id="draft-demographic" class="form-control"><option value="0">Kh&#244;ng x&#225;c &#273;&#7883;nh</option><option value="1">Shounen</option><option value="2">Shoujo</option><option value="3">Seinen</option><option value="4">Josei</option></select></label>
+                              <label class="form-group"><span class="form-label">&#272;&#7897; tu&#7893;i</span><select id="draft-age-rating" class="form-control"><option value="0">M&#7885;i l&#7913;a tu&#7893;i</option><option value="1">13+</option><option value="2">16+</option><option value="3">18+</option></select></label>
+                            </div>
+                            <label class="form-group" style="margin-top:14px;"><span class="form-label">Format chính</span><select id="draft-format" class="form-control"><option value="0">Không có</option><option value="1">Adaptation</option><option value="2">WebComic</option><option value="3">OneShot</option><option value="4">Comic</option><option value="5">Book</option></select></label>
+                            <div class="form-group" style="margin-top:14px;"><span class="form-label">Thể loại</span><div id="draft-genres-checkbox-container" class="draft-check-grid"></div></div>
+                            <div class="form-group" style="margin-top:14px;"><span class="form-label">Ch&#7911; &#273;&#7873; / Theme</span><div id="draft-themes-checkbox-container" class="draft-check-grid"></div></div>
+                            <div class="form-group" style="margin-top:14px;"><span class="form-label">Content Warning</span><div class="taxonomy-chip-list"><label class="taxonomy-chip warning-chip"><input type="checkbox" name="draft-content-warning" value="Gore" /><span>Gore</span></label><label class="taxonomy-chip warning-chip"><input type="checkbox" name="draft-content-warning" value="Sexual Violence" /><span>Sexual Violence</span></label></div></div>
+                          </div>
+
+                          <div class="title-draft-section" data-section-panel="images">
+                            <h4>H&#236;nh &#7843;nh</h4>
+                            <div class="draft-grid two">
+                              <label class="form-group"><span class="form-label">&#7842;nh b&#236;a *</span><input id="draft-cover-url" class="form-control" placeholder="/uploads/cover.webp" /></label>
+                              <label class="form-group"><span class="form-label">Banner</span><input id="draft-banner-url" class="form-control" placeholder="/uploads/banner.webp" /></label>
+                            </div>
+                            <div style="display:flex;gap:12px;margin-top:12px;flex-wrap:wrap;">
+                              <input id="draft-cover-file-input" type="file" accept="image/*" style="display:none;" />
+                              <button type="button" id="btn-upload-draft-cover" class="btn btn-secondary" style="border-radius:18px;">T&#7843;i &#7843;nh b&#236;a</button>
+                              <input id="draft-banner-file-input" type="file" accept="image/*" style="display:none;" />
+                              <button type="button" id="btn-upload-draft-banner" class="btn btn-secondary" style="border-radius:18px;">T&#7843;i banner</button>
+                            </div>
+                            <div id="draft-image-preview" style="display:flex;gap:16px;margin-top:16px;flex-wrap:wrap;"></div>
+                          </div>
+
+                          <div class="title-draft-section" data-section-panel="links">
+                            <h4>Li&#234;n k&#7871;t</h4>
+                            <div class="draft-grid three">
+                              <label class="form-group"><span class="form-label">Website ch&#237;nh th&#7913;c</span><input id="draft-official-website" class="form-control" /></label>
+                              <label class="form-group"><span class="form-label">Ngu&#7891;n tham kh&#7843;o</span><input id="draft-reference-url" class="form-control" /></label>
+                              <label class="form-group"><span class="form-label">Trang theo d&#245;i</span><input id="draft-tracking-url" class="form-control" placeholder="AniList / MAL..." /></label>
+                            </div>
+                            <div class="draft-grid two" style="margin-top:14px;">
+                              <label class="form-group"><span class="form-label">Ngu&#7891;n d&#7919; li&#7879;u</span><select id="draft-data-source" class="form-control"><option value="Local">N&#7897;i b&#7897;</option><option value="MangaDex">MangaDex</option></select></label>
+                              <label class="form-group"><span class="form-label">MangaDex ID</span><input id="draft-mangadex-id" class="form-control" disabled /></label>
+                            </div>
+                          </div>
+
+                          <div class="title-draft-section" data-section-panel="translation">
+                            <h4>Th&#244;ng tin d&#7883;ch</h4>
+                            <div class="draft-grid two">
+                              <label class="form-group"><span class="form-label">Nh&#243;m d&#7883;ch</span><input id="draft-scanlation-group" class="form-control" /></label>
+                              <label class="form-group"><span class="form-label">Ng&#244;n ng&#7919; b&#7843;n d&#7883;ch</span><input class="form-control" value="Ti&#7871;ng Vi&#7879;t" disabled /></label>
+                            </div>
+                            <label class="form-group" style="margin-top:14px;"><span class="form-label">Ghi ch&#250;</span><textarea id="draft-note" class="form-control" style="min-height:100px;resize:vertical;"></textarea></label>
+                          </div>
+
+                          <div class="title-draft-section" data-section-panel="review">
+                            <h4>Qu&#7843;n tr&#7883;</h4>
+                            <div class="draft-grid three">
+                              <label class="form-group"><span class="form-label">Tr&#7841;ng th&#225;i duy&#7879;t</span><input id="draft-review-status-label" class="form-control" value="Nh&#225;p" disabled /></label>
+                              <label class="form-group"><span class="form-label">Ng&#432;&#7901;i t&#7841;o</span><input id="draft-created-by-label" class="form-control" disabled /></label>
+                              <label class="form-group"><span class="form-label">Ng&#224;y t&#7841;o</span><input id="draft-created-at-label" class="form-control" disabled /></label>
+                            </div>
+                            <label class="form-group" style="margin-top:14px;"><span class="form-label">L&#253; do t&#7915; ch&#7889;i</span><textarea id="draft-rejection-reason" class="form-control" style="min-height:80px;resize:vertical;" placeholder="Nh&#7853;p l&#253; do khi t&#7915; ch&#7889;i..."></textarea></label>
+                          </div>
+
+                          <div class="title-draft-actions">
+                            <button type="button" id="btn-cancel-title-draft" class="btn btn-secondary">Cancel</button>
+                            <button type="button" id="btn-reject-title-draft" class="btn btn-secondary" style="display:none;color:#ff6b6b;">T&#7915; ch&#7889;i</button>
+                            <button type="button" id="btn-approve-title-draft" class="btn btn-secondary" style="display:none;color:#10b981;">Duy&#7879;t</button>
+                            <button type="button" id="btn-save-title-draft" class="btn btn-secondary" style="display:none;">Lưu nháp</button>
+                            <button type="button" id="btn-submit-title-draft" class="btn btn-primary">Đăng truyện</button>
+                          </div>
+                        </section>
+                      </div>
+                    </form>
+                  </div>
+
                   <div id="adm-content-manga" class="admin-tab-pane" style="display: none;">
-                    <h3 id="manga-form-header-title" style="font-size: 1.25rem; font-weight: 800; color: white; margin-bottom: 20px;">Đăng Truyện Tranh Mới</h3>
+                    <h3 id="manga-form-header-title" style="font-size: 1.25rem; font-weight: 800; color: white; margin-bottom: 20px;">&#272;&#259;ng truy&#7879;n tranh m&#7899;i</h3>
                     <form id="admin-manga-form">
                       <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px;">
                         <div class="form-group">
-                          <label class="form-label">Tên truyện *</label>
+                          <label class="form-label">T&#234;n truy&#7879;n *</label>
                           <input type="text" id="manga-form-title" class="form-control" required />
                         </div>
                         <div class="form-group">
-                          <label class="form-label">Tên thay thế</label>
+                          <label class="form-label">T&#234;n thay th&#7871;</label>
                           <input type="text" id="manga-form-alt-title" class="form-control" />
                         </div>
                       </div>
                       <div class="form-group" style="margin-top: 15px;">
-                        <label class="form-label">Tóm tắt *</label>
+                        <label class="form-label">T&#243;m t&#7855;t *</label>
                         <textarea id="manga-form-description" class="form-control" style="min-height: 100px; resize: vertical;" required></textarea>
                       </div>
-                      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 20px; margin-top: 15px;">
+                      <div class="mangadex-taxonomy-section" style="margin-top:20px;padding:16px;background:#0F1218;border:1px solid rgba(255,255,255,.08);border-radius:8px;">
+                        <h4 style="color:white;font-size:1rem;margin:0 0 12px;">Content Warning</h4>
+                        <div style="display:flex;gap:18px;flex-wrap:wrap;">
+                          <label class="taxonomy-chip warning-chip"><input type="checkbox" name="manga-content-warning" value="Gore" /><span>Gore</span></label>
+                          <label class="taxonomy-chip warning-chip"><input type="checkbox" name="manga-content-warning" value="Sexual Violence" /><span>Sexual Violence</span></label>
+                        </div>
+                      </div>
+                      <div class="mangadex-taxonomy-section" style="margin-top:20px;padding:16px;background:#0F1218;border:1px solid rgba(255,255,255,.08);border-radius:8px;">
+                        <h4 style="color:white;font-size:1rem;margin:0 0 12px;">Demographic &amp; Format</h4>
+                      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 20px;">
                         <div class="form-group">
-                          <label class="form-label">Loại truyện *</label>
+                          <label class="form-label">Lo&#7841;i truy&#7879;n *</label>
                           <select id="manga-form-type" class="form-control" required>
-                            <option value="0">Manga (Nhật Bản)</option>
-                            <option value="1">Manhwa (Hàn Quốc)</option>
-                            <option value="2">Manhua (Trung Quốc)</option>
+                            <option value="0">Manga (Nh&#7853;t B&#7843;n)</option>
+                            <option value="1">Manhwa (H&#224;n Qu&#7889;c)</option>
+                            <option value="2">Manhua (Trung Qu&#7889;c)</option>
+                            <option value="3">Webtoon</option>
+                            <option value="4">Comic</option>
                           </select>
                         </div>
                         <div class="form-group">
-                          <label class="form-label">Tình trạng *</label>
+                          <label class="form-label">T&#236;nh tr&#7841;ng *</label>
                           <select id="manga-form-status" class="form-control" required>
-                            <option value="0">Đang tiến hành</option>
-                            <option value="1">Đã hoàn thành</option>
-                            <option value="2">Tạm ngưng</option>
+                            <option value="0">&#272;ang ti&#7871;n h&#224;nh</option>
+                            <option value="1">&#272;&#227; ho&#224;n th&#224;nh</option>
+                            <option value="2">T&#7841;m ng&#432;ng</option>
+                            <option value="3">&#272;&#227; h&#7911;y</option>
                           </select>
                         </div>
                         <div class="form-group">
-                          <label class="form-label">Năm phát hành</label>
+                          <label class="form-label">N&#259;m ph&#225;t h&#224;nh</label>
                           <input type="number" id="manga-form-year" class="form-control" placeholder="2024" />
                         </div>
                       </div>
                       <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 20px; margin-top: 15px;">
                         <div class="form-group">
-                          <label class="form-label">Demographic</label>
-                          <select id="manga-form-demographic" class="form-control">
-                            <option value="0">Không có</option>
+                          <label class="form-label">&#272;&#7889;i t&#432;&#7907;ng</label>
+                          <select id="manga-form-demographic" class="form-control taxonomy-source-select">
+                            <option value="0">Kh&#244;ng c&#243;</option>
                             <option value="1">Shounen</option>
                             <option value="2">Shoujo</option>
                             <option value="3">Seinen</option>
                             <option value="4">Josei</option>
                           </select>
+                          <div id="manga-demographic-chips" class="taxonomy-chip-list"></div>
                         </div>
                         <div class="form-group">
-                          <label class="form-label">Format</label>
-                          <select id="manga-form-format" class="form-control">
-                            <option value="0">Không có</option>
+                          <label class="form-label">&#272;&#7883;nh d&#7841;ng</label>
+                          <select id="manga-form-format" class="form-control taxonomy-source-select">
+                            <option value="0">Kh&#244;ng c&#243;</option>
                             <option value="1">Adaptation</option>
                             <option value="2">WebComic</option>
                             <option value="3">OneShot</option>
                             <option value="4">Comic</option>
                             <option value="5">Book</option>
                           </select>
+                          <div id="manga-format-chips" class="taxonomy-chip-list"></div>
                         </div>
                       </div>
+                      </div>
                       <div class="form-group" style="margin-top: 15px;">
-                        <label class="form-label">Ảnh bìa (URL) *</label>
+                        <label class="form-label">&#7842;nh b&#236;a (URL) *</label>
                         <input type="url" id="manga-form-cover" class="form-control" placeholder="https://..." required />
                       </div>
-                      <div class="form-group" style="margin-top: 20px;">
-                        <label class="form-label">Thể loại (Chọn nhiều) *</label>
-                        <div id="manga-form-genres-checkbox-container" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; background-color: #0F1218; padding: 16px; border-radius: var(--radius-sm); border: 1px solid rgba(255,255,255,0.05); max-height: 200px; overflow-y: auto;"></div>
+                      <div class="form-group mangadex-taxonomy-section" style="margin-top:20px;padding:16px;background:#0F1218;border:1px solid rgba(255,255,255,.08);border-radius:8px;">
+                        <h4 style="color:white;font-size:1rem;margin:0 0 12px;">Genre</h4>
+                        <div id="manga-form-genres-checkbox-container" class="taxonomy-chip-grid"></div>
+                      </div>
+                      <div class="form-group mangadex-taxonomy-section" style="margin-top:20px;padding:16px;background:#0F1218;border:1px solid rgba(255,255,255,.08);border-radius:8px;">
+                        <h4 style="color:white;font-size:1rem;margin:0 0 12px;">Theme</h4>
+                        <div id="manga-form-themes-checkbox-container" class="taxonomy-chip-grid"></div>
                       </div>
                       <div class="form-group" style="margin-top: 20px;">
-                        <label class="form-label">Tác giả và Vai trò *</label>
+                        <label class="form-label">T&#225;c gi&#7843; v&#224; vai tr&#242; *</label>
                         <div style="display: flex; gap: 10px; margin-bottom: 12px;">
                           <select id="manga-form-author-select" class="form-control" style="flex: 2;">
-                            <option value="">-- Chọn tác giả --</option>
+                            <option value="">-- Ch&#7885;n t&#225;c gi&#7843; --</option>
                           </select>
                           <select id="manga-form-author-role" class="form-control" style="flex: 1;">
                             <option value="Story & Art">Story & Art</option>
@@ -186,80 +363,114 @@
                             <option value="Art">Art</option>
                             <option value="Original Creator">Original Creator</option>
                           </select>
-                          <button type="button" id="btn-add-form-author" class="btn btn-secondary" style="border-radius: 4px; padding: 0 16px;">Thêm</button>
+                          <button type="button" id="btn-add-form-author" class="btn btn-secondary" style="border-radius: 4px; padding: 0 16px;">Th&#234;m</button>
                         </div>
                         <div id="manga-form-added-authors-list" style="display: flex; flex-direction: column; gap: 6px; background-color: #0F1218; padding: 12px; border-radius: var(--radius-sm); border: 1px solid rgba(255,255,255,0.05); min-height: 50px;">
-                          <p style="color: var(--text-muted); font-size: 0.8rem; text-align: center; margin: 6px 0;">Chưa gán tác giả cho truyện.</p>
+                          <p style="color: var(--text-muted); font-size: 0.8rem; text-align: center; margin: 6px 0;">Ch&#432;a g&#225;n t&#225;c gi&#7843; cho truy&#7879;n.</p>
                         </div>
                       </div>
                       <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 30px;">
-                        <button type="button" id="btn-cancel-manga-form" class="btn btn-secondary" style="display: none;">Huỷ chỉnh sửa</button>
+                        <button type="button" id="btn-cancel-manga-form" class="btn btn-secondary" style="display: none;">H&#7911;y ch&#7881;nh s&#7917;a</button>
                         <button type="submit" class="btn btn-primary" style="border-radius: 20px; font-weight: 700; padding: 10px 30px;">
-                          <i data-lucide="check" style="width: 18px; height: 18px;"></i> Lưu Truyện
+                          <i data-lucide="check" style="width: 18px; height: 18px;"></i> L&#432;u truy&#7879;n
                         </button>
                       </div>
                     </form>
                   </div>
 
-                  <!-- Add Chapter -->
                   <div id="adm-content-chapter" class="admin-tab-pane" style="display: none;">
-                    <h3 style="font-size: 1.25rem; font-weight: 800; color: white; margin-bottom: 20px;">Thêm Chương Mới</h3>
+                    <h3 id="chapter-form-heading" style="font-size: 1.25rem; font-weight: 800; color: white; margin-bottom: 20px;">Th&#234;m ch&#432;&#417;ng m&#7899;i</h3>
                     <form id="admin-chapter-form">
                       <div class="form-group">
-                        <label class="form-label">Truyện tranh *</label>
+                        <label class="form-label">Truy&#7879;n tranh *</label>
+                        <input id="chapter-form-manga-search" class="form-control" type="search" placeholder="T&#236;m truy&#7879;n theo t&#234;n..." autocomplete="off" style="margin-bottom:8px;" />
+                        <div id="chapter-form-manga-results" style="display:flex;flex-direction:column;gap:4px;max-height:180px;overflow-y:auto;margin-bottom:8px;"></div>
                         <select id="chapter-form-manga-select" class="form-control" required>
-                          <option value="">-- Chọn truyện tranh --</option>
+                          <option value="">-- Ch&#7885;n truy&#7879;n tranh --</option>
                         </select>
+                      </div>
+                      <div id="chapter-list-panel" style="display:none;margin-top:14px;padding:12px;border:1px solid rgba(255,255,255,.08);border-radius:6px;">
+                        <div style="display:flex;gap:10px;align-items:center;margin-bottom:8px;">
+                          <input id="chapter-form-chapter-search" class="form-control" type="search" placeholder="T&#236;m theo s&#7889; ho&#7863;c t&#234;n chapter..." autocomplete="off" />
+                          <span id="chapter-list-summary" style="color:var(--text-muted);white-space:nowrap;"></span>
+                        </div>
+                        <div id="chapter-list-items"></div>
+                        <div id="chapter-list-pagination" style="display:flex;justify-content:center;gap:6px;margin-top:10px;"></div>
                       </div>
                       <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 20px; margin-top: 15px;">
                         <div class="form-group">
-                          <label class="form-label">Số thứ tự chương *</label>
+                          <label class="form-label">S&#7889; th&#7913; t&#7921; ch&#432;&#417;ng *</label>
                           <input type="number" step="any" id="chapter-form-number" class="form-control" required />
                         </div>
                         <div class="form-group">
-                          <label class="form-label">Tên chương</label>
-                          <input type="text" id="chapter-form-title" class="form-control" placeholder="Tuỳ chọn..." />
+                          <label class="form-label">T&#234;n ch&#432;&#417;ng</label>
+                          <input type="text" id="chapter-form-title" class="form-control" placeholder="T&#249;y ch&#7885;n..." />
                         </div>
                       </div>
                       <div class="form-group" style="margin-top: 15px;">
-                        <label class="form-label">Danh sách URL ảnh (mỗi link một dòng) *</label>
+                        <label class="form-label">Danh s&#225;ch URL &#7843;nh (m&#7895;i link m&#7897;t d&#242;ng) *</label>
                         <textarea id="chapter-form-pages" class="form-control" style="min-height: 200px; resize: vertical;" placeholder="https://example.com/page1.jpg&#10;https://example.com/page2.jpg" required></textarea>
+                        <div style="display:flex;gap:10px;align-items:center;margin-top:10px;flex-wrap:wrap;">
+                          <input id="chapter-pages-file-input" type="file" accept="image/*" multiple style="display:none;" />
+                          <button id="btn-upload-pages" type="button" class="btn btn-secondary">T&#7843;i th&#234;m &#7843;nh</button>
+                          <span id="chapter-source-note" style="display:none;color:var(--text-muted);font-size:.85rem;">&#7842;nh MangaDex &#273;&#432;&#7907;c l&#7845;y t&#7921; &#273;&#7897;ng v&#224; kh&#244;ng th&#7875; s&#7917;a.</span>
+                        </div>
+                        <div id="chapter-pages-preview" style="display:flex;gap:10px;overflow-x:auto;padding:12px 0;"></div>
                       </div>
-                      <div style="display: flex; justify-content: flex-end; margin-top: 30px;">
-                        <button type="submit" class="btn btn-primary" style="border-radius: 20px; font-weight: 700; padding: 10px 30px;">
-                          <i data-lucide="plus" style="width: 18px; height: 18px;"></i> Đăng Chương
+                      <div style="display: flex; justify-content: flex-end;gap:10px; margin-top: 30px;">
+                        <button id="btn-cancel-chapter-edit" type="button" class="btn btn-secondary" style="display:none;">H&#7911;y ch&#7881;nh s&#7917;a</button>
+                        <button id="btn-save-chapter" type="submit" class="btn btn-primary" style="border-radius: 20px; font-weight: 700; padding: 10px 30px;">
+                          <i data-lucide="plus" style="width: 18px; height: 18px;"></i> <span>&#272;&#259;ng ch&#432;&#417;ng</span>
                         </button>
                       </div>
                     </form>
                   </div>
 
-                  <!-- Authors -->
+                  <div id="adm-content-mangadex" class="admin-tab-pane" style="display: none;">
+                    <h3 style="font-size: 1.25rem; font-weight: 800; color: white; margin-bottom: 10px;">Nh&#7853;p truy&#7879;n t&#7915; MangaDex</h3>
+                    <p style="color: var(--text-muted); font-size: 0.9rem; margin: 0 0 20px;">Ch&#7881; &#273;&#7891;ng b&#7897; ch&#432;&#417;ng ti&#7871;ng Vi&#7879;t. &#7842;nh ch&#432;&#417;ng s&#7869; &#273;&#432;&#7907;c l&#7845;y qua MangaDex@Home khi &#273;&#7897;c gi&#7843; m&#7903; ch&#432;&#417;ng.</p>
+                    <form id="admin-mangadex-form">
+                      <div class="form-group">
+                        <label class="form-label">URL ho&#7863;c UUID MangaDex</label>
+                        <input type="text" id="mangadex-import-input" class="form-control" placeholder="https://mangadex.org/title/..." required />
+                      </div>
+                      <div style="display: flex; gap: 12px; justify-content: flex-end; margin-top: 16px; flex-wrap: wrap;">
+                        <button type="button" id="btn-mangadex-preview" class="btn btn-secondary" style="border-radius: 20px; font-weight: 700; padding: 10px 24px;">
+                          <i data-lucide="eye" style="width: 18px; height: 18px;"></i> Xem tr&#432;&#7899;c
+                        </button>
+                        <button type="submit" id="btn-mangadex-import" class="btn btn-primary" style="border-radius: 20px; font-weight: 700; padding: 10px 24px;" disabled>
+                          <i data-lucide="download-cloud" style="width: 18px; height: 18px;"></i> &#272;&#7891;ng b&#7897;
+                        </button>
+                      </div>
+                    </form>
+                    <div id="mangadex-preview-panel" style="display: none; margin-top: 24px; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; overflow: hidden; background: rgba(255,255,255,0.03);"></div>
+                  </div>
+
                   <div id="adm-content-author" class="admin-tab-pane" style="display: none;">
-                    <h3 style="font-size: 1.25rem; font-weight: 800; color: white; margin-bottom: 20px;">Tạo Tác Giả</h3>
+                    <h3 style="font-size: 1.25rem; font-weight: 800; color: white; margin-bottom: 20px;">T&#7841;o t&#225;c gi&#7843;</h3>
                     <form id="admin-author-form">
                       <div class="form-group">
-                        <label class="form-label">Tên tác giả *</label>
+                        <label class="form-label">T&#234;n t&#225;c gi&#7843; *</label>
                         <input type="text" id="author-form-name" class="form-control" required />
                       </div>
                       <div class="form-group" style="margin-top: 15px;">
-                        <label class="form-label">Tiểu sử</label>
+                        <label class="form-label">Ti&#7875;u s&#7917;</label>
                         <textarea id="author-form-biography" class="form-control" style="min-height: 100px; resize: vertical;"></textarea>
                       </div>
                       <div style="display: flex; justify-content: flex-end; margin-top: 30px;">
                         <button type="submit" class="btn btn-primary" style="border-radius: 20px; font-weight: 700; padding: 10px 30px;">
-                          <i data-lucide="plus" style="width: 18px; height: 18px;"></i> Thêm Tác Giả
+                          <i data-lucide="plus" style="width: 18px; height: 18px;"></i> Th&#234;m t&#225;c gi&#7843;
                         </button>
                       </div>
                     </form>
                   </div>
 
-                  <!-- Genres -->
                   <div id="adm-content-genre" class="admin-tab-pane" style="display: none;">
-                    <h3 style="font-size: 1.25rem; font-weight: 800; color: white; margin-bottom: 20px;">Tạo Thể Loại</h3>
+                    <h3 style="font-size: 1.25rem; font-weight: 800; color: white; margin-bottom: 20px;">T&#7841;o th&#7875; lo&#7841;i</h3>
                     <form id="admin-genre-form">
                       <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
                         <div class="form-group">
-                          <label class="form-label">Tên thể loại *</label>
+                          <label class="form-label">T&#234;n th&#7875; lo&#7841;i *</label>
                           <input type="text" id="genre-form-name" class="form-control" required />
                         </div>
                         <div class="form-group">
@@ -269,29 +480,56 @@
                       </div>
                       <div style="display: flex; justify-content: flex-end; margin-top: 30px;">
                         <button type="submit" class="btn btn-primary" style="border-radius: 20px; font-weight: 700; padding: 10px 30px;">
-                          <i data-lucide="plus" style="width: 18px; height: 18px;"></i> Thêm Thể Loại
+                          <i data-lucide="plus" style="width: 18px; height: 18px;"></i> Th&#234;m th&#7875; lo&#7841;i
                         </button>
                       </div>
                     </form>
                   </div>
-
                 </div>
               </div>
             </div>
           </div>
-
         </div>
       </main>
     </div>
 
-    <script src="/js/common.js?v=3.0"></script>
-    <script src="/js/admin.js?v=3.0"></script>
+    <script src="/js/i18n.js?v=3.2"></script>
+  <script src="/js/common-library.js?v=1.0"></script>
+  <script src="/js/common-auth.js?v=1.0"></script>
+<script src="/js/common.js?v=5.5"></script>
+  <script src="/js/admin-chapter-edit.js?v=1.0"></script>
+  <script src="/js/admin-mangadex.js?v=1.0"></script>
+  <script src="/js/admin-upload.js?v=1.0"></script>
+  <script src="/js/admin-manga.js?v=1.0"></script>
+  <script src="/js/admin-title-drafts.js?v=1.0"></script>
+  <script src="/js/admin.js?v=3.6"></script>
     <style>
       .admin-tab-btn { background: transparent; color: var(--text-muted); border: none; cursor: pointer; }
       .admin-tab-btn:hover { background-color: rgba(255,255,255,0.04); color: white; }
-      .admin-tab-btn.active { background-color: rgba(255,69,82,0.12) !important; color: #FF4552 !important; }
+      .admin-tab-btn.active { background-color: var(--accent-primary) !important; color: #fff !important; }
       th, td { padding: 10px 8px; border-bottom: 1px solid rgba(255,255,255,0.05); }
       tr:hover td { background-color: rgba(255,255,255,0.02); }
+      .title-draft-shell { display: grid; grid-template-columns: 190px minmax(0, 1fr); gap: 20px; align-items: start; }
+      .title-draft-nav { position: sticky; top: 88px; display: flex; flex-direction: column; gap: 6px; border-right: 1px solid rgba(255,255,255,0.08); padding-right: 16px; }
+      .title-draft-section-btn { display: flex; align-items: center; gap: 10px; width: 100%; border: none; background: transparent; color: var(--text-main); padding: 10px 12px; border-radius: 6px; cursor: pointer; text-align: left; font-weight: 700; }
+      .title-draft-section-btn svg { width: 18px; height: 18px; }
+      .title-draft-section-btn.active, .title-draft-section-btn:hover { background: var(--accent-primary); color: #fff; }
+      .title-draft-section { display: none; padding-bottom: 20px; }
+      .title-draft-section.active { display: block; }
+      .title-draft-section h4 { color: white; font-size: 1.05rem; font-weight: 800; margin: 0 0 16px; }
+      .draft-grid { display: grid; gap: 14px; }
+      .draft-grid.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .draft-grid.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .draft-check-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 9px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; max-height: 180px; overflow: auto; padding: 12px; }
+      .draft-check-grid label { display: flex; align-items: center; gap: 8px; color: var(--text-main); font-size: 0.82rem; cursor: pointer; }
+      .title-draft-actions { position: sticky; bottom: 0; z-index: 5; display: flex; justify-content: flex-end; gap: 12px; padding: 18px 0 0; margin-top: 20px; border-top: 1px solid rgba(255,255,255,0.08); background: linear-gradient(to top, var(--bg-primary, #15171d) 80%, rgba(21,23,29,0)); }
+      .title-draft-actions .btn { min-width: 130px; border-radius: 6px; font-weight: 800; }
+      @@media (max-width: 900px) {
+        .title-draft-shell { grid-template-columns: 1fr; }
+        .title-draft-nav { position: static; border-right: 0; padding-right: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .draft-grid.two, .draft-grid.three { grid-template-columns: 1fr; }
+        .title-draft-actions { flex-wrap: wrap; }
+      }
     </style>
   </body>
 </html>

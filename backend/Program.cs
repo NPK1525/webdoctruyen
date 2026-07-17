@@ -1,14 +1,27 @@
+using AspNetCoreRateLimit;
 using MangaNPK.Data;
+using MangaNPK.Services;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
+
+// ── Data Protection ───────────────────────────────────────────────────────────
+var dataProtectionKeysPath = Path.Combine(builder.Environment.ContentRootPath, "App_Data", "DataProtectionKeys");
+Directory.CreateDirectory(dataProtectionKeysPath);
+builder.Services.AddDataProtection()
+    .PersistKeysToFileSystem(new DirectoryInfo(dataProtectionKeysPath));
+
+// ── Database ──────────────────────────────────────────────────────────────────
 builder.Services.AddDbContext<MangaDbContext>(options =>
+    // Tắt retry strategy mặc định để các transaction thủ công trong AdminController chạy ổn định.
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Add MVC with Razor Views + API Controllers
+// ── MVC + JSON ────────────────────────────────────────────────────────────────
 builder.Services.AddControllersWithViews()
     .AddJsonOptions(options =>
     {
@@ -16,54 +29,96 @@ builder.Services.AddControllersWithViews()
         options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
     });
 
-// Session for login state
+// ── Session ───────────────────────────────────────────────────────────────────
 builder.Services.AddSession(options =>
 {
     options.IdleTimeout = TimeSpan.FromHours(8);
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
+    options.Cookie.SameSite = SameSiteMode.Lax;
+    options.Cookie.SecurePolicy = builder.Environment.IsDevelopment()
+        ? CookieSecurePolicy.None
+        : CookieSecurePolicy.Always;
 });
 
 builder.Services.AddHttpContextAccessor();
+builder.Services.AddHttpClient<MangaDexService>();
+builder.Services.AddScoped<TitleSubmissionService>();
+builder.Services.AddScoped<MangaContributorAuthorizationService>();
+builder.Services.AddScoped<ChapterAdminService>();
+builder.Services.AddScoped<CatalogAdminService>();
+builder.Services.AddScoped<MangaDexImportService>();
+builder.Services.AddScoped<TitleDraftAdminService>();
+builder.Services.AddScoped<IFollowedUpdatesService, FollowedUpdatesService>();
+builder.Services.AddScoped<MangaListService>();
 
-// Configure CORS
+// ── CORS ──────────────────────────────────────────────────────────────────────
+// In development allow localhost origins; in production set AllowedOrigins in config.
+var allowedOrigins = builder.Configuration.GetSection("AllowedOrigins").Get<string[]>()
+    ?? ["http://localhost:3000", "http://localhost:5274"];
+
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAll", policy =>
+    options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.AllowAnyOrigin()
+        policy.WithOrigins(allowedOrigins)
               .AllowAnyMethod()
-              .AllowAnyHeader();
+              .AllowAnyHeader()
+              .AllowCredentials(); // required for session cookies
     });
 });
 
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+// ── Rate Limiting ─────────────────────────────────────────────────────────────
+builder.Services.AddMemoryCache();
+builder.Services.Configure<IpRateLimitOptions>(builder.Configuration.GetSection("IpRateLimiting"));
+builder.Services.AddSingleton<IIpPolicyStore, MemoryCacheIpPolicyStore>();
+builder.Services.AddSingleton<IRateLimitCounterStore, MemoryCacheRateLimitCounterStore>();
+builder.Services.AddSingleton<IRateLimitConfiguration, RateLimitConfiguration>();
+builder.Services.AddSingleton<IProcessingStrategy, AsyncKeyLockProcessingStrategy>();
+builder.Services.AddInMemoryRateLimiting();
+
+// ── OpenAPI ───────────────────────────────────────────────────────────────────
 builder.Services.AddOpenApi();
 
 var app = builder.Build();
 
-// Seed Database on startup
+// ── Database Seed ─────────────────────────────────────────────────────────────
 using (var scope = app.Services.CreateScope())
 {
-    var services = scope.ServiceProvider;
     try
     {
-        var context = services.GetRequiredService<MangaDbContext>();
-        MangaDbSeeder.Seed(context);
+        var context = scope.ServiceProvider.GetRequiredService<MangaDbContext>();
+        MangaDbSeeder.Seed(context, builder.Configuration);
     }
     catch (Exception ex)
     {
-        var logger = services.GetRequiredService<ILogger<Program>>();
-        logger.LogError(ex, "An error occurred while migrating or seeding the database.");
+        Console.Error.WriteLine($"An error occurred while migrating or seeding the database: {ex}");
     }
 }
 
+// ── Middleware Pipeline ───────────────────────────────────────────────────────
 if (!app.Environment.IsDevelopment())
 {
     app.UseHttpsRedirection();
 }
 
-app.UseCors("AllowAll");
+app.UseIpRateLimiting();
+app.UseCors("AllowFrontend");
+app.Use(async (context, next) =>
+{
+    var destination = LegacyRouteRedirect.Resolve(
+        context.Request.Path.Value,
+        context.Request.Query["mangaId"].FirstOrDefault(),
+        context.Request.Query["chapterId"].FirstOrDefault());
+
+    if (destination is not null)
+    {
+        context.Response.Redirect(destination, permanent: false);
+        return;
+    }
+
+    await next();
+});
 app.UseStaticFiles();
 app.UseSession();
 app.UseAuthorization();

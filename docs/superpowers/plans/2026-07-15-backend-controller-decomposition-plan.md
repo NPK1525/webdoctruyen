@@ -162,7 +162,7 @@ Use the corresponding class name/dependencies for the other three controllers.
 
 - [ ] **Step 2: Move catalog actions exactly**
 
-Move `CreateAuthor`, `CreateGenre`, `CreateTheme`, `CreateManga`, `UpdateManga`, `DeleteManga`, and `Slugify` into `AdminCatalogController`. Preserve action attributes, response bodies, transaction boundaries and validation strings.
+Move `CreateAuthor`, `CreateGenre`, `CreateTheme`, `CreateManga`, `UpdateManga`, and `DeleteManga` into `AdminCatalogController`. Preserve action attributes, response bodies, transaction boundaries and validation strings.
 
 - [ ] **Step 3: Move chapter actions exactly**
 

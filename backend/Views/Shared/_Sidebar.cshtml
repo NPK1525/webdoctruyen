@@ -1,59 +1,68 @@
-<div id="sidebar-drawer-overlay" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0,0,0,0.6); backdrop-filter: blur(4px); z-index: 1010; opacity: 0; pointer-events: none; transition: opacity 0.3s ease;"></div>
+﻿<div id="sidebar-drawer-overlay" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0,0,0,0.6); backdrop-filter: blur(4px); z-index: 1010; opacity: 0; pointer-events: none; transition: opacity 0.3s ease;"></div>
 <div id="sidebar-drawer">
   <div class="sidebar-header">
     <div style="display: flex; align-items: center; gap: 10px; cursor: pointer;" id="sidebar-logo">
-      <div style="width: 32px; height: 32px; border-radius: 6px; background-color: #FF8C00; display: flex; align-items: center; justify-content: center;">
-        <i data-lucide="book-open" style="width: 16px; height: 16px; color: white;"></i>
+      <div style="width: 30px; height: 30px; border-radius: 6px; background-color: #FF8C00; display: flex; align-items: center; justify-content: center;">
+        <i data-lucide="book-open" style="width: 15px; height: 15px; color: white;"></i>
       </div>
-      <span style="font-size: 1.2rem; font-weight: 800; color: white;">Manga<span style="color: #FF8C00;">NPK</span></span>
+      <span style="font-size: 1.12rem; font-weight: 800; color: white;">Manga<span style="color: #FF8C00;">NPK</span></span>
     </div>
     <button id="sidebar-close-btn" style="color: white; cursor: pointer; display: flex; align-items: center; background: none; border: none;" title="Đóng">
       <i data-lucide="x" style="width: 20px; height: 20px;"></i>
     </button>
   </div>
   <div class="sidebar-content-scroll">
-    <div class="sidebar-menu-section">
-      <button id="nav-home-btn" class="sidebar-sub-item active" style="font-weight: 700; padding: 10px 16px; font-size: 0.95rem; width: 100%; border: none; background: none; cursor: pointer;">
-        <span style="display: flex; align-items: center; gap: 12px;"><i data-lucide="home" style="width: 18px; height: 18px;"></i><span>Trang Chủ</span></span>
-      </button>
-      <button class="sidebar-sub-item" onclick="alert('Tính năng đang phát triển!')" style="width: 100%; border: none; background: none; cursor: pointer;">
-        <span style="display: flex; align-items: center; gap: 12px;"><i data-lucide="rss" style="width: 18px; height: 18px;"></i><span>Bảng tin</span></span>
-        <span class="sidebar-badge-red">Mới</span>
-      </button>
-      <button id="nav-bookmarks-btn" class="sidebar-sub-item" style="width: 100%; border: none; background: none; cursor: pointer;">
-        <span style="display: flex; align-items: center; gap: 12px;"><i data-lucide="bookmark" style="width: 18px; height: 18px;"></i><span>Tủ Sách của Tôi</span></span>
+    <div class="sidebar-menu-section sidebar-menu-section-tight">
+      <button id="nav-home-btn" class="sidebar-sub-item active sidebar-main-item">
+        <span><i data-lucide="home"></i><span data-i18n="nav.home">Home</span></span>
       </button>
     </div>
+
     <div class="sidebar-menu-section">
       <div class="sidebar-section-title">
-        <span class="sidebar-section-title-left"><i data-lucide="book-open" style="width: 18px; height: 18px;"></i><span>Truyện Tranh</span></span>
-        <i data-lucide="plus" style="width: 16px; height: 16px; color: white;"></i>
+        <span class="sidebar-section-title-left"><i data-lucide="bookmark"></i><span data-i18n="nav.follow">Follows</span></span>
       </div>
       <div class="sidebar-sub-list">
-        <button class="sidebar-sub-item" onclick="document.getElementById('header-search-input').focus();" style="width: 100%; border: none; background: none; cursor: pointer;">Tìm kiếm nâng cao</button>
-        <button class="sidebar-sub-item" onclick="alert('Tính năng mới cập nhật!')" style="width: 100%; border: none; background: none; cursor: pointer;">Mới cập nhật</button>
-        <button class="sidebar-sub-item" onclick="alert('Tính năng ngẫu nhiên!')" style="width: 100%; border: none; background: none; cursor: pointer;">Ngẫu nhiên</button>
+        <button id="nav-updates-btn" class="sidebar-sub-item" data-i18n="nav.updates">Updates</button>
+        <button id="nav-library-btn" class="sidebar-sub-item" data-i18n="nav.library">Library</button>
+        <button id="nav-lists-btn" class="sidebar-sub-item" data-i18n="nav.mdlists">MDLists</button>
+        <button id="nav-history-btn" class="sidebar-sub-item" data-i18n="nav.history">Reading History</button>
       </div>
     </div>
+
     <div class="sidebar-menu-section">
       <div class="sidebar-section-title">
-        <span class="sidebar-section-title-left"><i data-lucide="users" style="width: 18px; height: 18px;"></i><span>Cộng đồng</span></span>
+        <span class="sidebar-section-title-left"><i data-lucide="book-open"></i><span data-i18n="nav.titles">Titles</span></span>
       </div>
       <div class="sidebar-sub-list">
-        <button class="sidebar-sub-item" onclick="alert('Diễn đàn đang phát triển!')" style="width: 100%; border: none; background: none; cursor: pointer;">Diễn đàn</button>
-        <button class="sidebar-sub-item" onclick="alert('Nhóm dịch đang phát triển!')" style="width: 100%; border: none; background: none; cursor: pointer;">Nhóm dịch</button>
+        <button id="nav-advanced-search-btn" class="sidebar-sub-item" data-i18n="nav.advancedSearch">Advanced Search</button>
+        <button id="nav-recently-added-btn" class="sidebar-sub-item" data-i18n="nav.recentlyAdded">Recently Added</button>
+        <button id="nav-latest-updates-btn" class="sidebar-sub-item" data-i18n="nav.latestUpdates">Latest Updates</button>
+      <button class="sidebar-sub-item" onclick="showToast('Tính năng đang phát triển!')" data-i18n="sidebar.random">Random</button>
       </div>
     </div>
+
     <div class="sidebar-menu-section">
       <div class="sidebar-section-title">
-        <span class="sidebar-section-title-left"><i data-lucide="info" style="width: 18px; height: 18px;"></i><span>MangaNPK</span></span>
+        <span class="sidebar-section-title-left"><i data-lucide="pin"></i><span>MangaDex</span></span>
       </div>
       <div class="sidebar-sub-list">
-        <button id="nav-info-btn" class="sidebar-sub-item" style="width: 100%; border: none; background: none; cursor: pointer;">Giới thiệu</button>
-        <button id="nav-admin-btn" class="sidebar-sub-item" style="display: none; width: 100%; border: none; background: none; cursor: pointer;">Bảng quản trị</button>
-        <button class="sidebar-sub-item" onclick="alert('Liên hệ: contact@manganpk.com')" style="width: 100%; border: none; background: none; cursor: pointer;">Liên hệ</button>
+        <button id="nav-info-btn" class="sidebar-sub-item" data-i18n="nav.aboutUs">About Us</button>
+      <button class="sidebar-sub-item" onclick="showToast('Liên hệ: contact@manganpk.com')" data-i18n="nav.contact">Contact</button>
       </div>
     </div>
+
+    <div class="sidebar-menu-section">
+      <div class="sidebar-section-title">
+        <span class="sidebar-section-title-left"><i data-lucide="copyright"></i><span data-i18n="nav.compliance">Compliance</span></span>
+      </div>
+      <div class="sidebar-sub-list">
+      <button class="sidebar-sub-item" onclick="showToast('Tính năng đang phát triển!')" data-i18n="nav.rightsholders">Rightsholders</button>
+      <button class="sidebar-sub-item" onclick="showToast('Tính năng đang phát triển!')" data-i18n="nav.copyrightCenter">Copyright Center</button>
+      <button id="nav-admin-btn" class="sidebar-sub-item" style="display: none;" data-i18n="nav.admin">Bảng quản trị</button>
+      </div>
+    </div>
+
     <div id="sidebar-footer-area"></div>
   </div>
 </div>

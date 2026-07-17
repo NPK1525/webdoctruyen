@@ -1,4 +1,4 @@
-@{
+﻿@{
     Layout = null;
 }
 <!DOCTYPE html>
@@ -6,8 +6,9 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>MangaNPK - Đọc Truyện Tranh Online</title>
-    <link rel="stylesheet" href="/css/style.css?v=3.0" />
+  <title>MangaNPK - Đọc Truyện Tranh Online</title>
+    <link rel="stylesheet" href="/css/style.css?v=4.9" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
     <script src="https://unpkg.com/lucide@latest"></script>
   </head>
   <body>
@@ -17,56 +18,76 @@
       @await Html.PartialAsync("_AuthModal")
 
       <main id="main-layout" style="flex: 1; display: flex; flex-direction: column; width: 100%;">
-        <section style="width: 100%; position: relative; overflow: hidden; background-color: #0B0E14; margin-top: -70px; margin-bottom: 30px;">
+        <section style="width: 100%; position: relative; overflow: hidden; background-color: var(--bg-darker, #0B0E14); margin-top: -70px; margin-bottom: 30px;">
           <div id="featured-slider-container" style="width: 100%;"></div>
         </section>
 
         <div class="container" style="position: relative; width: 100%;">
-          <div class="glass-card" style="padding: 16px 24px; border-radius: var(--radius-md); display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 15px; margin-bottom: 30px;">
-            <div style="display: flex; gap: 8px; background-color: #0B0E14; padding: 4px; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);">
-              <button class="type-filter-btn active" data-type="All" style="padding: 6px 16px; border-radius: 4px; font-size: 0.85rem; font-weight: 700; transition: all 0.2s; background-color: #FF4552; color: white;">Tất cả</button>
-              <button class="type-filter-btn" data-type="Manga" style="padding: 6px 16px; border-radius: 4px; font-size: 0.85rem; font-weight: 700; transition: all 0.2s; background-color: transparent; color: var(--text-muted);">Manga</button>
-              <button class="type-filter-btn" data-type="Manhwa" style="padding: 6px 16px; border-radius: 4px; font-size: 0.85rem; font-weight: 700; transition: all 0.2s; background-color: transparent; color: var(--text-muted);">Manhwa</button>
-              <button class="type-filter-btn" data-type="Manhua" style="padding: 6px 16px; border-radius: 4px; font-size: 0.85rem; font-weight: 700; transition: all 0.2s; background-color: transparent; color: var(--text-muted);">Manhua</button>
+
+          <!-- Filters -->
+          <div class="glass-card" style="padding: 20px 30px; border-radius: var(--radius-md); display: flex; align-items: center; gap: 15px; margin-bottom: 30px;">
+            <div style="display: flex; gap: 8px; background-color: var(--bg-darker, #0B0E14); padding: 4px; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);">
+              <button class="type-filter-btn active" data-type="All" style="padding: 8px 18px; border-radius: 4px; font-size: 0.95rem; font-weight: 700; transition: all 0.2s; background-color: var(--accent-primary); color: white;" data-i18n="filter.all">T&#7845;t c&#7843;</button>
+              <button class="type-filter-btn" data-type="Manga" style="padding: 8px 18px; border-radius: 4px; font-size: 0.95rem; font-weight: 700; transition: all 0.2s; background-color: transparent; color: var(--text-muted);" data-i18n="filter.typeManga">Manga</button>
+              <button class="type-filter-btn" data-type="Manhwa" style="padding: 8px 18px; border-radius: 4px; font-size: 0.95rem; font-weight: 700; transition: all 0.2s; background-color: transparent; color: var(--text-muted);" data-i18n="filter.typeManhwa">Manhwa</button>
+              <button class="type-filter-btn" data-type="Manhua" style="padding: 8px 18px; border-radius: 4px; font-size: 0.95rem; font-weight: 700; transition: all 0.2s; background-color: transparent; color: var(--text-muted);" data-i18n="filter.typeManhua">Manhua</button>
             </div>
-            <div style="position: relative;" id="genre-select-dropdown-container">
-              <div id="genre-select-trigger" style="display: flex; align-items: center; gap: 10px; background-color: #1C2330; border: 1px solid #30363D; border-radius: var(--radius-sm); height: 38px; padding: 0 16px; cursor: pointer; user-select: none;">
-                <i data-lucide="tag" style="width: 14px; height: 14px; color: var(--text-muted);"></i>
-                <span id="current-genre-label" style="font-size: 0.85rem; font-weight: 600;">Thể loại</span>
-                <i data-lucide="chevron-left" id="genre-dropdown-chevron" style="width: 14px; height: 14px; transform: rotate(-90deg); color: var(--text-muted); transition: transform 0.2s;"></i>
-              </div>
-              <div id="genre-select-options" style="display: none; position: absolute; top: 44px; right: 0; width: 220px; max-height: 250px; overflow-y: auto; background-color: #1E2026; border: 1px solid rgba(255,255,255,0.08); border-radius: var(--radius-sm); z-index: 100; box-shadow: var(--shadow-md); padding: 4px 0;">
-                <div class="dropdown-item active" data-genre-id="null" style="padding: 10px 16px; font-size: 0.85rem; color: var(--text-main); cursor: pointer; font-weight: 600;">Tất cả thể loại</div>
-                <div id="genres-list-container"></div>
+          </div>
+
+          <!-- Manga carousel -->
+          <div class="header md:overflow-hidden">
+            <div class="flex justify-between items-center text-2xl mb-4">
+              <a href="/manga" class="link section-title" data-i18n="section.recommended">Gợi Ý Cho Bạn</a>
+              <a href="/manga" class="rounded custom-opacity relative md-btn flex items-center px-3 overflow-hidden accent text rounded-full !px-0" aria-label="Xem danh sách truyện gợi ý" style="min-height: 2.5rem; min-width: 2.5rem;">
+                <span class="flex relative items-center justify-center font-medium select-none w-full pointer-events-none" style="justify-content: center;">
+                  <i data-lucide="chevron-right" style="width: 22px; height: 22px;"></i>
+                </span>
+              </a>
+            </div>
+
+            <div id="manga-loading-placeholder" style="display: none; justify-content: center; align-items: center; padding: 60px 0;">
+              <div class="loader"></div>
+            </div>
+
+            <div id="manga-swiper-view" style="position: relative;">
+              <div class="swiper manga-swiper fill-width">
+                <div class="swiper-wrapper" id="manga-grid-container"></div>
+                <div class="swiper-button-next"></div>
+                <div class="swiper-button-prev"></div>
+                <div class="swiper-pagination"></div>
               </div>
             </div>
           </div>
 
-          <h3 class="section-title">Danh Sách Truyện Tranh</h3>
-          <div id="manga-loading-placeholder" style="display: none; justify-content: center; align-items: center; padding: 60px 0;">
-            <div class="loader" style="border: 4px solid rgba(255,255,255,0.1); border-top: 4px solid #FF4552; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite;"></div>
-          </div>
-          <div id="manga-grid-container" class="manga-grid"></div>
-          <div id="pagination-container" style="display: flex; justify-content: center; align-items: center; gap: 15px; margin-top: 40px; margin-bottom: 40px;">
-            <button id="prev-page-btn" class="btn btn-secondary" style="border-radius: 20px; padding: 6px 20px; display: flex; align-items: center; gap: 6px;">
-              <i data-lucide="chevron-left" style="width: 16px; height: 16px;"></i> Trước
-            </button>
-            <span id="page-number-label" style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted);">Trang 1 / 1</span>
-            <button id="next-page-btn" class="btn btn-secondary" style="border-radius: 20px; padding: 6px 20px; display: flex; align-items: center; gap: 6px;">
-              Tiếp <i data-lucide="chevron-right" style="width: 16px; height: 16px;"></i>
-            </button>
-          </div>
+          <!-- Latest Updates -->
+          <section class="latest-updates-section">
+            <h3 class="section-title" style="margin-bottom: 16px;" data-i18n="section.latestUpdates">
+              <i data-lucide="clock" style="width: 18px; height: 18px; display: inline-block; vertical-align: middle; margin-right: 8px;"></i>
+              Latest Updates
+            </h3>
+            <div class="latest-updates-panel">
+              <div id="latest-updates-container"></div>
+            </div>
+          </section>
         </div>
       </main>
     </div>
 
-    <script src="/js/common.js?v=3.0"></script>
-    <script src="/js/index.js?v=3.0"></script>
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+    <script src="/js/i18n.js?v=4.0"></script>
+    <script src="/js/common-library.js?v=1.0"></script>
+    <script src="/js/common-auth.js?v=1.0"></script>
+<script src="/js/common.js?v=5.5"></script>
+    <script src="/js/index.js?v=3.8"></script>
     <style>
       @@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
       .dropdown-item { padding: 8px 16px; font-size: 0.85rem; color: var(--text-main); cursor: pointer; transition: background-color 0.15s, color 0.15s; }
       .dropdown-item:hover { background-color: rgba(255,255,255,0.05); color: white; }
-      .dropdown-item.active { color: #FF4552; background-color: rgba(255,69,82,0.1); font-weight: 600; }
+      .dropdown-item.active { color: #fff; background-color: var(--accent-primary); font-weight: 600; }
+      .manga-swiper { padding: 8px 4px 40px 4px !important; }
+      .manga-swiper .swiper-slide { height: auto; }
+      .swiper-pagination-bullet { background: var(--text-muted) !important; opacity: 0.5; }
+      .swiper-pagination-bullet-active { background: var(--accent-primary) !important; opacity: 1; }
     </style>
   </body>
 </html>

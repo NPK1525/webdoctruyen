@@ -1,7 +1,6 @@
 using MangaNPK.Data;
 using MangaNPK.Filters;
 using MangaNPK.Models;
-using MangaNPK.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -9,14 +8,9 @@ namespace MangaNPK.Controllers
 {
     [Route("admin")]
     [RequireAdmin]
-    public class AdminViewController(
-        MangaDbContext context,
-        IWebHostEnvironment environment,
-        ILogger<AdminViewController> logger) : Controller
+    public class AdminViewController(MangaDbContext context) : Controller
     {
         private readonly MangaDbContext _context = context;
-        private readonly IWebHostEnvironment _environment = environment;
-        private readonly ILogger<AdminViewController> _logger = logger;
 
         // GET /admin
         [HttpGet("")]
@@ -170,142 +164,9 @@ namespace MangaNPK.Controllers
             return RedirectToAction("MangaList");
         }
 
-        // ── CHAPTER ────────────────────────────────────────────────────────────
-
+        // Legacy chapter-create links now land on the current Admin chapter workflow.
         [HttpGet("chapter/create/{mangaId:int}")]
-        public async Task<IActionResult> ChapterCreate(int mangaId)
-        {
-            var manga = await _context.Mangas.FindAsync(mangaId);
-            if (manga == null) return NotFound();
-            ViewBag.Manga = manga;
-            return View();
-        }
-
-        [HttpPost("chapter/create/{mangaId:int}")]
-        [ValidateAntiForgeryToken]
-        [RequestSizeLimit(500L * 1024 * 1024)]
-        public async Task<IActionResult> ChapterCreate(
-            int mangaId,
-            double chapterNumber,
-            string? title,
-            string? pageUrls,
-            List<IFormFile>? pageFiles)
-        {
-            var manga = await _context.Mangas.FindAsync(mangaId);
-            if (manga == null) return NotFound();
-
-            pageFiles ??= [];
-            ViewBag.Manga = manga;
-            ViewBag.ChapterNumber = chapterNumber;
-            ViewBag.ChapterTitle = title;
-            ViewBag.PageUrls = pageUrls;
-
-            if (chapterNumber < 0)
-                return ChapterCreateError("Số chapter không được nhỏ hơn 0.");
-
-            var duplicateExists = await _context.Chapters.AnyAsync(c =>
-                c.MangaId == mangaId
-                && c.ChapterNumber == chapterNumber
-                && c.Source == "Local");
-            if (duplicateExists)
-                return ChapterCreateError($"Chapter {chapterNumber} đã tồn tại trong truyện này.");
-
-            var imageError = await ChapterImageValidator.ValidateAsync(pageFiles, HttpContext.RequestAborted);
-            if (imageError != null)
-                return ChapterCreateError(imageError);
-
-            var parsedUrls = ChapterUploadValidator.ParsePageUrls(pageUrls);
-            if (parsedUrls.Error != null)
-                return ChapterCreateError(parsedUrls.Error);
-
-            var pagesError = ChapterUploadValidator.ValidateHasPages(pageFiles.Count, parsedUrls.Urls.Count);
-            if (pagesError != null)
-                return ChapterCreateError(pagesError);
-
-            await using var transaction = await _context.Database.BeginTransactionAsync(HttpContext.RequestAborted);
-            string? chapterDirectory = null;
-
-            try
-            {
-                var chapter = new Chapter
-                {
-                    MangaId = mangaId,
-                    ChapterNumber = chapterNumber,
-                    Title = string.IsNullOrWhiteSpace(title) ? $"Chương {chapterNumber}" : title.Trim(),
-                    UploadedAt = DateTime.UtcNow,
-                    Source = "Local"
-                };
-                _context.Chapters.Add(chapter);
-                await _context.SaveChangesAsync(HttpContext.RequestAborted);
-
-                chapterDirectory = Path.Combine(
-                    _environment.WebRootPath,
-                    "uploads",
-                    "manga",
-                    mangaId.ToString(),
-                    "chapters",
-                    chapter.Id.ToString());
-                Directory.CreateDirectory(chapterDirectory);
-
-                var pages = new List<Page>();
-                var pageNumber = 1;
-                foreach (var file in pageFiles)
-                {
-                    var fileName = $"{pageNumber:0000}{ChapterImageValidator.GetSafeExtension(file.FileName)}";
-                    var filePath = Path.Combine(chapterDirectory, fileName);
-                    await using (var stream = new FileStream(filePath, FileMode.CreateNew, FileAccess.Write, FileShare.None))
-                    {
-                        await file.CopyToAsync(stream, HttpContext.RequestAborted);
-                    }
-
-                    pages.Add(new Page
-                    {
-                        ChapterId = chapter.Id,
-                        PageNumber = pageNumber++,
-                        ImageUrl = $"/uploads/manga/{mangaId}/chapters/{chapter.Id}/{fileName}"
-                    });
-                }
-
-                foreach (var url in parsedUrls.Urls)
-                {
-                    pages.Add(new Page
-                    {
-                        ChapterId = chapter.Id,
-                        PageNumber = pageNumber++,
-                        ImageUrl = url
-                    });
-                }
-
-                _context.Pages.AddRange(pages);
-                await _context.SaveChangesAsync(HttpContext.RequestAborted);
-                await transaction.CommitAsync(HttpContext.RequestAborted);
-
-                return RedirectToAction("Detail", "MangaView", new { id = mangaId });
-            }
-            catch (Exception exception)
-            {
-                await ChapterUploadCleanup.TryCleanupAsync(
-                    () => transaction.RollbackAsync(),
-                    () =>
-                    {
-                        if (chapterDirectory != null && Directory.Exists(chapterDirectory))
-                            Directory.Delete(chapterDirectory, recursive: true);
-                    },
-                    cleanupException => _logger.LogWarning(
-                        cleanupException,
-                        "Không thể hoàn tất cleanup cho chapter {ChapterDirectory}",
-                        chapterDirectory));
-
-                _logger.LogError(exception, "Không thể upload chapter {ChapterNumber} cho manga {MangaId}", chapterNumber, mangaId);
-                return ChapterCreateError("Không thể tải chapter lên. Vui lòng thử lại.");
-            }
-
-            ViewResult ChapterCreateError(string message)
-            {
-                ViewBag.Error = message;
-                return View("ChapterCreate");
-            }
-        }
+        public IActionResult ChapterCreate(int mangaId) => RedirectToAction(nameof(Index));
 
         // ── AUTHORS ────────────────────────────────────────────────────────────
 

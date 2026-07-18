@@ -378,7 +378,7 @@ function initAdminTabs() {
     resetMangaForm(); switchTab('manga-list');
   });
   document.querySelectorAll('.title-draft-section-btn').forEach(btn => {
-    btn.addEventListener('click', () => setTitleDraftSection(btn.dataset.section));
+    btn.addEventListener('click', () => scrollToTitleDraftSection(btn.dataset.section));
   });
   document.getElementById('btn-new-title-draft')?.addEventListener('click', () => {
     resetTitleDraftForm();

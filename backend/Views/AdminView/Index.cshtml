@@ -251,11 +251,11 @@
                           </div>
 
                           <div class="title-draft-actions">
-                            <button type="button" id="btn-cancel-title-draft" class="btn btn-secondary">Cancel</button>
-                            <button type="button" id="btn-reject-title-draft" class="btn btn-secondary" style="display:none;color:#ff6b6b;">T&#7915; ch&#7889;i</button>
-                            <button type="button" id="btn-approve-title-draft" class="btn btn-secondary" style="display:none;color:#10b981;">Duy&#7879;t</button>
-                            <button type="button" id="btn-save-title-draft" class="btn btn-secondary" style="display:none;">Lưu nháp</button>
-                            <button type="button" id="btn-submit-title-draft" class="btn btn-primary">Đăng truyện</button>
+                            <button type="button" id="btn-cancel-title-draft" class="btn btn-secondary"><i data-lucide="x"></i> Hủy</button>
+                            <button type="button" id="btn-reject-title-draft" class="btn btn-secondary" style="display:none;color:#ff6b6b;"><i data-lucide="circle-x"></i> T&#7915; ch&#7889;i</button>
+                            <button type="button" id="btn-approve-title-draft" class="btn btn-secondary" style="display:none;color:#10b981;"><i data-lucide="circle-check"></i> Duy&#7879;t</button>
+                            <button type="button" id="btn-save-title-draft" class="btn btn-secondary" style="display:none;"><i data-lucide="save"></i> Lưu nháp</button>
+                            <button type="button" id="btn-submit-title-draft" class="btn btn-primary"><i data-lucide="upload"></i> Đăng truyện</button>
                           </div>
                         </section>
                       </div>
@@ -522,8 +522,9 @@
       .draft-grid.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
       .draft-check-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 9px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; max-height: 180px; overflow: auto; padding: 12px; }
       .draft-check-grid label { display: flex; align-items: center; gap: 8px; color: var(--text-main); font-size: 0.82rem; cursor: pointer; }
-      .title-draft-actions { position: sticky; bottom: 0; z-index: 5; display: flex; justify-content: flex-end; gap: 12px; padding: 18px 0 0; margin-top: 20px; border-top: 1px solid rgba(255,255,255,0.08); background: linear-gradient(to top, var(--bg-primary, #15171d) 80%, rgba(21,23,29,0)); }
-      .title-draft-actions .btn { min-width: 130px; border-radius: 6px; font-weight: 800; }
+      .title-draft-actions { position: sticky; bottom: 0; z-index: 5; display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 12px; padding: 18px 0 0; margin-top: 20px; border-top: 1px solid var(--border-subtle); background: var(--bg-main); }
+      .title-draft-actions .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-width: 130px; border-radius: 20px; padding: 10px 24px; font-weight: 700; }
+      .title-draft-actions .btn svg { width: 18px; height: 18px; }
       @@media (max-width: 900px) {
         .title-draft-shell { grid-template-columns: 1fr; }
         .title-draft-nav { position: sticky; top: 72px; z-index: 6; display: flex; flex-direction: row; overflow-x: auto; border-right: 0; padding: 8px; background: var(--bg-main); }

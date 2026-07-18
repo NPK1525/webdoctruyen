@@ -4,6 +4,7 @@ obj/
 
 # Node
 node_modules/
+.worktrees/
 
 # User secrets & local settings
 appsettings.Development.json

@@ -95,13 +95,41 @@ function formatAdminDate(value) {
   return Number.isNaN(date.getTime()) ? '' : date.toLocaleString('vi-VN');
 }
 
-function setTitleDraftSection(section) {
+let titleDraftSectionObserver = null;
+
+function setActiveTitleDraftSection(section) {
   document.querySelectorAll('.title-draft-section-btn').forEach(btn => {
     btn.classList.toggle('active', btn.dataset.section === section);
   });
-  document.querySelectorAll('.title-draft-section').forEach(panel => {
-    panel.classList.toggle('active', panel.dataset.sectionPanel === section);
-  });
+}
+
+function scrollToTitleDraftSection(section, behavior = 'smooth') {
+  const panel = document.querySelector(`.title-draft-section[data-section-panel="${section}"]`);
+  if (!panel) return;
+  setActiveTitleDraftSection(section);
+  panel.scrollIntoView({ behavior, block: 'start' });
+}
+
+function disconnectTitleDraftSectionObserver() {
+  titleDraftSectionObserver?.disconnect();
+  titleDraftSectionObserver = null;
+}
+
+function initTitleDraftSectionObserver() {
+  disconnectTitleDraftSectionObserver();
+  if (!('IntersectionObserver' in window)) return;
+
+  const panels = [...document.querySelectorAll('.title-draft-section[data-section-panel]')];
+  if (!panels.length) return;
+
+  titleDraftSectionObserver = new IntersectionObserver(entries => {
+    const visible = entries
+      .filter(entry => entry.isIntersecting)
+      .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+    if (visible) setActiveTitleDraftSection(visible.target.dataset.sectionPanel);
+  }, { rootMargin: '-20% 0px -60% 0px', threshold: [0, 0.2, 0.5, 0.75] });
+
+  panels.forEach(panel => titleDraftSectionObserver.observe(panel));
 }
 
 function resetTitleDraftForm() {
@@ -120,15 +148,20 @@ function resetTitleDraftForm() {
   document.getElementById('btn-approve-title-draft').style.display = 'none';
   document.getElementById('btn-reject-title-draft').style.display = 'none';
   document.getElementById('title-draft-list-panel').style.display = 'block';
+  disconnectTitleDraftSectionObserver();
+  setActiveTitleDraftSection('basic');
   form.style.display = 'none';
   renderDraftImagePreview();
-  setTitleDraftSection('basic');
 }
 
 function showTitleDraftForm() {
   document.getElementById('title-draft-list-panel').style.display = 'none';
   document.getElementById('title-draft-form').style.display = 'block';
-  setTitleDraftSection('basic');
+  setActiveTitleDraftSection('basic');
+  requestAnimationFrame(() => {
+    scrollToTitleDraftSection('basic', 'auto');
+    initTitleDraftSectionObserver();
+  });
   if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 

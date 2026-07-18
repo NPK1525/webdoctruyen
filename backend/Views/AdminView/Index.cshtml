@@ -514,9 +514,9 @@
       .title-draft-section-btn { display: flex; align-items: center; gap: 10px; width: 100%; border: none; background: transparent; color: var(--text-main); padding: 10px 12px; border-radius: 6px; cursor: pointer; text-align: left; font-weight: 700; }
       .title-draft-section-btn svg { width: 18px; height: 18px; }
       .title-draft-section-btn.active, .title-draft-section-btn:hover { background: var(--accent-primary); color: #fff; }
-      .title-draft-section { display: none; padding-bottom: 20px; }
-      .title-draft-section.active { display: block; }
-      .title-draft-section h4 { color: white; font-size: 1.05rem; font-weight: 800; margin: 0 0 16px; }
+      .title-draft-main { min-width: 0; }
+      .title-draft-section { display: block; scroll-margin-top: 96px; margin-bottom: 18px; padding: 20px; border: 1px solid var(--border-subtle); border-radius: 10px; background: var(--bg-card); }
+      .title-draft-section h4 { color: var(--text-main); font-size: 1.05rem; font-weight: 800; margin: 0 0 16px; }
       .draft-grid { display: grid; gap: 14px; }
       .draft-grid.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .draft-grid.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
@@ -526,7 +526,9 @@
       .title-draft-actions .btn { min-width: 130px; border-radius: 6px; font-weight: 800; }
       @@media (max-width: 900px) {
         .title-draft-shell { grid-template-columns: 1fr; }
-        .title-draft-nav { position: static; border-right: 0; padding-right: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .title-draft-nav { position: sticky; top: 72px; z-index: 6; display: flex; flex-direction: row; overflow-x: auto; border-right: 0; padding: 8px; background: var(--bg-main); }
+        .title-draft-section-btn { flex: 0 0 auto; width: auto; white-space: nowrap; }
+        .title-draft-section { scroll-margin-top: 142px; }
         .draft-grid.two, .draft-grid.three { grid-template-columns: 1fr; }
         .title-draft-actions { flex-wrap: wrap; }
       }

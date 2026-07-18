@@ -17,8 +17,7 @@ Loại bỏ giao diện upload chapter riêng được mở từ nút **Upload C
 
 ## Banner chi tiết truyện
 
-- Bổ sung `bannerUrl` vào dữ liệu chi tiết được truyền cho JavaScript.
-- Ảnh nền ưu tiên `BannerUrl`; nếu trống thì dùng `CoverUrl`.
+- Không thay đổi model hoặc database; ảnh nền banner tiếp tục dùng `CoverUrl`.
 - Desktop dùng khung hero cố định `430px`; nền phủ toàn khung bằng `object-fit: cover`, căn giữa, làm mờ và có overlay để chữ dễ đọc.
 - Ảnh bìa desktop cố định `250px × 356px` với `object-fit: cover`.
 - Vùng thông tin có chiều cao ổn định; tiêu đề dài được giới hạn vùng hiển thị và không làm tăng chiều cao hero.
@@ -32,7 +31,7 @@ Loại bỏ giao diện upload chapter riêng được mở từ nút **Upload C
 - Contract test xác nhận tiêu đề danh sách chương không nối số lượng.
 - Contract test xác nhận view và asset upload tĩnh đã được xóa.
 - Controller test xác nhận GET URL cũ chuyển hướng về Admin và không còn POST action cũ.
-- Contract test xác nhận dữ liệu dùng `BannerUrl` với fallback `CoverUrl`.
+- Contract test xác nhận ảnh nền banner dùng `CoverUrl` và không yêu cầu trường database mới.
 - Contract test xác nhận kích thước hero/ảnh bìa desktop và responsive mobile.
 - Chạy toàn bộ JavaScript tests, backend tests và build.
 

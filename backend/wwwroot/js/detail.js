@@ -258,7 +258,7 @@ function renderChaptersList() {
   if (!mangaDetail || !mangaDetail.chapters) return;
 
   const countLabel = document.getElementById('chapters-count-label');
-  if (countLabel) countLabel.textContent = `${t('detail.chapterList', 'Danh sách chương')} (${mangaDetail.chapters.length})`;
+  if (countLabel) countLabel.textContent = t('detail.chapterList', 'Danh sách chương');
 
   const container = document.getElementById('chapters-list-container');
   if (!container) return;

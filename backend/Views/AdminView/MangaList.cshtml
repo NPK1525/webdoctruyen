@@ -44,7 +44,6 @@
                             <td style="font-size:.8rem;">@m.CreatedAt.ToLocalTime().ToString("dd/MM/yy")</td>
                             <td>
                                 <a asp-action="MangaEdit" asp-route-id="@m.Id" class="btn btn-sm btn-warning me-1"><i class="bi bi-pencil"></i></a>
-                                <a asp-controller="AdminView" asp-action="ChapterCreate" asp-route-mangaId="@m.Id" class="btn btn-sm btn-success me-1"><i class="bi bi-plus"></i></a>
                                 <form asp-action="MangaDelete" asp-route-id="@m.Id" method="post" style="display:inline;" onsubmit="return confirm('Xoá manga này?')">
                                     @Html.AntiForgeryToken()
                                     <button type="submit" class="btn btn-sm btn-danger"><i class="bi bi-trash"></i></button>

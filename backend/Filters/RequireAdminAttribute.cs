@@ -56,8 +56,7 @@ namespace MangaNPK.Filters
                 return false;
 
             var actionName = descriptor.ActionName;
-            var isChapterAction = string.Equals(actionName, "ChapterCreate", StringComparison.Ordinal)
-                || string.Equals(actionName, "GetChapterForEditing", StringComparison.Ordinal)
+            var isChapterAction = string.Equals(actionName, "GetChapterForEditing", StringComparison.Ordinal)
                 || string.Equals(actionName, "UpdateChapter", StringComparison.Ordinal);
             if (!isChapterAction) return false;
 

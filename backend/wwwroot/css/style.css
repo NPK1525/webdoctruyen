@@ -844,10 +844,13 @@ body.light-mode.detail-page .detail-tags .tag.content-warning.warning-gore {
 
 /* MangaDex-inspired detail refinements */
 .detail-page .detail-banner {
+  height: 430px;
   min-height: 430px;
 }
 
 .detail-page .detail-banner .banner-bg-img {
+  object-fit: cover;
+  object-position: center;
   filter: blur(10px) brightness(0.7) saturate(1.05);
   transform: scale(1.08);
 }
@@ -855,8 +858,10 @@ body.light-mode.detail-page .detail-tags .tag.content-warning.warning-gore {
 .detail-page .detail-banner-content {
   align-items: flex-start;
   gap: 20px;
+  height: 360px;
   min-height: 360px;
   padding-top: 12px;
+  overflow: hidden;
 }
 
 .detail-page .detail-cover {
@@ -1254,6 +1259,17 @@ body.light-mode.detail-page .rating-score-option:hover {
   }
 
   /* Banner Area */
+  .detail-page .detail-banner {
+    height: auto;
+    min-height: 0;
+  }
+
+  .detail-page .detail-banner-content {
+    height: auto;
+    min-height: 0;
+    overflow: visible;
+  }
+
   .detail-banner-content {
     flex-direction: column;
     align-items: center;

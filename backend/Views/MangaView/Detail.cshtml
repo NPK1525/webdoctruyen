@@ -74,12 +74,6 @@
                     <button class="btn-action secondary" id="btn-report-manga">
                       <i data-lucide="flag" style="width: 16px; height: 16px;"></i> Report
                     </button>
-                    @if (ViewBag.CanManageChapters == true)
-                    {
-                      <a class="btn-action secondary" id="btn-upload-chapter" href="/admin/chapter/create/@Model.Id">
-                        <i data-lucide="upload" style="width: 16px; height: 16px;"></i> Upload Chapter
-                      </a>
-                    }
                   </div>
                   <div class="detail-tags" id="manga-genres-tags"></div>
                   <div class="detail-stats-row">
@@ -119,7 +113,7 @@
                 </div>
                 <div id="tab-content-chapters" class="tab-pane animate-fade-in">
                   <div class="detail-chapter-toolbar">
-                  <h3 style="font-size: 1.15rem; font-weight: 700; color: white; margin: 0;" id="chapters-count-label" data-i18n="detail.chapterList">Danh Sách Chương (0)</h3>
+                  <h3 style="font-size: 1.15rem; font-weight: 700; color: white; margin: 0;" id="chapters-count-label" data-i18n="detail.chapterList">Danh sách chương</h3>
                     <button class="btn btn-secondary" id="btn-sort-chapters" style="border-radius: 4px; padding: 6px 12px; font-size: 0.8rem; display: flex; align-items: center; gap: 6px;">
                     <i data-lucide="layers" style="width: 14px; height: 14px;"></i> <span data-i18n="detail.newestFirst">Mới nhất trước</span>
                     </button>

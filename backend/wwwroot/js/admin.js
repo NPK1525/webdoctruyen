@@ -13,6 +13,9 @@ let chapterMangaSearchTimer = null;
 let chapterListSearchTimer = null;
 let chapterListPage = 1;
 let chapterListPageSize = 20;
+const adminCatalogPageSize = 20;
+let authorManagementPage = 1;
+let genreManagementPage = 1;
 
 // Data lists
 let authorsList = [];
@@ -23,6 +26,10 @@ let titleDraftsList = [];
 let mangaDexPreview = null;
 let editingTitleDraftId = null;
 let currentTitleDraft = null;
+
+function adminEscapeHtml(value) {
+  return String(value ?? '').replace(/[&<>"']/g, character => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[character]));
+}
 
 // Upload state
 let uploadedChapterPages = [];
@@ -58,15 +65,50 @@ async function loadAdminData() {
 async function loadAuthors() {
   try {
     const res = await fetch(`${API_BASE}/author`);
-    if (res.ok) { authorsList = await res.json(); populateAuthorsDropdowns(); populateTitleAuthorDropdown(); }
+    if (res.ok) { authorsList = await res.json(); populateAuthorsDropdowns(); populateTitleAuthorDropdown(); renderAuthorManagement(); }
   } catch (e) { console.error(e); }
 }
 
 async function loadGenres() {
   try {
     const res = await fetch(`${API_BASE}/genre`);
-    if (res.ok) { genresList = await res.json(); renderGenresCheckboxes(); }
+    if (res.ok) { genresList = await res.json(); renderGenresCheckboxes(); renderGenreManagement(); }
   } catch (e) { console.error(e); }
+}
+
+function renderAuthorManagement() {
+  const root = document.getElementById('admin-author-management-list'); if (!root) return;
+  const term = document.getElementById('admin-author-search')?.value.trim().toLowerCase() || '';
+  const filtered = authorsList.filter(a => !term || a.name.toLowerCase().includes(term));
+  const totalPages = Math.max(1, Math.ceil(filtered.length / adminCatalogPageSize));
+  authorManagementPage = Math.min(authorManagementPage, totalPages);
+  const items = filtered.slice((authorManagementPage - 1) * adminCatalogPageSize, authorManagementPage * adminCatalogPageSize);
+  root.innerHTML = items.map(a => `<div class="management-row"><input value="${adminEscapeHtml(a.name)}" data-author-name="${a.id}"><button class="management-save" data-author-save="${a.id}">Lưu</button><button class="management-delete" data-author-delete="${a.id}">Xóa</button></div>`).join('') || '<p class="management-empty">Chưa có tác giả.</p>';
+  renderCatalogPagination('admin-author-pagination', authorManagementPage, totalPages, page => { authorManagementPage = page; renderAuthorManagement(); });
+  root.querySelectorAll('[data-author-save]').forEach(b => b.onclick = async () => { const id=Number(b.dataset.authorSave), author=authorsList.find(a=>a.id===id); const name=root.querySelector(`[data-author-name="${id}"]`).value.trim(); const res=await apiFetch(`${API_BASE}/admin/author/${id}`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,biography:author?.biography||''})}); if(res.ok) await loadAuthors(); else showToast('Không thể cập nhật tác giả.',false); });
+  root.querySelectorAll('[data-author-delete]').forEach(b => b.onclick = async () => { if(!confirm('Xóa tác giả này?')) return; const res=await apiFetch(`${API_BASE}/admin/author/${b.dataset.authorDelete}`,{method:'DELETE'}); if(res.ok) await loadAuthors(); else showToast((await res.json().catch(()=>({}))).message||'Không thể xóa tác giả.',false); });
+}
+
+function renderGenreManagement() {
+  const root = document.getElementById('admin-genre-management-list'); if (!root) return;
+  const term = document.getElementById('admin-genre-search')?.value.trim().toLowerCase() || '';
+  const filtered = genresList.filter(g => !term || `${g.name} ${g.slug||''}`.toLowerCase().includes(term));
+  const totalPages = Math.max(1, Math.ceil(filtered.length / adminCatalogPageSize));
+  genreManagementPage = Math.min(genreManagementPage, totalPages);
+  const items = filtered.slice((genreManagementPage - 1) * adminCatalogPageSize, genreManagementPage * adminCatalogPageSize);
+  root.innerHTML = items.map(g => `<div class="management-row"><input value="${adminEscapeHtml(g.name)}" data-genre-name="${g.id}"><input value="${adminEscapeHtml(g.slug||'')}" data-genre-slug="${g.id}"><button class="management-save" data-genre-save="${g.id}">Lưu</button><button class="management-delete" data-genre-delete="${g.id}">Xóa</button></div>`).join('') || '<p class="management-empty">Chưa có thể loại.</p>';
+  renderCatalogPagination('admin-genre-pagination', genreManagementPage, totalPages, page => { genreManagementPage = page; renderGenreManagement(); });
+  root.querySelectorAll('[data-genre-save]').forEach(b => b.onclick = async () => { const id=Number(b.dataset.genreSave), name=root.querySelector(`[data-genre-name="${id}"]`).value.trim(), slug=root.querySelector(`[data-genre-slug="${id}"]`).value.trim(); const res=await apiFetch(`${API_BASE}/admin/genre/${id}`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,slug})}); if(res.ok) await loadGenres(); else showToast('Không thể cập nhật thể loại.',false); });
+  root.querySelectorAll('[data-genre-delete]').forEach(b => b.onclick = async () => { if(!confirm('Xóa thể loại này?')) return; const res=await apiFetch(`${API_BASE}/admin/genre/${b.dataset.genreDelete}`,{method:'DELETE'}); if(res.ok) await loadGenres(); else showToast((await res.json().catch(()=>({}))).message||'Không thể xóa thể loại.',false); });
+}
+
+function renderCatalogPagination(containerId, currentPage, totalPages, onChange) {
+  const container = document.getElementById(containerId); if (!container) return;
+  if (totalPages <= 1) { container.innerHTML = ''; return; }
+  const start = Math.max(1, currentPage - 2), end = Math.min(totalPages, currentPage + 2), pages = [];
+  for (let page = start; page <= end; page++) pages.push(page);
+  container.innerHTML = `<button data-page="${currentPage - 1}" ${currentPage === 1 ? 'disabled' : ''}>‹</button>${pages.map(page => `<button data-page="${page}" class="${page === currentPage ? 'active' : ''}">${page}</button>`).join('')}<button data-page="${currentPage + 1}" ${currentPage === totalPages ? 'disabled' : ''}>›</button>`;
+  container.querySelectorAll('button[data-page]').forEach(button => button.addEventListener('click', () => { const page = Number(button.dataset.page); if (page >= 1 && page <= totalPages && page !== currentPage) onChange(page); }));
 }
 
 async function loadThemes() {
@@ -364,6 +406,8 @@ document.getElementById('btn-add-form-author')?.addEventListener('click', () => 
 });
 
 function initAdminTabs() {
+  document.getElementById('admin-author-search')?.addEventListener('input', () => { authorManagementPage = 1; renderAuthorManagement(); });
+  document.getElementById('admin-genre-search')?.addEventListener('input', () => { genreManagementPage = 1; renderGenreManagement(); });
   document.querySelectorAll('.admin-tab-btn').forEach(btn => {
     btn.addEventListener('click', (e) => {
       const tabName = e.currentTarget.dataset.tab;

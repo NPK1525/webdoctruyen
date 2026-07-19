@@ -1,0 +1,40 @@
+@{ Layout = null; }
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Báo cáo - MangaNPK Admin</title>
+  <link rel="stylesheet" href="/css/style.css?v=4.9" />
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="admin-page reports-page">
+  <div id="root">
+    <header id="global-header" class="glass admin-global-header">
+      <div class="container admin-header-inner">
+        <div class="admin-brand-group">
+          <button id="sidebar-toggle-btn" class="admin-menu-btn" title="Menu"><i data-lucide="menu"></i></button>
+          <a href="/admin" class="admin-brand"><i data-lucide="book-open"></i><span>Manga<span>NPK</span></span></a>
+          <span class="admin-panel-label">ADMIN CONTROL PANEL</span>
+        </div>
+        <div id="header-user-area" class="admin-user-area"></div>
+      </div>
+    </header>
+    @await Html.PartialAsync("_Sidebar")
+    @await Html.PartialAsync("_AuthModal")
+    <main class="reports-shell admin-reports-shell">
+      <div class="reports-heading">
+        <div><a class="reports-back" href="/admin">← Bảng quản trị</a><h1>Báo cáo người dùng</h1><p>Theo dõi và xử lý các báo cáo từ cộng đồng.</p></div>
+        <span class="reports-role-badge">ADMIN</span>
+      </div>
+      <section class="reports-panel">
+        <div class="reports-toolbar"><label>Trạng thái<select id="report-status-filter"><option value="">Tất cả</option><option>Pending</option><option>Resolved</option><option>Dismissed</option></select></label><label>Đối tượng<select id="report-target-filter"><option value="">Truyện và chương</option><option>Manga</option><option>Chapter</option></select></label></div>
+        <div id="admin-reports-list" class="reports-list">Đang tải...</div>
+      </section>
+    </main>
+  </div>
+  <script src="/js/common-auth.js?v=1.0"></script>
+  <script src="/js/common.js?v=5.6"></script>
+  <script src="/js/admin-reports.js?v=1.1"></script>
+</body>
+</html>

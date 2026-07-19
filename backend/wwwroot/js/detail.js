@@ -48,11 +48,30 @@ const formatMap = { 0: t('common.na', 'Không có'), 1: 'Adaptation', 2: 'WebCom
 
 async function loadLibraryState() {
   const item = currentUser && activeMangaId ? getLocalLibraryItem(activeMangaId) : null;
-  libraryState = item
-    ? { isFollowing: true, readingStatus: item.readingStatus, lastChapterId: item.lastChapterId, lastChapterNumber: item.lastChapterNumber }
-    : { isFollowing: false, readingStatus: null };
+  const historyItem = activeMangaId && typeof readLocalReadingHistory === 'function'
+    ? readLocalReadingHistory().find(entry => Number(entry.mangaId) === Number(activeMangaId))
+    : null;
+  libraryState = {
+    isFollowing: Boolean(item),
+    readingStatus: item?.readingStatus || null,
+    lastChapterId: historyItem?.chapterId || item?.lastChapterId || null,
+    lastChapterNumber: historyItem?.chapterNumber || item?.lastChapterNumber || null
+  };
   updateBookmarkButton();
   updateLibraryStatusButton();
+  updateContinueReadingButton();
+}
+
+function updateContinueReadingButton() {
+  const button = document.getElementById('btn-continue-reading');
+  const label = button?.querySelector('span');
+  if (!label) return;
+  const hasReadingHistory = Boolean(libraryState.lastChapterId);
+  const key = hasReadingHistory ? 'detail.continueReading' : 'detail.startReading';
+  label.dataset.i18n = key;
+  label.textContent = hasReadingHistory
+    ? t(key, 'Tiếp tục đọc')
+    : t(key, 'Bắt đầu đọc');
 }
 
 function updateBookmarkButton() {
@@ -210,6 +229,7 @@ function renderMangaDetails() {
 
   const continueBtn = document.getElementById('btn-continue-reading');
   if (continueBtn) {
+    updateContinueReadingButton();
     continueBtn.onclick = () => {
       if (libraryState.lastChapterId) {
         window.location.href = `/chapter/${libraryState.lastChapterId}`;
@@ -220,7 +240,7 @@ function renderMangaDetails() {
   }
 
   document.getElementById('btn-report-manga')?.addEventListener('click', () => {
-    showToast(t('detail.reportHint', 'Tính năng báo lỗi sẽ được bổ sung trong bản tiếp theo.'), 'coming-soon');
+    openReportModal({ targetType: 'Manga', mangaId: activeMangaId, title: mangaDetail?.title, coverUrl: mangaDetail?.coverUrl, identifier: mangaDetail?.externalId });
   });
 
   const bookmarkBtn = document.getElementById('btn-bookmark-manga');
@@ -230,6 +250,8 @@ function renderMangaDetails() {
 
   renderChaptersList();
 }
+
+window.addEventListener('manganpk:localechanged', updateContinueReadingButton);
 
 async function incrementMangaViewCount() {
   if (!activeMangaId) return;

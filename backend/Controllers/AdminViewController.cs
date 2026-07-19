@@ -23,6 +23,9 @@ namespace MangaNPK.Controllers
             return View();
         }
 
+        [HttpGet("reports")]
+        public IActionResult Reports() => View();
+
         // ── MANGA ──────────────────────────────────────────────────────────────
 
         [HttpGet("manga")]
@@ -189,6 +192,19 @@ namespace MangaNPK.Controllers
             return RedirectToAction("Authors");
         }
 
+        [HttpPost("author/update/{id:int}")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AuthorUpdate(int id, string name, string biography)
+        {
+            var author = await _context.Authors.FindAsync(id);
+            if (author != null && !string.IsNullOrWhiteSpace(name))
+            {
+                author.Name = name.Trim(); author.Biography = biography?.Trim() ?? string.Empty;
+                await _context.SaveChangesAsync();
+            }
+            return RedirectToAction(nameof(Authors));
+        }
+
         [HttpPost("author/delete/{id:int}")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AuthorDelete(int id)
@@ -218,6 +234,20 @@ namespace MangaNPK.Controllers
                 await _context.SaveChangesAsync();
             }
             return RedirectToAction("Genres");
+        }
+
+        [HttpPost("genre/update/{id:int}")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> GenreUpdate(int id, string name, string slug)
+        {
+            var genre = await _context.Genres.FindAsync(id);
+            if (genre != null && !string.IsNullOrWhiteSpace(name))
+            {
+                genre.Name = name.Trim();
+                genre.Slug = string.IsNullOrWhiteSpace(slug) ? name.Trim().ToLowerInvariant().Replace(" ", "-") : slug.Trim();
+                await _context.SaveChangesAsync();
+            }
+            return RedirectToAction(nameof(Genres));
         }
 
         [HttpPost("genre/delete/{id:int}")]

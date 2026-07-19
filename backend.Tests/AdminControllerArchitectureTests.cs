@@ -11,6 +11,8 @@ public class AdminControllerArchitectureTests
 {
     private static readonly string[] ExpectedEndpoints =
     {
+        "DELETE author/{id:int}",
+        "DELETE genre/{id:int}",
         "DELETE manga/{id}",
         "GET chapter/{id:int}",
         "GET manga/{mangaId:int}/chapters",
@@ -27,6 +29,8 @@ public class AdminControllerArchitectureTests
         "POST title-drafts/{id}/approve",
         "POST title-drafts/{id}/reject",
         "PUT chapter/{id:int}",
+        "PUT author/{id:int}",
+        "PUT genre/{id:int}",
         "PUT manga/{id}",
         "PUT title-drafts/{id}"
     };

@@ -22,3 +22,9 @@ test('detail list responsibilities stay in the extracted module', () => {
   assert.doesNotMatch(detailCoordinator, /function initAddToListButton\(\)/);
   assert.doesNotMatch(detailCoordinator, /function renderAddToListOptions\(\)/);
 });
+
+test('detail list rendering owns its HTML escaping dependency', () => {
+  assert.match(detailModule, /function escapeDetailListHtml\(value\)/);
+  assert.match(detailModule, /escapeDetailListHtml\(list\.name\)/);
+  assert.doesNotMatch(detailModule, /\bescHtml\(/);
+});

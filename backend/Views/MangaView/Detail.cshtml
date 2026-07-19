@@ -50,38 +50,48 @@
                   <h1 class="detail-title" id="manga-detail-title">@Model.Title</h1>
                   <div class="detail-alt-title" id="manga-detail-alt-title">@Model.AlternativeTitle</div>
                   <div class="detail-author" id="manga-detail-authors"></div>
-                  <div class="detail-actions">
-                    <button class="btn-action primary" id="btn-library-status">
-                      <i data-lucide="library" style="width: 16px; height: 16px;"></i>
-                      <span>Add To Library</span>
-                    </button>
-                    <button class="btn-action secondary" id="btn-bookmark-manga">
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="detail-actions-shell">
+            <div class="container">
+              <div class="detail-actions-area">
+                <div class="detail-actions">
+                  <button class="btn-action primary" id="btn-library-status">
+                    <i data-lucide="library" style="width: 16px; height: 16px;"></i>
+                    <span>Add To Library</span>
+                  </button>
+                  <button class="btn-action secondary" id="btn-bookmark-manga">
+                    <i data-lucide="star" style="width: 16px; height: 16px;"></i>
+                  </button>
+                  <button class="btn-action secondary" id="btn-add-to-list" style="display: none;">
+                    <i data-lucide="list-plus" style="width: 16px; height: 16px;"></i>
+                    <span data-i18n="detail.addToList">Thêm vào MN List</span>
+                  </button>
+                  <div class="detail-rating-control" id="rating-control">
+                    <button class="btn-action secondary" id="rating-menu-btn" type="button">
                       <i data-lucide="star" style="width: 16px; height: 16px;"></i>
+                      <span id="rating-menu-label">Đánh giá</span>
                     </button>
-                    <button class="btn-action secondary" id="btn-add-to-list" style="display: none;">
-                      <i data-lucide="list-plus" style="width: 16px; height: 16px;"></i> Add to list
-                    </button>
-                    <div class="detail-rating-control" id="rating-control">
-                      <button class="btn-action secondary" id="rating-menu-btn" type="button">
-                        <i data-lucide="star" style="width: 16px; height: 16px;"></i>
-                        <span id="rating-menu-label">Đánh giá</span>
-                      </button>
-                      <div class="detail-rating-menu" id="rating-score-menu" style="display: none;"></div>
-                    </div>
-                    <button class="btn-action secondary" id="btn-continue-reading">
-                      <i data-lucide="book-open" style="width: 16px; height: 16px;"></i> Continue Reading
-                    </button>
-                    <button class="btn-action secondary" id="btn-report-manga">
-                      <i data-lucide="flag" style="width: 16px; height: 16px;"></i> Report
-                    </button>
+                    <div class="detail-rating-menu" id="rating-score-menu" style="display: none;"></div>
                   </div>
-                  <div class="detail-tags" id="manga-genres-tags"></div>
-                  <div class="detail-stats-row">
-                    <span><i data-lucide="star" style="width: 14px; height: 14px;"></i><strong id="detail-rating-average">-</strong></span>
-                    <span><i data-lucide="eye" style="width: 14px; height: 14px;"></i><strong id="detail-view-count">@Model.ViewCount</strong></span>
-                    <span><i data-lucide="book-open" style="width: 14px; height: 14px;"></i><strong id="detail-chapter-count">@((Model.Chapters?.Count) ?? 0)</strong></span>
-                    <span><i data-lucide="message-square" style="width: 14px; height: 14px;"></i><strong id="detail-rating-count">0</strong></span>
-                  </div>
+                  <button class="btn-action secondary" id="btn-continue-reading">
+                    <i data-lucide="book-open" style="width: 16px; height: 16px;"></i>
+                    <span data-i18n="detail.startReading">Bắt đầu đọc</span>
+                  </button>
+                  <button class="btn-action secondary" id="btn-report-manga">
+                    <i data-lucide="flag" style="width: 16px; height: 16px;"></i>
+                    <span data-i18n="detail.report">Báo lỗi</span>
+                  </button>
+                </div>
+                <div class="detail-tags" id="manga-genres-tags"></div>
+                <div class="detail-stats-row">
+                  <span><i data-lucide="star" style="width: 14px; height: 14px;"></i><strong id="detail-rating-average">-</strong></span>
+                  <span><i data-lucide="eye" style="width: 14px; height: 14px;"></i><strong id="detail-view-count">@Model.ViewCount</strong></span>
+                  <span><i data-lucide="book-open" style="width: 14px; height: 14px;"></i><strong id="detail-chapter-count">@((Model.Chapters?.Count) ?? 0)</strong></span>
+                  <span><i data-lucide="message-square" style="width: 14px; height: 14px;"></i><strong id="detail-rating-count">0</strong></span>
                 </div>
               </div>
             </div>
@@ -237,12 +247,14 @@
     <script src="/js/i18n.js?v=4.0"></script>
     <script src="/js/common-library.js?v=1.0"></script>
     <script src="/js/common-auth.js?v=1.0"></script>
-<script src="/js/common.js?v=5.5"></script>
+    @await Html.PartialAsync("_ReportModal")
+    <script src="/js/common.js?v=5.5"></script>
+    <script src="/js/report-modal.js?v=1.0"></script>
     <script src="/js/detail-taxonomy.js?v=1.0"></script>
     <script src="/js/detail-lists.js?v=1.0"></script>
-    <script src="/js/detail.js?v=4.7"></script>
+    <script src="/js/detail.js?v=4.8"></script>
     <script src="/js/detail-comments.js?v=3.1"></script>
-    <script src="/js/detail-rating.js?v=3.4"></script>
+    <script src="/js/detail-rating.js?v=3.6"></script>
     <style>
       .chapter-item-hover:hover { background-color: var(--bg-card-hover) !important; border-color: rgba(255,255,255,0.12) !important; }
       .rec-card { cursor: pointer; transition: transform 0.2s, border-color 0.2s, background-color 0.2s; }

@@ -24,10 +24,38 @@ namespace MangaNPK.Data
         public DbSet<TitleDraft> TitleDrafts { get; set; } = null!;
         public DbSet<MangaContributor> MangaContributors { get; set; } = null!;
         public DbSet<TitleDraftAuthor> TitleDraftAuthors { get; set; } = null!;
+        public DbSet<Report> Reports { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<Report>()
+                .HasOne(r => r.Reporter)
+                .WithMany()
+                .HasForeignKey(r => r.ReporterId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            modelBuilder.Entity<Report>()
+                .HasOne(r => r.ResolvedByUser)
+                .WithMany()
+                .HasForeignKey(r => r.ResolvedByUserId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            modelBuilder.Entity<Report>()
+                .HasOne(r => r.Manga)
+                .WithMany()
+                .HasForeignKey(r => r.MangaId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            modelBuilder.Entity<Report>()
+                .HasOne(r => r.Chapter)
+                .WithMany()
+                .HasForeignKey(r => r.ChapterId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            modelBuilder.Entity<Report>()
+                .HasIndex(r => new { r.ReporterId, r.TargetType, r.MangaId, r.ChapterId, r.Reason, r.Status });
 
             // Configure MangaAuthor Many-to-Many Join Table
             modelBuilder.Entity<MangaAuthor>()

@@ -1,0 +1,17 @@
+<div id="report-modal" class="report-modal" aria-hidden="true">
+  <div class="report-modal-backdrop" data-report-close></div>
+  <section class="report-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="report-modal-title">
+    <header class="report-modal-header"><h2 id="report-modal-title">Report</h2><button type="button" class="report-modal-close" data-report-close aria-label="Close">×</button></header>
+    <div class="report-modal-body">
+      <h3 id="report-target-label">Reporting Title</h3>
+      <div id="report-target-card" class="report-target-card"></div>
+      <hr />
+      <label for="report-reason">Reason</label>
+      <select id="report-reason"><option value="">Choose a reason</option></select>
+      <label for="report-explanation">Additional Explanation</label>
+      <textarea id="report-explanation" maxlength="1000" placeholder=""></textarea>
+      <p id="report-modal-error" class="report-modal-error" role="alert" hidden></p>
+    </div>
+    <footer class="report-modal-actions"><button type="button" class="report-cancel" data-report-close>Cancel</button><button type="button" id="report-submit" class="report-submit">Send Report</button></footer>
+  </section>
+</div>

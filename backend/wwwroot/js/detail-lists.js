@@ -1,4 +1,13 @@
 // Detail page: MDList membership and modal interactions.
+function escapeDetailListHtml(value) {
+  return String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 async function loadUserListsForDetail() {
   if (!currentUser) return [];
   try {
@@ -84,7 +93,7 @@ async function renderAddToListOptions() {
     return `
       <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; background-color: rgba(255,255,255,0.03); border-radius: 6px; border: 1px solid ${isInList ? 'rgba(16,185,129,0.3)' : 'var(--border-subtle)'};">
         <div>
-          <div style="font-weight: 600; font-size: 0.85rem; color: var(--text-bright);">${escHtml(list.name)}</div>
+          <div style="font-weight: 600; font-size: 0.85rem; color: var(--text-bright);">${escapeDetailListHtml(list.name)}</div>
           <div style="font-size: 0.75rem; color: var(--text-muted);">${list.itemCount} items</div>
         </div>
         <button class="btn-toggle-list-item" data-list-id="${list.id}" data-in-list="${isInList}" style="padding: 4px 12px; border-radius: 4px; font-size: 0.75rem; font-weight: 600; border: none; cursor: pointer; background-color: ${isInList ? 'rgba(255,69,82,0.15)' : 'rgba(16,185,129,0.15)'}; color: ${isInList ? '#FF4552' : '#10B981'};">

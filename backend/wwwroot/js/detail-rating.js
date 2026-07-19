@@ -43,9 +43,11 @@ function positionRatingMenu(button, menu) {
   const rect = button.getBoundingClientRect();
   const viewportPadding = 12;
   const gap = 6;
+  const headerBottom = document.getElementById('global-header')?.getBoundingClientRect().bottom || 0;
+  const viewportTop = Math.max(viewportPadding, headerBottom + gap);
   const desiredHeight = Math.min(menu.scrollHeight, 360);
   const availableBelow = window.innerHeight - rect.bottom - gap - viewportPadding;
-  const availableAbove = rect.top - gap - viewportPadding;
+  const availableAbove = rect.top - gap - viewportTop;
   const openUpward = availableBelow < desiredHeight && availableAbove > availableBelow;
   const availableHeight = Math.max(80, openUpward ? availableAbove : availableBelow);
   const maxHeight = Math.min(360, availableHeight);
@@ -59,7 +61,7 @@ function positionRatingMenu(button, menu) {
   menu.style.width = `${width}px`;
   menu.style.maxHeight = `${maxHeight}px`;
   menu.style.top = openUpward
-    ? `${Math.max(viewportPadding, rect.top - gap - Math.min(menu.scrollHeight, maxHeight))}px`
+    ? `${Math.max(viewportTop, rect.top - gap - Math.min(menu.scrollHeight, maxHeight))}px`
     : `${rect.bottom + gap}px`;
 }
 
@@ -175,8 +177,9 @@ function updateRatingSummary() {
   const average = ratingData.average || 0;
   const detailAverage = document.getElementById('detail-rating-average');
   const detailCount = document.getElementById('detail-rating-count');
+  const detailCommentCount = mangaDetail?.commentCount ?? 0;
   if (detailAverage) detailAverage.textContent = average > 0 ? average.toFixed(2) : '-';
-  if (detailCount) detailCount.textContent = ratingData.count || 0;
+  if (detailCount) detailCount.textContent = detailCommentCount;
 }
 
 function renderUserRatingStars() {

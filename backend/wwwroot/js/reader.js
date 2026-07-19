@@ -5,6 +5,8 @@ let mangaDetail = null;
 let readingMode = 'scroll';
 let activeSlideIndex = 0;
 let fitMode = 'both';
+let limitReaderWidth = localStorage.getItem('reader_limit_width') !== 'false';
+let limitReaderHeight = localStorage.getItem('reader_limit_height') !== 'false';
 let readerHeaderHidden = localStorage.getItem('reader_header_hidden') === 'true';
 let progressMode = localStorage.getItem('reader_progress_mode') || 'normal';
 let readerDirection = localStorage.getItem('reader_direction') || 'ltr';
@@ -13,7 +15,8 @@ let readerDisplayStyle = localStorage.getItem('reader_display_style') || 'long';
 let isReaderDrawerPinned = localStorage.getItem('reader_drawer_pinned') === 'true';
 let isReaderDrawerCollapsed = localStorage.getItem('reader_drawer_collapsed') === 'true';
 let readerDrawerHoverExpanded = false;
-let autoAdvanceLastPage = localStorage.getItem('reader_auto_advance') === 'true';
+const savedAutoAdvanceLastPage = localStorage.getItem('reader_auto_advance');
+let autoAdvanceLastPage = savedAutoAdvanceLastPage === null ? true : savedAutoAdvanceLastPage === 'true';
 let tapMode = localStorage.getItem('reader_tap_mode') || 'directional';
 let scrollTurnMode = localStorage.getItem('reader_scroll_turn') || 'keyboard';
 let doubleClickFullscreen = localStorage.getItem('reader_double_fullscreen') === 'true';
@@ -144,19 +147,21 @@ function renderReader() {
 
   const getImgStyle = () => {
     const base = "display: block; margin: 0 auto; transition: max-width 0.2s; user-select: none; pointer-events: none;";
-    if (fitMode === 'both') return base + " max-width: 100%; max-height: 95vh; height: auto; width: auto; object-fit: contain;";
-    if (fitMode === 'width') return base + " max-width: 100%; width: 100%; height: auto;";
-    if (fitMode === 'height') return base + " max-height: 95vh; height: 95vh; width: auto;";
-    return base + " max-width: none; max-height: none; width: auto; height: auto;";
+    const limits = `${limitReaderWidth ? ' max-width: 100%;' : ''}${limitReaderHeight ? ' max-height: 95vh;' : ''}`;
+    if (fitMode === 'both') return base + limits + " height: auto; width: auto; object-fit: contain;";
+    if (fitMode === 'width') return base + " max-width: 100%; width: 100%; height: auto;" + (limitReaderHeight ? ' max-height: 95vh;' : '');
+    if (fitMode === 'height') return base + " max-height: 95vh; height: 95vh; width: auto;" + (limitReaderWidth ? ' max-width: 100%;' : '');
+    return base + limits + " width: auto; height: auto;";
   };
 
   const pages = chapterDetail.pages || [];
 
   if (readingMode === 'scroll') {
+    scrollContainer.classList.toggle('reader-wide-strip', readerDisplayStyle === 'wide');
     scrollContainer.style.display = 'flex';
     slideContainer.style.display = 'none';
     scrollContainer.innerHTML = pages.map((p, idx) => `
-      <div id="page-wrapper-${idx}" style="position: relative; width: 100%; text-align: center; line-height: 0;">
+      <div id="page-wrapper-${idx}" class="reader-page-wrapper" style="position: relative; text-align: center; line-height: 0;">
         <img id="page-image-${idx}" src="${p.imageUrl}" alt="${t('reader.pageOf', 'Trang')} ${p.pageNumber}" style="${getImgStyle()}" />
       </div>
     `).join('');
@@ -168,10 +173,11 @@ function renderReader() {
       slideContainer.innerHTML = `<p style="color: var(--text-muted);">${t('reader.noPages', 'Chương này chưa có trang ảnh nào.')}</p>`;
     } else {
       const activePage = pages[activeSlideIndex] || pages[0];
+      const visiblePages = readerDisplayStyle === 'double' ? pages.slice(activeSlideIndex, activeSlideIndex + 2) : [activePage];
       slideContainer.innerHTML = `
-        <div style="display: flex; flex-direction: column; align-items: center; width: 100%; position: relative;">
-          <img id="page-image-slide" src="${activePage.imageUrl}" alt="${t('reader.pageOf', 'Trang')} ${activePage.pageNumber}" style="${getImgStyle()}" />
-          <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 12px;">${t('reader.pageOf', 'Trang')} ${activePage.pageNumber} / ${pages.length}</div>
+        <div class="reader-slide-spread ${readerDisplayStyle === 'double' ? 'double' : 'single'}" dir="${readerDirection}">
+          <div class="reader-slide-images">${visiblePages.map((page, index) => `<img id="page-image-slide-${index}" src="${page.imageUrl}" alt="${t('reader.pageOf', 'Trang')} ${page.pageNumber}" style="${getImgStyle()}" />`).join('')}</div>
+          <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 12px;">${t('reader.pageOf', 'Trang')} ${activePage.pageNumber}${visiblePages.length > 1 ? `–${visiblePages[1].pageNumber}` : ''} / ${pages.length}</div>
         </div>
       `;
     }
@@ -180,9 +186,12 @@ function renderReader() {
   updateHeaderLabels();
   updateNavButtons();
   updateReadingProgressBar();
+  renderReaderDrawerPageOptions();
   updateDrawerButtonStates();
   saveReadingProgress();
 }
+
+function readerPageStep() { return readingMode === 'slide' && readerDisplayStyle === 'double' ? 2 : 1; }
 
 function renderReaderMetadata() {
   if (!chapterDetail) return;
@@ -252,8 +261,10 @@ function updateReadingProgressBar() {
 
 function renderChaptersDropdown() {
   const container = document.getElementById('chapter-select-options');
-  if (!container || !mangaDetail || !mangaDetail.chapters) return;
+  if (!mangaDetail || !mangaDetail.chapters) return;
   const sorted = [...mangaDetail.chapters].sort((a, b) => a.chapterNumber - b.chapterNumber);
+  renderReaderDrawerChapterOptions(sorted);
+  if (!container) return;
   container.innerHTML = sorted.map(c => `
     <div class="dropdown-item ${chapterDetail && c.id === chapterDetail.id ? 'active' : ''}" data-chap-id="${c.id}" style="display: flex; flex-direction: column; gap: 2px;">
       <span style="font-weight: 700;">${t('common.chapter', 'Chương')} ${c.chapterNumber}</span>
@@ -270,6 +281,55 @@ function renderChaptersDropdown() {
       window.location.href = `/chapter/${chapId}`;
     };
   });
+}
+
+function renderReaderDrawerChapterOptions(chapters = mangaDetail?.chapters || []) {
+  const container = document.getElementById('reader-drawer-chapter-options');
+  if (!container) return;
+  container.innerHTML = [...chapters].map(c => `
+    <button type="button" class="reader-drawer-option ${chapterDetail && c.id === chapterDetail.id ? 'active' : ''}" data-drawer-chap-id="${c.id}">
+      ${t('common.chapter', 'Chương')} ${c.chapterNumber}${c.title ? `: ${c.title}` : ''}
+    </button>
+  `).join('');
+  container.querySelectorAll('[data-drawer-chap-id]').forEach(option => {
+    option.onclick = () => {
+      const chapterId = Number(option.dataset.drawerChapId);
+      window.location.href = `/chapter/${chapterId}`;
+    };
+  });
+}
+
+function renderReaderDrawerPageOptions() {
+  const container = document.getElementById('reader-drawer-page-options');
+  const pages = chapterDetail?.pages || [];
+  if (!container) return;
+  container.innerHTML = pages.map((page, index) => `
+    <button type="button" class="reader-drawer-option ${index === activeSlideIndex ? 'active' : ''}" data-drawer-page-index="${index}">
+      ${t('reader.pageOf', 'Trang')} ${page.pageNumber || index + 1}
+    </button>
+  `).join('');
+  container.querySelectorAll('[data-drawer-page-index]').forEach(option => {
+    option.onclick = () => {
+      handlePageChange(Number(option.dataset.drawerPageIndex));
+      toggleReaderDrawerSelect('page', false);
+    };
+  });
+}
+
+function toggleReaderDrawerSelect(type, forceOpen = null) {
+  const isPage = type === 'page';
+  const container = document.getElementById(isPage ? 'reader-drawer-page-options' : 'reader-drawer-chapter-options');
+  const other = document.getElementById(isPage ? 'reader-drawer-chapter-options' : 'reader-drawer-page-options');
+  const button = document.getElementById(isPage ? 'reader-drawer-page-select' : 'reader-drawer-chapter-select');
+  const otherButton = document.getElementById(isPage ? 'reader-drawer-chapter-select' : 'reader-drawer-page-select');
+  if (!container) return;
+  const open = forceOpen === null ? container.style.display === 'none' : forceOpen;
+  if (open && isPage) renderReaderDrawerPageOptions();
+  if (open && !isPage) renderReaderDrawerChapterOptions();
+  container.style.display = open ? 'block' : 'none';
+  button?.classList.toggle('open', open);
+  if (other) other.style.display = 'none';
+  otherButton?.classList.remove('open');
 }
 
 function updateNavButtons() {
@@ -439,15 +499,13 @@ function initReaderDrawer() {
     if (chapterDetail?.nextChapterId) window.location.href = `/chapter/${chapterDetail.nextChapterId}`;
   });
   document.getElementById('reader-drawer-page-select')?.addEventListener('click', () => {
-    closeReaderDrawer();
-    document.getElementById('page-select-trigger')?.click();
+    toggleReaderDrawerSelect('page');
   });
   document.getElementById('reader-drawer-chapter-select')?.addEventListener('click', () => {
-    closeReaderDrawer();
-    document.getElementById('chapter-select-trigger')?.click();
+    toggleReaderDrawerSelect('chapter');
   });
   document.getElementById('reader-report-chapter')?.addEventListener('click', () => {
-    showToast(t('reader.reportHint', 'Tính năng báo lỗi chương sẽ được bổ sung trong bản tiếp theo.'), 'coming-soon');
+    openReportModal({ targetType: 'Chapter', mangaId: chapterDetail?.mangaId, chapterId: chapterDetail?.id, chapterTitle: chapterDetail?.title || `Chapter ${chapterDetail?.chapterNumber ?? ''}`, chapterNumber: chapterDetail?.chapterNumber, mangaTitle: chapterDetail?.mangaTitle, group: chapterDetail?.scanlationGroupName });
   });
   document.getElementById('reader-mode-long-strip')?.addEventListener('click', () => {
     setReaderDisplayStyle('long');
@@ -561,7 +619,7 @@ function applyPinnedDrawerState() {
 function goToRelativePage(delta) {
   const pagesCount = chapterDetail?.pages?.length || 0;
   if (!pagesCount) return;
-  const next = Math.max(0, Math.min(pagesCount - 1, activeSlideIndex + delta));
+  const next = Math.max(0, Math.min(pagesCount - 1, activeSlideIndex + delta * readerPageStep()));
   if (next === activeSlideIndex) return;
   handlePageChange(next);
 }
@@ -683,7 +741,7 @@ function turnPageByDirection(direction) {
 function goToRelativePageOrChapter(delta) {
   const pagesCount = chapterDetail?.pages?.length || 0;
   if (!pagesCount) return;
-  const next = activeSlideIndex + delta;
+  const next = activeSlideIndex + delta * readerPageStep();
   if (next >= 0 && next < pagesCount) {
     handlePageChange(next);
     return;
@@ -763,17 +821,17 @@ function handleViewerAreaClick(e) {
   if (pagesCount === 0) return;
   const side = tapMode === 'forward' ? (readerDirection === 'ltr' ? 'right' : 'left') : (e.clientX - rect.left < rect.width / 2 ? 'left' : 'right');
   if (side === 'left') {
-    if (readingMode === 'slide') {
-      if (activeSlideIndex > 0) { activeSlideIndex--; renderReader(); }
+      if (readingMode === 'slide') {
+      if (activeSlideIndex > 0) { activeSlideIndex = Math.max(0, activeSlideIndex - readerPageStep()); renderReader(); }
       else if (chapterDetail.prevChapterId) window.location.href = `/chapter/${chapterDetail.prevChapterId}`;
       else showToast(t('reader.firstPage', 'Đây là trang đầu tiên của chương đầu tiên!'), 'info');
-    } else { handlePageChange(Math.max(0, activeSlideIndex - 1)); }
+    } else { goToRelativePageOrChapter(-1); }
   } else {
-    if (readingMode === 'slide') {
-      if (activeSlideIndex < pagesCount - 1) { activeSlideIndex++; renderReader(); }
+      if (readingMode === 'slide') {
+      if (activeSlideIndex + readerPageStep() < pagesCount) { activeSlideIndex += readerPageStep(); renderReader(); }
       else if (chapterDetail.nextChapterId && autoAdvanceLastPage) window.location.href = `/chapter/${chapterDetail.nextChapterId}`;
       else showToast(t('reader.lastChapter', 'Chúc mừng! Bạn đã đọc xong chương cuối cùng.'), 'success');
-    } else { handlePageChange(Math.min(pagesCount - 1, activeSlideIndex + 1)); }
+    } else { goToRelativePageOrChapter(1); }
   }
 }
 

@@ -20,3 +20,32 @@ test('settings and input functions belong to the extracted module', () => {
     assert.doesNotMatch(coordinator, new RegExp(`function ${name}\\(`));
   }
 });
+
+test('reader auto-advances by default while preserving an explicit disabled choice', () => {
+  assert.match(coordinator, /const savedAutoAdvanceLastPage = localStorage\.getItem\('reader_auto_advance'\);/);
+  assert.match(coordinator, /let autoAdvanceLastPage = savedAutoAdvanceLastPage === null \? true : savedAutoAdvanceLastPage === 'true';/);
+});
+
+test('forward paging uses chapter navigation at the end in every reading mode', () => {
+  assert.match(coordinator, /if \(delta > 0 && autoAdvanceLastPage\) goToNextChapter\(\);/);
+  assert.match(coordinator, /else \{ goToRelativePageOrChapter\(1\); \}/);
+});
+
+test('drawer selectors provide local page and chapter option panels', () => {
+  const view = fs.readFileSync(path.join(root, 'Views/ChapterView/Read.cshtml'), 'utf8');
+  assert.match(view, /id="reader-drawer-page-options"/);
+  assert.match(view, /id="reader-drawer-chapter-options"/);
+  assert.match(coordinator, /function toggleReaderDrawerSelect\(type(?:, forceOpen = null)?\)/);
+  assert.match(coordinator, /reader-drawer-chapter-options/);
+  assert.match(coordinator, /toggleReaderDrawerSelect\('page'\)/);
+  assert.match(coordinator, /toggleReaderDrawerSelect\('chapter'\)/);
+  assert.match(view, /id="chapter-select-trigger"/);
+  assert.match(view, /id="page-select-trigger"/);
+  assert.doesNotMatch(view, /id="chapter-select-options"/);
+  assert.doesNotMatch(view, /id="page-select-options"/);
+  const headerControls = view.match(/<div class="reader-control-grid">[\s\S]*?<\/div>\s*<\/div>/)?.[0] || '';
+  assert.doesNotMatch(headerControls, /data-lucide="chevron-left"/);
+  assert.match(coordinator, /button\?\.classList\.toggle\('open', open\)/);
+  assert.match(coordinator, /otherButton\?\.classList\.remove\('open'\)/);
+  assert.ok(coordinator.indexOf('renderReaderDrawerChapterOptions(sorted)') < coordinator.indexOf('if (!container) return;'));
+});

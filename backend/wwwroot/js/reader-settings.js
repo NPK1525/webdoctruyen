@@ -28,6 +28,8 @@ function initReaderSettingsModal() {
       if (option === 'width') setReaderFitMode(fitMode === 'width' ? 'none' : (fitMode === 'height' ? 'both' : 'width'));
       else if (option === 'height') setReaderFitMode(fitMode === 'height' ? 'none' : (fitMode === 'width' ? 'both' : 'height'));
       else if (option === 'none') setReaderFitMode('none');
+      else if (option === 'limit-width') { limitReaderWidth = !limitReaderWidth; localStorage.setItem('reader_limit_width', String(limitReaderWidth)); renderReader(); syncReaderSettingsUI(); }
+      else if (option === 'limit-height') { limitReaderHeight = !limitReaderHeight; localStorage.setItem('reader_limit_height', String(limitReaderHeight)); renderReader(); syncReaderSettingsUI(); }
     });
   });
   document.querySelectorAll('[data-reader-auto-advance]').forEach(btn => {
@@ -104,7 +106,9 @@ function syncReaderSettingsUI() {
     const option = btn.dataset.readerFitToggle;
     const active = (option === 'width' && (fitMode === 'width' || fitMode === 'both'))
       || (option === 'height' && (fitMode === 'height' || fitMode === 'both'))
-      || (option === 'none' && fitMode === 'none');
+      || (option === 'none' && fitMode === 'none')
+      || (option === 'limit-width' && limitReaderWidth)
+      || (option === 'limit-height' && limitReaderHeight);
     btn.classList.toggle('active', active);
   });
 }

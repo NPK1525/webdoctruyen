@@ -33,6 +33,7 @@ public class AdminControllerArchitectureTests
         "PUT author/{id:int}",
         "PUT genre/{id:int}",
         "PUT users/{id:int}/lock",
+        "PUT users/{id:int}",
         "PUT users/{id:int}/role",
         "PUT manga/{id}",
         "PUT title-drafts/{id}"
@@ -96,6 +97,7 @@ public class AdminControllerArchitectureTests
     [InlineData("RejectTitleDraftDto")]
     [InlineData("UpdateUserRoleDto")]
     [InlineData("UpdateUserLockDto")]
+    [InlineData("UpdateUserProfileDto")]
     public void AdminRequestDtos_AreSeparatedFromControllers(string typeName)
     {
         var assembly = typeof(AdminCatalogController).Assembly;

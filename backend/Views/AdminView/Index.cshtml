@@ -498,8 +498,22 @@
                       <select id="admin-user-status" class="form-control"><option value="">Tất cả trạng thái</option><option value="active">Hoạt động</option><option value="locked">Đã khóa</option></select>
                       <button id="admin-user-reset" type="button" class="btn btn-secondary">Đặt lại</button>
                     </div>
-                    <div id="admin-user-summary" class="admin-user-summary"></div>
-                    <div id="admin-user-list" class="admin-user-list"><div class="management-empty">Chọn tab để tải danh sách người dùng.</div></div>
+                        <div id="admin-user-summary" class="admin-user-summary"></div>
+                        <section id="admin-user-editor" class="admin-user-editor" hidden>
+                          <div class="admin-user-editor-heading"><h4>Chỉnh sửa người dùng</h4><button type="button" id="admin-user-editor-close" class="btn btn-secondary">Đóng</button></div>
+                          <form id="admin-user-editor-form">
+                            <input type="hidden" id="admin-user-editor-id" />
+                            <div class="admin-user-editor-grid">
+                              <label class="form-group"><span class="form-label">Tên đăng nhập</span><input id="admin-user-editor-username" class="form-control" required minlength="3" maxlength="24" /></label>
+                              <label class="form-group"><span class="form-label">Email</span><input id="admin-user-editor-email" class="form-control" type="email" required maxlength="254" /></label>
+                              <label class="form-group"><span class="form-label">Ảnh đại diện (URL)</span><input id="admin-user-editor-avatar" class="form-control" maxlength="500" /></label>
+                              <label class="form-group"><span class="form-label">Huy hiệu</span><input id="admin-user-editor-badge" class="form-control" maxlength="50" /></label>
+                            </div>
+                            <label class="form-group"><span class="form-label">Tiểu sử</span><textarea id="admin-user-editor-bio" class="form-control" maxlength="500" rows="3"></textarea></label>
+                            <div class="admin-user-editor-actions"><button type="submit" class="btn btn-primary">Lưu thông tin</button></div>
+                          </form>
+                        </section>
+                        <div id="admin-user-list" class="admin-user-list"><div class="management-empty">Chọn tab để tải danh sách người dùng.</div></div>
                     <div id="admin-user-pagination" class="catalog-pagination"></div>
                   </div>
                 </div>

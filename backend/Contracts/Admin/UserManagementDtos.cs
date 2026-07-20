@@ -6,6 +6,8 @@ public sealed record AdminUserListItemDto(
     string Email,
     string Role,
     string? AvatarUrl,
+    string? Bio,
+    string? Badge,
     bool IsLocked,
     DateTime CreatedAt,
     bool IsCurrentUser);
@@ -25,4 +27,13 @@ public sealed class UpdateUserRoleDto
 public sealed class UpdateUserLockDto
 {
     public bool IsLocked { get; set; }
+}
+
+public sealed class UpdateUserProfileDto
+{
+    public string Username { get; set; } = string.Empty;
+    public string Email { get; set; } = string.Empty;
+    public string? AvatarUrl { get; set; }
+    public string? Bio { get; set; }
+    public string? Badge { get; set; }
 }

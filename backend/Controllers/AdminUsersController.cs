@@ -2,6 +2,7 @@ using System.Data;
 using MangaNPK.Contracts.Admin;
 using MangaNPK.Data;
 using MangaNPK.Filters;
+using MangaNPK.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -39,7 +40,7 @@ public sealed class AdminUsersController(MangaDbContext context) : ControllerBas
         var items = await query.OrderByDescending(user => user.CreatedAt).ThenByDescending(user => user.Id)
             .Skip((page - 1) * pageSize).Take(pageSize)
             .Select(user => new AdminUserListItemDto(user.Id, user.Username, user.Email, user.Role,
-                user.AvatarUrl, user.IsLocked, user.CreatedAt, user.Id == currentUserId))
+                user.AvatarUrl, user.Bio, user.Badge, user.IsLocked, user.CreatedAt, user.Id == currentUserId))
             .ToListAsync(HttpContext.RequestAborted);
         return Ok(new AdminUserListResponse(items, page, pageSize, totalItems, totalPages));
     }
@@ -59,6 +60,39 @@ public sealed class AdminUsersController(MangaDbContext context) : ControllerBas
         user.Role = role;
         await context.SaveChangesAsync(HttpContext.RequestAborted);
         if (transaction is not null) await transaction.CommitAsync(HttpContext.RequestAborted);
+        return Ok(ToDto(user, currentUserId));
+    }
+
+    [HttpPut("users/{id:int}")]
+    public async Task<IActionResult> UpdateProfile(int id, [FromBody] UpdateUserProfileDto dto)
+    {
+        var username = dto.Username.Trim();
+        var email = dto.Email.Trim().ToLowerInvariant();
+        if (!AuthService.IsValidUsername(username)) return BadRequest(new { message = "Tên đăng nhập phải dài 3-24 ký tự và chỉ gồm chữ, số, dấu gạch dưới hoặc gạch ngang." });
+        if (!AuthService.IsValidEmail(email)) return BadRequest(new { message = "Email không hợp lệ." });
+        if (dto.Bio?.Length > 500) return BadRequest(new { message = "Tiểu sử không được vượt quá 500 ký tự." });
+        if (dto.Badge?.Length > 50) return BadRequest(new { message = "Huy hiệu không được vượt quá 50 ký tự." });
+        if (dto.AvatarUrl?.Length > 500) return BadRequest(new { message = "URL ảnh đại diện không được vượt quá 500 ký tự." });
+
+        var currentUserId = HttpContext.Session.GetInt32("UserId")!.Value;
+        var user = await context.Users.FindAsync([id], HttpContext.RequestAborted);
+        if (user is null) return NotFound(new { message = "Không tìm thấy người dùng." });
+#pragma warning disable CA1862
+        if (await context.Users.AnyAsync(other => other.Id != id && other.Username.ToLower() == username.ToLower(), HttpContext.RequestAborted))
+            return Conflict(new { message = "Tên đăng nhập đã được sử dụng." });
+        if (await context.Users.AnyAsync(other => other.Id != id && other.Email.ToLower() == email, HttpContext.RequestAborted))
+            return Conflict(new { message = "Email đã được sử dụng." });
+#pragma warning restore CA1862
+        user.Username = username;
+        user.Email = email;
+        user.AvatarUrl = string.IsNullOrWhiteSpace(dto.AvatarUrl) ? null : dto.AvatarUrl.Trim();
+        user.Bio = string.IsNullOrWhiteSpace(dto.Bio) ? null : dto.Bio.Trim();
+        user.Badge = string.IsNullOrWhiteSpace(dto.Badge) ? null : dto.Badge.Trim();
+        await context.SaveChangesAsync(HttpContext.RequestAborted);
+        if (id == currentUserId)
+        {
+            HttpContext.Session.SetString("Username", user.Username);
+        }
         return Ok(ToDto(user, currentUserId));
     }
 
@@ -90,5 +124,5 @@ public sealed class AdminUsersController(MangaDbContext context) : ControllerBas
 
     private AdminUserListItemDto ToDto(MangaNPK.Models.User user, int currentUserId) =>
         new(user.Id, user.Username, user.Email, user.Role, user.AvatarUrl,
-            user.IsLocked, user.CreatedAt, user.Id == currentUserId);
+            user.Bio, user.Badge, user.IsLocked, user.CreatedAt, user.Id == currentUserId);
 }

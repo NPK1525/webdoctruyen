@@ -36,3 +36,13 @@ test('admin users use server pagination and guarded role/lock endpoints', () => 
   assert.match(coordinator, /AdminUsers\?\.init\(\)/);
   assert.match(coordinator, /tabName\s*===\s*['"]users['"].*AdminUsers\?\.activate\(\)/s);
 });
+
+test('admin users expose an editor for profile fields', () => {
+  assert.match(view, /id="admin-user-editor"/);
+  assert.match(view, /id="admin-user-editor-form"/);
+  assert.match(js, /data-user-edit/);
+  assert.match(js, /\/admin\/users\/\$\{id\}/);
+  assert.match(js, /avatarUrl/);
+  assert.match(js, /bio/);
+  assert.match(js, /badge/);
+});

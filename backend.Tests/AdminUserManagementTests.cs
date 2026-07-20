@@ -101,6 +101,45 @@ public class AdminUserManagementTests
         Assert.False((await context.Users.FindAsync(admin.Id))!.IsLocked);
     }
 
+    [Fact]
+    public async Task UpdateProfile_ChangesEditableUserFields()
+    {
+        await using var context = CreateContext();
+        var admin = new User { Username = "admin", Email = "admin@test.local", Role = "Admin" };
+        var user = new User { Username = "reader", Email = "reader@test.local", Role = "User" };
+        context.Users.AddRange(admin, user); await context.SaveChangesAsync();
+        var controller = CreateController(context, admin.Id);
+
+        var result = Assert.IsType<OkObjectResult>(await controller.UpdateProfile(user.Id, new UpdateUserProfileDto
+        {
+            Username = "edited-reader", Email = "edited@test.local", AvatarUrl = "https://cdn.test/avatar.png",
+            Bio = "Updated bio", Badge = "Contributor"
+        }));
+
+        var saved = await context.Users.FindAsync(user.Id);
+        Assert.Equal("edited-reader", saved!.Username);
+        Assert.Equal("edited@test.local", saved.Email);
+        Assert.Equal("Updated bio", saved.Bio);
+        Assert.IsType<AdminUserListItemDto>(result.Value);
+    }
+
+    [Fact]
+    public async Task UpdateProfile_RejectsDuplicateEmail()
+    {
+        await using var context = CreateContext();
+        var admin = new User { Username = "admin", Email = "admin@test.local", Role = "Admin" };
+        var user = new User { Username = "reader", Email = "reader@test.local", Role = "User" };
+        context.Users.AddRange(admin, user); await context.SaveChangesAsync();
+        var controller = CreateController(context, admin.Id);
+
+        var result = await controller.UpdateProfile(user.Id, new UpdateUserProfileDto
+        {
+            Username = "edited-reader", Email = "admin@test.local"
+        });
+
+        Assert.IsType<ConflictObjectResult>(result);
+    }
+
     private static MangaDbContext CreateContext()
     {
         var options = new DbContextOptionsBuilder<MangaDbContext>()

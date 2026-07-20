@@ -176,6 +176,12 @@ function initAuthModals() {
 }
 
 function togglePasswordVisibility(event, inputId, buttonId) {
+  // Keep compatibility with older callers that passed only (inputId, buttonId).
+  if (typeof event === 'string') {
+    buttonId = inputId;
+    inputId = event;
+    event = null;
+  }
   event?.preventDefault();
   event?.stopPropagation();
   const input = document.getElementById(inputId);

@@ -6,6 +6,8 @@ let passwordResetToken = '';
 function initAuthModals() {
   const modal = document.getElementById('auth-modal');
   const closeBtn = document.getElementById('auth-modal-close');
+  ensurePasswordResetViews();
+  ensurePasswordVisibilityControls();
   ensureRegisterEmailField();
   normalizeAuthModalText();
 
@@ -392,4 +394,69 @@ function switchAuthView(viewMode) {
   };
   Object.values(views).forEach(view => { if (view) view.style.display = 'none'; });
   if (views[viewMode]) views[viewMode].style.display = 'block';
+}
+
+function ensurePasswordVisibilityControls() {
+  const fields = [
+    ['login-password', 'toggle-login-password'],
+    ['register-password', 'toggle-register-password'],
+    ['register-confirm-password', 'toggle-register-confirm-password'],
+    ['forgot-new-password', 'toggle-forgot-new-password'],
+    ['forgot-confirm-password', 'toggle-forgot-confirm-password']
+  ];
+
+  fields.forEach(([inputId, buttonId]) => {
+    const input = document.getElementById(inputId);
+    if (!input || document.getElementById(buttonId)) return;
+    const wrapper = document.createElement('div');
+    wrapper.className = 'password-input-wrap';
+    input.parentNode?.insertBefore(wrapper, input);
+    wrapper.appendChild(input);
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.id = buttonId;
+    button.className = 'password-visibility-toggle';
+    button.setAttribute('aria-label', 'Hiển thị mật khẩu');
+    button.title = 'Hiển thị mật khẩu';
+    button.innerHTML = '<i data-lucide="eye"></i>';
+    wrapper.appendChild(button);
+  });
+}
+
+function ensurePasswordResetViews() {
+  const modal = document.getElementById('auth-modal');
+  const loginView = document.getElementById('auth-modal-login-view');
+  if (!modal || !loginView || document.getElementById('auth-modal-forgot-request-view')) return;
+
+  const passwordGroup = document.getElementById('login-password')?.closest('.form-group');
+  if (passwordGroup && !document.getElementById('switch-to-forgot')) {
+    const link = document.createElement('div');
+    link.style.cssText = 'text-align:right;margin-top:-6px;';
+    link.innerHTML = '<button type="button" id="switch-to-forgot" class="auth-text-button">Quên mật khẩu?</button>';
+    passwordGroup.insertAdjacentElement('afterend', link);
+  }
+
+  const card = modal.querySelector('.glass-card') || modal;
+  card.style.maxHeight = 'calc(100vh - 40px)';
+  card.style.overflowY = 'auto';
+  card.insertAdjacentHTML('beforeend', `
+    <div id="auth-modal-forgot-request-view" style="display:none">
+      <h3>Quên mật khẩu</h3>
+      <p class="auth-flow-description">Nhập email đã đăng ký để nhận mã OTP.</p>
+      <div id="forgot-request-message" class="auth-flow-message"><span class="msg-txt"></span></div>
+      <form id="forgot-request-form"><div class="form-group"><label class="form-label">Email</label><input type="email" id="forgot-email" class="form-control" required autocomplete="email"></div><button type="submit" class="btn btn-primary auth-flow-submit">Gửi mã OTP</button></form>
+      <button type="button" class="auth-text-button auth-flow-back" data-auth-back-login>Quay lại đăng nhập</button>
+    </div>
+    <div id="auth-modal-forgot-otp-view" style="display:none">
+      <h3>Nhập mã OTP</h3><p class="auth-flow-description">Mã gồm 6 chữ số và có hiệu lực trong 10 phút.</p>
+      <div id="forgot-otp-message" class="auth-flow-message"><span class="msg-txt"></span></div>
+      <form id="forgot-otp-form"><div class="form-group"><label class="form-label">Mã OTP</label><input type="text" id="forgot-otp" class="form-control auth-otp-input" inputmode="numeric" pattern="[0-9]{6}" minlength="6" maxlength="6" required autocomplete="one-time-code"></div><button type="submit" class="btn btn-primary auth-flow-submit">Xác nhận OTP</button></form>
+      <div class="auth-flow-links"><button type="button" id="forgot-resend" class="auth-text-button">Gửi lại mã</button><button type="button" class="auth-text-button" data-auth-back-login>Quay lại đăng nhập</button></div>
+    </div>
+    <div id="auth-modal-forgot-reset-view" style="display:none">
+      <h3>Tạo mật khẩu mới</h3><p class="auth-flow-description">Mật khẩu phải có ít nhất 8 ký tự, gồm chữ và số.</p>
+      <div id="forgot-reset-message" class="auth-flow-message"><span class="msg-txt"></span></div>
+      <form id="forgot-reset-form"><div class="form-group"><label class="form-label">Mật khẩu mới</label><input type="password" id="forgot-new-password" class="form-control" minlength="8" maxlength="128" required autocomplete="new-password"></div><div class="form-group"><label class="form-label">Xác nhận mật khẩu</label><input type="password" id="forgot-confirm-password" class="form-control" minlength="8" maxlength="128" required autocomplete="new-password"></div><button type="submit" class="btn btn-primary auth-flow-submit">Đổi mật khẩu</button></form>
+      <button type="button" class="auth-text-button auth-flow-back" data-auth-back-login>Hủy và quay lại</button>
+    </div>`);
 }

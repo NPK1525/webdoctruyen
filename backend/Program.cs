@@ -1,6 +1,7 @@
 using AspNetCoreRateLimit;
 using MangaNPK.Data;
 using MangaNPK.Services;
+using MangaNPK.Services.Email;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
@@ -51,6 +52,11 @@ builder.Services.AddScoped<MangaDexImportService>();
 builder.Services.AddScoped<TitleDraftAdminService>();
 builder.Services.AddScoped<IFollowedUpdatesService, FollowedUpdatesService>();
 builder.Services.AddScoped<MangaListService>();
+builder.Services.AddOptions<SmtpOptions>()
+    .BindConfiguration(SmtpOptions.SectionName);
+builder.Services.AddScoped<IEmailSender, SmtpEmailSender>();
+builder.Services.AddSingleton(TimeProvider.System);
+builder.Services.AddScoped<PasswordResetService>();
 
 // ── CORS ──────────────────────────────────────────────────────────────────────
 // In development allow localhost origins; in production set AllowedOrigins in config.

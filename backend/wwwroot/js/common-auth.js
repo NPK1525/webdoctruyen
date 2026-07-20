@@ -1,8 +1,13 @@
-// Shared login/register modal behavior.
+// Shared login/register/password-reset modal behavior.
+
+let passwordResetEmail = '';
+let passwordResetToken = '';
 
 function initAuthModals() {
   const modal = document.getElementById('auth-modal');
   const closeBtn = document.getElementById('auth-modal-close');
+  ensurePasswordResetViews();
+  ensurePasswordVisibilityControls();
   ensureRegisterEmailField();
   normalizeAuthModalText();
 
@@ -27,6 +32,18 @@ function initAuthModals() {
 
   document.getElementById('switch-to-login')?.addEventListener('click', () => {
     switchAuthView('login');
+  });
+
+  document.getElementById('switch-to-forgot')?.addEventListener('click', () => {
+    clearPasswordResetState();
+    switchAuthView('forgot-request');
+  });
+
+  document.querySelectorAll('[data-auth-back-login]').forEach(button => {
+    button.addEventListener('click', () => {
+      clearPasswordResetState();
+      switchAuthView('login');
+    });
   });
 
   // Form submit: Login
@@ -142,6 +159,158 @@ function initAuthModals() {
       }
     }
   });
+
+  document.getElementById('forgot-request-form')?.addEventListener('submit', submitForgotRequest);
+  document.getElementById('forgot-resend')?.addEventListener('click', resendForgotOtp);
+  document.getElementById('forgot-otp-form')?.addEventListener('submit', submitForgotOtp);
+  document.getElementById('forgot-reset-form')?.addEventListener('submit', submitForgotReset);
+  [
+    ['login-password', 'toggle-login-password'],
+    ['register-password', 'toggle-register-password'],
+    ['register-confirm-password', 'toggle-register-confirm-password'],
+    ['forgot-new-password', 'toggle-forgot-new-password'],
+    ['forgot-confirm-password', 'toggle-forgot-confirm-password']
+  ].forEach(([inputId, buttonId]) => {
+    document.getElementById(buttonId)?.addEventListener('click', event => togglePasswordVisibility(event, inputId, buttonId));
+  });
+}
+
+function togglePasswordVisibility(event, inputId, buttonId) {
+  // Keep compatibility with older callers that passed only (inputId, buttonId).
+  if (typeof event === 'string') {
+    buttonId = inputId;
+    inputId = event;
+    event = null;
+  }
+  event?.preventDefault();
+  event?.stopPropagation();
+  const input = document.getElementById(inputId);
+  const button = document.getElementById(buttonId);
+  if (!input || !button) return;
+  const visible = input.type === 'text';
+  input.type = visible ? 'password' : 'text';
+  button.setAttribute('aria-label', visible ? 'Hiển thị mật khẩu' : 'Ẩn mật khẩu');
+  button.setAttribute('title', visible ? 'Hiển thị mật khẩu' : 'Ẩn mật khẩu');
+  button.innerHTML = visible
+    ? '<svg class="password-eye-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"></path><circle cx="12" cy="12" r="3"></circle></svg>'
+    : '<svg class="password-eye-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m3 3 18 18"></path><path d="M10.6 5.1A10.7 10.7 0 0 1 12 5c6.5 0 10 7 10 7a18.4 18.4 0 0 1-3.1 4.1M6.3 6.3C3.5 8.4 2 12 2 12s3.5 7 10 7a10.7 10.7 0 0 0 3.1-.5"></path><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"></path></svg>';
+  button.blur();
+}
+
+async function submitForgotRequest(event) {
+  event.preventDefault();
+  const email = document.getElementById('forgot-email')?.value.trim() || '';
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    setPasswordResetMessage('forgot-request-message', 'Vui lòng nhập email hợp lệ.');
+    return;
+  }
+
+  passwordResetEmail = email;
+  await requestForgotOtp();
+}
+
+async function requestForgotOtp() {
+  const submit = document.querySelector('#forgot-request-form button[type="submit"]');
+  if (submit) submit.disabled = true;
+  try {
+    const response = await apiFetch(`${API_BASE}/auth/forgot-password`, {
+      method: 'POST',
+      body: JSON.stringify({ email: passwordResetEmail })
+    });
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(payload.message || 'Không thể gửi mã OTP.');
+    setPasswordResetMessage('forgot-request-message', payload.message || 'Nếu email tồn tại, mã OTP đã được gửi.', true);
+    switchAuthView('forgot-otp');
+  } catch (error) {
+    setPasswordResetMessage('forgot-request-message', error.message || 'Không thể gửi mã OTP.');
+  } finally {
+    if (submit) submit.disabled = false;
+  }
+}
+
+async function resendForgotOtp() {
+  if (!passwordResetEmail) {
+    switchAuthView('forgot-request');
+    return;
+  }
+  await requestForgotOtp();
+}
+
+async function submitForgotOtp(event) {
+  event.preventDefault();
+  const otp = document.getElementById('forgot-otp')?.value.trim() || '';
+  if (!/^\d{6}$/.test(otp)) {
+    setPasswordResetMessage('forgot-otp-message', 'Mã OTP phải gồm đúng 6 chữ số.');
+    return;
+  }
+
+  const submit = event.currentTarget.querySelector('button[type="submit"]');
+  if (submit) submit.disabled = true;
+  try {
+    const response = await apiFetch(`${API_BASE}/auth/verify-reset-otp`, {
+      method: 'POST',
+      body: JSON.stringify({ email: passwordResetEmail, otp })
+    });
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(payload.message || 'Mã OTP không hợp lệ hoặc đã hết hạn.');
+    passwordResetToken = payload.resetToken || '';
+    switchAuthView('forgot-reset');
+  } catch (error) {
+    setPasswordResetMessage('forgot-otp-message', error.message || 'Mã OTP không hợp lệ hoặc đã hết hạn.');
+  } finally {
+    if (submit) submit.disabled = false;
+  }
+}
+
+async function submitForgotReset(event) {
+  event.preventDefault();
+  const password = document.getElementById('forgot-new-password')?.value || '';
+  const confirmPassword = document.getElementById('forgot-confirm-password')?.value || '';
+  if (password.length < 8 || !/[A-Za-z]/.test(password) || !/[0-9]/.test(password)) {
+    setPasswordResetMessage('forgot-reset-message', 'Mật khẩu phải có ít nhất 8 ký tự, gồm chữ và số.');
+    return;
+  }
+  if (password !== confirmPassword) {
+    setPasswordResetMessage('forgot-reset-message', 'Mật khẩu xác nhận không khớp.');
+    return;
+  }
+
+  const submit = event.currentTarget.querySelector('button[type="submit"]');
+  if (submit) submit.disabled = true;
+  try {
+    const response = await apiFetch(`${API_BASE}/auth/reset-password`, {
+      method: 'POST',
+      body: JSON.stringify({ email: passwordResetEmail, resetToken: passwordResetToken, password, confirmPassword })
+    });
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(payload.message || 'Không thể đổi mật khẩu.');
+    clearPasswordResetState();
+    switchAuthView('login');
+    showToast(payload.message || 'Đổi mật khẩu thành công.', true);
+  } catch (error) {
+    setPasswordResetMessage('forgot-reset-message', error.message || 'Không thể đổi mật khẩu.');
+  } finally {
+    if (submit) submit.disabled = false;
+  }
+}
+
+function setPasswordResetMessage(id, message, success = false) {
+  const element = document.getElementById(id);
+  if (!element) return;
+  element.classList.toggle('visible', Boolean(message));
+  element.classList.toggle('success', success);
+  const text = element.querySelector('.msg-txt');
+  if (text) text.textContent = message;
+}
+
+function clearPasswordResetState() {
+  passwordResetEmail = '';
+  passwordResetToken = '';
+  ['forgot-email', 'forgot-otp', 'forgot-new-password', 'forgot-confirm-password'].forEach(id => {
+    const input = document.getElementById(id);
+    if (input) input.value = '';
+  });
+  ['forgot-request-message', 'forgot-otp-message', 'forgot-reset-message'].forEach(id => setPasswordResetMessage(id, ''));
 }
 
 function normalizeAuthModalText() {
@@ -225,12 +394,78 @@ function openAuthModal(viewMode = 'login') {
 function switchAuthView(viewMode) {
   const loginView = document.getElementById('auth-modal-login-view');
   const registerView = document.getElementById('auth-modal-register-view');
+  const views = {
+    login: loginView,
+    register: registerView,
+    'forgot-request': document.getElementById('auth-modal-forgot-request-view'),
+    'forgot-otp': document.getElementById('auth-modal-forgot-otp-view'),
+    'forgot-reset': document.getElementById('auth-modal-forgot-reset-view')
+  };
+  Object.values(views).forEach(view => { if (view) view.style.display = 'none'; });
+  if (views[viewMode]) views[viewMode].style.display = 'block';
+}
 
-  if (viewMode === 'login') {
-    if (loginView) loginView.style.display = 'block';
-    if (registerView) registerView.style.display = 'none';
-  } else {
-    if (loginView) loginView.style.display = 'none';
-    if (registerView) registerView.style.display = 'block';
+function ensurePasswordVisibilityControls() {
+  const fields = [
+    ['login-password', 'toggle-login-password'],
+    ['register-password', 'toggle-register-password'],
+    ['register-confirm-password', 'toggle-register-confirm-password'],
+    ['forgot-new-password', 'toggle-forgot-new-password'],
+    ['forgot-confirm-password', 'toggle-forgot-confirm-password']
+  ];
+
+  fields.forEach(([inputId, buttonId]) => {
+    const input = document.getElementById(inputId);
+    if (!input || document.getElementById(buttonId)) return;
+    const wrapper = document.createElement('div');
+    wrapper.className = 'password-input-wrap';
+    input.parentNode?.insertBefore(wrapper, input);
+    wrapper.appendChild(input);
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.id = buttonId;
+    button.className = 'password-visibility-toggle';
+    button.setAttribute('aria-label', 'Hiển thị mật khẩu');
+    button.title = 'Hiển thị mật khẩu';
+    button.innerHTML = '<i data-lucide="eye"></i>';
+    wrapper.appendChild(button);
+  });
+}
+
+function ensurePasswordResetViews() {
+  const modal = document.getElementById('auth-modal');
+  const loginView = document.getElementById('auth-modal-login-view');
+  if (!modal || !loginView || document.getElementById('auth-modal-forgot-request-view')) return;
+
+  const passwordGroup = document.getElementById('login-password')?.closest('.form-group');
+  if (passwordGroup && !document.getElementById('switch-to-forgot')) {
+    const link = document.createElement('div');
+    link.style.cssText = 'text-align:right;margin-top:-6px;';
+    link.innerHTML = '<button type="button" id="switch-to-forgot" class="auth-text-button">Quên mật khẩu?</button>';
+    passwordGroup.insertAdjacentElement('afterend', link);
   }
+
+  const card = modal.querySelector('.glass-card') || modal;
+  card.style.maxHeight = 'calc(100vh - 40px)';
+  card.style.overflowY = 'auto';
+  card.insertAdjacentHTML('beforeend', `
+    <div id="auth-modal-forgot-request-view" style="display:none">
+      <h3>Quên mật khẩu</h3>
+      <p class="auth-flow-description">Nhập email đã đăng ký để nhận mã OTP.</p>
+      <div id="forgot-request-message" class="auth-flow-message"><span class="msg-txt"></span></div>
+      <form id="forgot-request-form"><div class="form-group"><label class="form-label">Email</label><input type="email" id="forgot-email" class="form-control" required autocomplete="email"></div><button type="submit" class="btn btn-primary auth-flow-submit">Gửi mã OTP</button></form>
+      <button type="button" class="auth-text-button auth-flow-back" data-auth-back-login>Quay lại đăng nhập</button>
+    </div>
+    <div id="auth-modal-forgot-otp-view" style="display:none">
+      <h3>Nhập mã OTP</h3><p class="auth-flow-description">Mã gồm 6 chữ số và có hiệu lực trong 10 phút.</p>
+      <div id="forgot-otp-message" class="auth-flow-message"><span class="msg-txt"></span></div>
+      <form id="forgot-otp-form"><div class="form-group"><label class="form-label">Mã OTP</label><input type="text" id="forgot-otp" class="form-control auth-otp-input" inputmode="numeric" pattern="[0-9]{6}" minlength="6" maxlength="6" required autocomplete="one-time-code"></div><button type="submit" class="btn btn-primary auth-flow-submit">Xác nhận OTP</button></form>
+      <div class="auth-flow-links"><button type="button" id="forgot-resend" class="auth-text-button">Gửi lại mã</button><button type="button" class="auth-text-button" data-auth-back-login>Quay lại đăng nhập</button></div>
+    </div>
+    <div id="auth-modal-forgot-reset-view" style="display:none">
+      <h3>Tạo mật khẩu mới</h3><p class="auth-flow-description">Mật khẩu phải có ít nhất 8 ký tự, gồm chữ và số.</p>
+      <div id="forgot-reset-message" class="auth-flow-message"><span class="msg-txt"></span></div>
+      <form id="forgot-reset-form"><div class="form-group"><label class="form-label">Mật khẩu mới</label><input type="password" id="forgot-new-password" class="form-control" minlength="8" maxlength="128" required autocomplete="new-password"></div><div class="form-group"><label class="form-label">Xác nhận mật khẩu</label><input type="password" id="forgot-confirm-password" class="form-control" minlength="8" maxlength="128" required autocomplete="new-password"></div><button type="submit" class="btn btn-primary auth-flow-submit">Đổi mật khẩu</button></form>
+      <button type="button" class="auth-text-button auth-flow-back" data-auth-back-login>Hủy và quay lại</button>
+    </div>`);
 }

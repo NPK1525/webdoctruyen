@@ -299,6 +299,53 @@ button {
   background-color: var(--bg-input-focus);
 }
 
+.auth-text-button {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--accent-primary);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.auth-text-button:hover { color: var(--accent-secondary); text-decoration: underline; }
+.auth-flow-submit { width: 100%; border-radius: 24px; margin-top: 16px; font-weight: 700; }
+.auth-flow-back { display: block; margin: 22px auto 0; }
+.auth-flow-links { display: flex; justify-content: center; gap: 18px; margin-top: 22px; }
+.auth-flow-message { display: none; margin-bottom: 16px; padding: 10px; border-radius: 6px; font-size: 0.85rem; }
+.auth-flow-message.visible { display: block; background: rgba(255,69,82,0.15); border: 1px solid rgba(255,69,82,0.3); color: #FF4552; }
+.auth-flow-message.success { background: rgba(60,200,120,0.14); border-color: rgba(60,200,120,0.3); color: #63d69a; }
+.auth-otp-input { letter-spacing: 0.4em; text-align: center; font-weight: 700; }
+.password-input-wrap { position: relative; display: block; min-height: 42px; }
+.password-input-wrap .form-control { width: 100%; box-sizing: border-box; padding-right: 46px; }
+.password-visibility-toggle {
+  position: absolute;
+  top: 50%;
+  right: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  min-width: 28px;
+  flex: 0 0 28px;
+  height: 28px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  line-height: 0;
+  transform: translateY(-50%);
+}
+.password-visibility-toggle:hover,
+.password-visibility-toggle:focus-visible { color: var(--text-bright); background: var(--bg-hover); }
+.password-visibility-toggle [data-lucide],
+.password-visibility-toggle .password-eye-icon { width: 18px; height: 18px; }
+.password-visibility-toggle .password-eye-icon { fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
 .btn {
   display: inline-flex;
   align-items: center;

@@ -86,7 +86,7 @@ public class AuthLockingTests
     }
 
     private static AuthController CreateAuthController(MangaDbContext context, TestSession session)
-        => new(context)
+        => new(context, null!)
         {
             ControllerContext = new ControllerContext
             {

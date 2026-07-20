@@ -25,10 +25,22 @@ namespace MangaNPK.Data
         public DbSet<MangaContributor> MangaContributors { get; set; } = null!;
         public DbSet<TitleDraftAuthor> TitleDraftAuthors { get; set; } = null!;
         public DbSet<Report> Reports { get; set; } = null!;
+        public DbSet<PasswordResetRequest> PasswordResetRequests { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<PasswordResetRequest>(entity =>
+            {
+                entity.Property(request => request.OtpHash).HasMaxLength(64);
+                entity.Property(request => request.ResetTokenHash).HasMaxLength(64);
+                entity.HasIndex(request => new { request.UserId, request.CreatedAt });
+                entity.HasOne(request => request.User)
+                    .WithMany(user => user.PasswordResetRequests)
+                    .HasForeignKey(request => request.UserId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
 
             modelBuilder.Entity<Report>()
                 .HasOne(r => r.Reporter)

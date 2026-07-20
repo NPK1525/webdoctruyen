@@ -45,6 +45,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('admin-access-denied').style.display = 'none';
   document.getElementById('admin-panel-wrapper').style.display = 'block';
   initAdminTabs();
+  window.AdminUsers?.init();
   initAdminMangaFilters();
   initSingleChoiceChips('manga-form-demographic', 'manga-demographic-chips');
   initSingleChoiceChips('manga-form-format', 'manga-format-chips');
@@ -444,6 +445,7 @@ function switchTab(tabName) {
   document.querySelectorAll('.admin-tab-pane').forEach(pane => {
     pane.style.display = pane.id === `adm-content-${tabName}` ? 'block' : 'none';
   });
+  if (tabName === 'users') window.AdminUsers?.activate();
 }
 
 // ========== FILE UPLOAD HANDLERS ==========

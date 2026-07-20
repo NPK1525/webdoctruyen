@@ -49,3 +49,12 @@ test('static page auth shells receive the shared password reset controls', () =>
   assert.match(js, /ensurePasswordVisibilityControls/);
   assert.match(js, /ensurePasswordResetViews/);
 });
+
+test('password visibility toggle does not submit or rerender the page', () => {
+  const start = js.indexOf('function togglePasswordVisibility');
+  const end = js.indexOf('async function submitForgotRequest');
+  const toggle = js.slice(start, end);
+  assert.match(toggle, /preventDefault/);
+  assert.match(toggle, /stopPropagation/);
+  assert.doesNotMatch(toggle, /window\.lucide\.createIcons/);
+});

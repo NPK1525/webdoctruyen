@@ -318,8 +318,8 @@ button {
 .auth-flow-message.visible { display: block; background: rgba(255,69,82,0.15); border: 1px solid rgba(255,69,82,0.3); color: #FF4552; }
 .auth-flow-message.success { background: rgba(60,200,120,0.14); border-color: rgba(60,200,120,0.3); color: #63d69a; }
 .auth-otp-input { letter-spacing: 0.4em; text-align: center; font-weight: 700; }
-.password-input-wrap { position: relative; }
-.password-input-wrap .form-control { padding-right: 46px; }
+.password-input-wrap { position: relative; display: block; min-height: 42px; }
+.password-input-wrap .form-control { width: 100%; box-sizing: border-box; padding-right: 46px; }
 .password-visibility-toggle {
   position: absolute;
   top: 50%;
@@ -328,6 +328,8 @@ button {
   align-items: center;
   justify-content: center;
   width: 28px;
+  min-width: 28px;
+  flex: 0 0 28px;
   height: 28px;
   padding: 0;
   border: 0;
@@ -335,6 +337,7 @@ button {
   background: transparent;
   color: var(--text-muted);
   cursor: pointer;
+  line-height: 0;
   transform: translateY(-50%);
 }
 .password-visibility-toggle:hover,

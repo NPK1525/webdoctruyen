@@ -171,11 +171,13 @@ function initAuthModals() {
     ['forgot-new-password', 'toggle-forgot-new-password'],
     ['forgot-confirm-password', 'toggle-forgot-confirm-password']
   ].forEach(([inputId, buttonId]) => {
-    document.getElementById(buttonId)?.addEventListener('click', () => togglePasswordVisibility(inputId, buttonId));
+    document.getElementById(buttonId)?.addEventListener('click', event => togglePasswordVisibility(event, inputId, buttonId));
   });
 }
 
-function togglePasswordVisibility(inputId, buttonId) {
+function togglePasswordVisibility(event, inputId, buttonId) {
+  event?.preventDefault();
+  event?.stopPropagation();
   const input = document.getElementById(inputId);
   const button = document.getElementById(buttonId);
   if (!input || !button) return;
@@ -183,9 +185,7 @@ function togglePasswordVisibility(inputId, buttonId) {
   input.type = visible ? 'password' : 'text';
   button.setAttribute('aria-label', visible ? 'Hiển thị mật khẩu' : 'Ẩn mật khẩu');
   button.setAttribute('title', visible ? 'Hiển thị mật khẩu' : 'Ẩn mật khẩu');
-  const icon = button.querySelector('[data-lucide]');
-  if (icon) icon.setAttribute('data-lucide', visible ? 'eye' : 'eye-off');
-  if (window.lucide) window.lucide.createIcons();
+  button.blur();
 }
 
 async function submitForgotRequest(event) {

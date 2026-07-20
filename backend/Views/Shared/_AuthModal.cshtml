@@ -17,7 +17,10 @@
         </div>
         <div class="form-group">
           <label class="form-label">M&#7853;t kh&#7849;u</label>
-          <input type="password" id="login-password" class="form-control" placeholder="Nh&#7853;p m&#7853;t kh&#7849;u..." required autocomplete="current-password" />
+          <div class="password-input-wrap">
+            <input type="password" id="login-password" class="form-control" placeholder="Nh&#7853;p m&#7853;t kh&#7849;u..." required autocomplete="current-password" />
+            <button type="button" id="toggle-login-password" class="password-visibility-toggle" aria-label="Hi&#7875;n th&#7883; m&#7853;t kh&#7849;u" title="Hi&#7875;n th&#7883; m&#7853;t kh&#7849;u"><i data-lucide="eye"></i></button>
+          </div>
         </div>
         <div style="text-align: right; margin-top: -6px;">
           <button type="button" id="switch-to-forgot" class="auth-text-button">Qu&#234;n m&#7853;t kh&#7849;u?</button>
@@ -46,11 +49,17 @@
         </div>
         <div class="form-group">
           <label class="form-label">M&#7853;t kh&#7849;u</label>
-          <input type="password" id="register-password" class="form-control" placeholder="&#205;t nh&#7845;t 8 k&#253; t&#7921;, g&#7891;m ch&#7919; v&#224; s&#7889;" minlength="8" maxlength="128" required autocomplete="new-password" />
+          <div class="password-input-wrap">
+            <input type="password" id="register-password" class="form-control" placeholder="&#205;t nh&#7845;t 8 k&#253; t&#7921;, g&#7891;m ch&#7919; v&#224; s&#7889;" minlength="8" maxlength="128" required autocomplete="new-password" />
+            <button type="button" id="toggle-register-password" class="password-visibility-toggle" aria-label="Hi&#7875;n th&#7883; m&#7853;t kh&#7849;u" title="Hi&#7875;n th&#7883; m&#7853;t kh&#7849;u"><i data-lucide="eye"></i></button>
+          </div>
         </div>
         <div class="form-group">
           <label class="form-label">X&#225;c nh&#7853;n m&#7853;t kh&#7849;u</label>
-          <input type="password" id="register-confirm-password" class="form-control" placeholder="Nh&#7853;p l&#7841;i m&#7853;t kh&#7849;u..." minlength="8" maxlength="128" required autocomplete="new-password" />
+          <div class="password-input-wrap">
+            <input type="password" id="register-confirm-password" class="form-control" placeholder="Nh&#7853;p l&#7841;i m&#7853;t kh&#7849;u..." minlength="8" maxlength="128" required autocomplete="new-password" />
+            <button type="button" id="toggle-register-confirm-password" class="password-visibility-toggle" aria-label="Hi&#7875;n th&#7883; m&#7853;t kh&#7849;u x&#225;c nh&#7853;n" title="Hi&#7875;n th&#7883; m&#7853;t kh&#7849;u x&#225;c nh&#7853;n"><i data-lucide="eye"></i></button>
+          </div>
         </div>
         <button type="submit" class="btn btn-primary" style="width: 100%; border-radius: 24px; margin-top: 16px; font-weight: 700;">&#272;&#259;ng k&#253;</button>
       </form>
@@ -97,11 +106,17 @@
       <form id="forgot-reset-form">
         <div class="form-group">
           <label class="form-label">M&#7853;t kh&#7849;u m&#7899;i</label>
-          <input type="password" id="forgot-new-password" class="form-control" minlength="8" maxlength="128" required autocomplete="new-password" />
+          <div class="password-input-wrap">
+            <input type="password" id="forgot-new-password" class="form-control" minlength="8" maxlength="128" required autocomplete="new-password" />
+            <button type="button" id="toggle-forgot-new-password" class="password-visibility-toggle" aria-label="Hi&#7875;n th&#7883; m&#7853;t kh&#7849;u m&#7899;i" title="Hi&#7875;n th&#7883; m&#7853;t kh&#7849;u m&#7899;i"><i data-lucide="eye"></i></button>
+          </div>
         </div>
         <div class="form-group">
           <label class="form-label">X&#225;c nh&#7853;n m&#7853;t kh&#7849;u</label>
-          <input type="password" id="forgot-confirm-password" class="form-control" minlength="8" maxlength="128" required autocomplete="new-password" />
+          <div class="password-input-wrap">
+            <input type="password" id="forgot-confirm-password" class="form-control" minlength="8" maxlength="128" required autocomplete="new-password" />
+            <button type="button" id="toggle-forgot-confirm-password" class="password-visibility-toggle" aria-label="Hi&#7875;n th&#7883; m&#7853;t kh&#7849;u x&#225;c nh&#7853;n" title="Hi&#7875;n th&#7883; m&#7853;t kh&#7849;u x&#225;c nh&#7853;n"><i data-lucide="eye"></i></button>
+          </div>
         </div>
         <button type="submit" class="btn btn-primary auth-flow-submit">&#272;&#7893;i m&#7853;t kh&#7849;u</button>
       </form>

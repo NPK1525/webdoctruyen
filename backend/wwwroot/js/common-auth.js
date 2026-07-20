@@ -162,6 +162,28 @@ function initAuthModals() {
   document.getElementById('forgot-resend')?.addEventListener('click', resendForgotOtp);
   document.getElementById('forgot-otp-form')?.addEventListener('submit', submitForgotOtp);
   document.getElementById('forgot-reset-form')?.addEventListener('submit', submitForgotReset);
+  [
+    ['login-password', 'toggle-login-password'],
+    ['register-password', 'toggle-register-password'],
+    ['register-confirm-password', 'toggle-register-confirm-password'],
+    ['forgot-new-password', 'toggle-forgot-new-password'],
+    ['forgot-confirm-password', 'toggle-forgot-confirm-password']
+  ].forEach(([inputId, buttonId]) => {
+    document.getElementById(buttonId)?.addEventListener('click', () => togglePasswordVisibility(inputId, buttonId));
+  });
+}
+
+function togglePasswordVisibility(inputId, buttonId) {
+  const input = document.getElementById(inputId);
+  const button = document.getElementById(buttonId);
+  if (!input || !button) return;
+  const visible = input.type === 'text';
+  input.type = visible ? 'password' : 'text';
+  button.setAttribute('aria-label', visible ? 'Hiển thị mật khẩu' : 'Ẩn mật khẩu');
+  button.setAttribute('title', visible ? 'Hiển thị mật khẩu' : 'Ẩn mật khẩu');
+  const icon = button.querySelector('[data-lucide]');
+  if (icon) icon.setAttribute('data-lucide', visible ? 'eye' : 'eye-off');
+  if (window.lucide) window.lucide.createIcons();
 }
 
 async function submitForgotRequest(event) {

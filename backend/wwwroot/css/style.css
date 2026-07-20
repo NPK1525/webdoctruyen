@@ -318,6 +318,28 @@ button {
 .auth-flow-message.visible { display: block; background: rgba(255,69,82,0.15); border: 1px solid rgba(255,69,82,0.3); color: #FF4552; }
 .auth-flow-message.success { background: rgba(60,200,120,0.14); border-color: rgba(60,200,120,0.3); color: #63d69a; }
 .auth-otp-input { letter-spacing: 0.4em; text-align: center; font-weight: 700; }
+.password-input-wrap { position: relative; }
+.password-input-wrap .form-control { padding-right: 46px; }
+.password-visibility-toggle {
+  position: absolute;
+  top: 50%;
+  right: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  transform: translateY(-50%);
+}
+.password-visibility-toggle:hover,
+.password-visibility-toggle:focus-visible { color: var(--text-bright); background: var(--bg-hover); }
+.password-visibility-toggle [data-lucide] { width: 18px; height: 18px; }
 
 .btn {
   display: inline-flex;

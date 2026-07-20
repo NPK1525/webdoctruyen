@@ -27,3 +27,16 @@ test('password reset keeps reset token in memory and returns to login after succ
   assert.match(js, /switchAuthView\(['"]login['"]\)/);
   assert.match(js, /forgot-confirm-password/);
 });
+
+test('auth modal provides password visibility toggles for login and registration fields', () => {
+  for (const id of [
+    'toggle-login-password',
+    'toggle-register-password',
+    'toggle-register-confirm-password',
+    'toggle-forgot-new-password',
+    'toggle-forgot-confirm-password'
+  ]) {
+    assert.match(view, new RegExp(`id="${id}"`));
+  }
+  assert.match(js, /togglePasswordVisibility/);
+});

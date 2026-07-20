@@ -113,13 +113,14 @@ public class AdminUserManagementTests
         var result = Assert.IsType<OkObjectResult>(await controller.UpdateProfile(user.Id, new UpdateUserProfileDto
         {
             Username = "edited-reader", Email = "edited@test.local", AvatarUrl = "https://cdn.test/avatar.png",
-            Bio = "Updated bio", Badge = "Contributor"
+            Bio = "Updated bio", Badge = "Contributor", Role = "Admin"
         }));
 
         var saved = await context.Users.FindAsync(user.Id);
         Assert.Equal("edited-reader", saved!.Username);
         Assert.Equal("edited@test.local", saved.Email);
         Assert.Equal("Updated bio", saved.Bio);
+        Assert.Equal("Admin", saved.Role);
         Assert.IsType<AdminUserListItemDto>(result.Value);
     }
 

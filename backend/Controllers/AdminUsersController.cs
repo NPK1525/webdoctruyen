@@ -75,8 +75,16 @@ public sealed class AdminUsersController(MangaDbContext context) : ControllerBas
         if (dto.AvatarUrl?.Length > 500) return BadRequest(new { message = "URL ảnh đại diện không được vượt quá 500 ký tự." });
 
         var currentUserId = HttpContext.Session.GetInt32("UserId")!.Value;
+        var requestedRole = string.IsNullOrWhiteSpace(dto.Role) ? null : dto.Role.Trim();
+        if (requestedRole is not null && requestedRole is not ("User" or "Admin"))
+            return BadRequest(new { message = "Vai trò không hợp lệ." });
+        await using var transaction = await BeginGuardTransactionAsync();
         var user = await context.Users.FindAsync([id], HttpContext.RequestAborted);
         if (user is null) return NotFound(new { message = "Không tìm thấy người dùng." });
+        if (requestedRole == "User" && id == currentUserId)
+            return Conflict(new { message = "Bạn không thể tự hạ quyền tài khoản đang đăng nhập." });
+        if (requestedRole == "User" && user.Role == "Admin" && !user.IsLocked && await CountActiveAdminsAsync() <= 1)
+            return Conflict(new { message = "Không thể hạ quyền quản trị viên hoạt động cuối cùng." });
 #pragma warning disable CA1862
         if (await context.Users.AnyAsync(other => other.Id != id && other.Username.ToLower() == username.ToLower(), HttpContext.RequestAborted))
             return Conflict(new { message = "Tên đăng nhập đã được sử dụng." });
@@ -85,10 +93,12 @@ public sealed class AdminUsersController(MangaDbContext context) : ControllerBas
 #pragma warning restore CA1862
         user.Username = username;
         user.Email = email;
+        if (requestedRole is not null) user.Role = requestedRole;
         user.AvatarUrl = string.IsNullOrWhiteSpace(dto.AvatarUrl) ? null : dto.AvatarUrl.Trim();
         user.Bio = string.IsNullOrWhiteSpace(dto.Bio) ? null : dto.Bio.Trim();
         user.Badge = string.IsNullOrWhiteSpace(dto.Badge) ? null : dto.Badge.Trim();
         await context.SaveChangesAsync(HttpContext.RequestAborted);
+        if (transaction is not null) await transaction.CommitAsync(HttpContext.RequestAborted);
         if (id == currentUserId)
         {
             HttpContext.Session.SetString("Username", user.Username);

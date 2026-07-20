@@ -26,10 +26,9 @@ test('admin user module loads before the coordinator', () => {
   assert.ok(view.indexOf('/js/admin-users.js') < view.indexOf('/js/admin.js'));
 });
 
-test('admin users use server pagination and guarded role/lock endpoints', () => {
+test('admin users use server pagination and guarded lock endpoint', () => {
   assert.match(js, /pageSize:\s*['"]?20/);
   assert.match(js, /\/admin\/users\?/);
-  assert.match(js, /\/role/);
   assert.match(js, /\/lock/);
   assert.match(js, /setTimeout\([^,]+,\s*250\)/s);
   assert.match(js, /window\.AdminUsers\s*=\s*\{\s*init,\s*activate\s*\}/);
@@ -45,4 +44,7 @@ test('admin users expose an editor for profile fields', () => {
   assert.match(js, /avatarUrl/);
   assert.match(js, /bio/);
   assert.match(js, /badge/);
+  assert.match(view, /id="admin-user-editor-role"/);
+  assert.doesNotMatch(js, /data-user-save-role/);
+  assert.match(js, /role:/);
 });

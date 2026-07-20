@@ -20,13 +20,12 @@
       return `<div class="admin-user-row" data-user-row="${user.id}">
         <div class="admin-user-identity"><img class="admin-user-avatar" src="${escape(safeImage(user.avatarUrl))}" alt=""><strong>${escape(user.username)}</strong></div>
         <span>${escape(user.email)}</span>
-        <label><span class="sr-only">Vai trò</span><select class="form-control" data-user-role="${user.id}" ${current ? 'disabled' : ''}><option value="User" ${user.role === 'User' ? 'selected' : ''}>User</option><option value="Admin" ${user.role === 'Admin' ? 'selected' : ''}>Admin</option></select></label>
+        <span class="admin-user-badge">${escape(user.role)}</span>
         <span class="admin-user-badge ${locked ? 'locked' : ''}">${locked ? 'Đã khóa' : 'Hoạt động'}</span>
         <span>${formatDate(user.createdAt)}</span>
-        <div class="admin-user-actions"><button type="button" class="btn btn-secondary" data-user-edit="${user.id}">Chỉnh sửa</button><button type="button" class="btn btn-secondary" data-user-save-role="${user.id}" ${current ? 'disabled' : ''}>Lưu vai trò</button><button type="button" class="btn ${locked ? 'btn-secondary' : 'btn-primary'}" data-user-toggle-lock="${user.id}" ${current ? 'disabled' : ''}>${locked ? 'Mở khóa' : 'Khóa'}</button></div>
+        <div class="admin-user-actions"><button type="button" class="btn btn-secondary" data-user-edit="${user.id}">Chỉnh sửa</button><button type="button" class="btn ${locked ? 'btn-secondary' : 'btn-primary'}" data-user-toggle-lock="${user.id}" ${current ? 'disabled' : ''}>${locked ? 'Mở khóa' : 'Khóa'}</button></div>
       </div>`;
     }).join('');
-    root.querySelectorAll('[data-user-save-role]').forEach(button => button.addEventListener('click', () => updateRole(Number(button.dataset.userSaveRole), button)));
     root.querySelectorAll('[data-user-toggle-lock]').forEach(button => button.addEventListener('click', () => updateLock(Number(button.dataset.userToggleLock), button)));
     root.querySelectorAll('[data-user-edit]').forEach(button => button.addEventListener('click', () => openEditor(Number(button.dataset.userEdit))));
     if (window.lucide) window.lucide.createIcons();
@@ -40,6 +39,7 @@
     document.getElementById('admin-user-editor-id').value = id;
     document.getElementById('admin-user-editor-username').value = user.username || '';
     document.getElementById('admin-user-editor-email').value = user.email || '';
+    document.getElementById('admin-user-editor-role').value = user.role || 'User';
     document.getElementById('admin-user-editor-avatar').value = user.avatarUrl || '';
     document.getElementById('admin-user-editor-badge').value = user.badge || '';
     document.getElementById('admin-user-editor-bio').value = user.bio || '';
@@ -62,6 +62,7 @@
     const body = {
       username: document.getElementById('admin-user-editor-username').value.trim(),
       email: document.getElementById('admin-user-editor-email').value.trim(),
+      role: document.getElementById('admin-user-editor-role').value,
       avatarUrl: document.getElementById('admin-user-editor-avatar').value.trim(),
       badge: document.getElementById('admin-user-editor-badge').value.trim(),
       bio: document.getElementById('admin-user-editor-bio').value.trim()
@@ -117,18 +118,6 @@
       if (root) root.innerHTML = `<div class="management-empty">${escape(error.message)}</div>`;
       showToast(error.message, false);
     } finally { state.loading = false; }
-  }
-
-  async function updateRole(id, button) {
-    const select = document.querySelector(`[data-user-role="${id}"]`);
-    if (!select || !confirm('Đổi vai trò người dùng này?')) return;
-    button.disabled = true;
-    try {
-      const response = await apiFetch(`${API_BASE}/admin/users/${id}/role`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ role: select.value }) });
-      const payload = await response.json().catch(() => ({}));
-      if (!response.ok) throw new Error(payload.message || 'Không thể cập nhật vai trò.');
-      showToast('Đã cập nhật vai trò.', true); await load();
-    } catch (error) { button.disabled = false; showToast(error.message, false); }
   }
 
   async function updateLock(id, button) {

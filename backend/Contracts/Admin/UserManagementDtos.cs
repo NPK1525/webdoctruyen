@@ -31,6 +31,7 @@ public sealed class UpdateUserLockDto
 
 public sealed class UpdateUserProfileDto
 {
+    public string? Role { get; set; }
     public string Username { get; set; } = string.Empty;
     public string Email { get; set; } = string.Empty;
     public string? AvatarUrl { get; set; }

@@ -18,6 +18,7 @@ public class AdminControllerArchitectureTests
         "GET manga/{mangaId:int}/chapters",
         "GET title-drafts",
         "GET title-drafts/{id}",
+        "GET users",
         "POST author",
         "POST chapter",
         "POST genre",
@@ -31,6 +32,8 @@ public class AdminControllerArchitectureTests
         "PUT chapter/{id:int}",
         "PUT author/{id:int}",
         "PUT genre/{id:int}",
+        "PUT users/{id:int}/lock",
+        "PUT users/{id:int}/role",
         "PUT manga/{id}",
         "PUT title-drafts/{id}"
     };
@@ -62,7 +65,8 @@ public class AdminControllerArchitectureTests
             "MangaNPK.Controllers.AdminCatalogController",
             "MangaNPK.Controllers.AdminChapterController",
             "MangaNPK.Controllers.AdminMangaDexController",
-            "MangaNPK.Controllers.AdminTitleDraftController"
+            "MangaNPK.Controllers.AdminTitleDraftController",
+            "MangaNPK.Controllers.AdminUsersController"
         };
 
         var controllerTypes = expectedNames
@@ -90,6 +94,8 @@ public class AdminControllerArchitectureTests
     [InlineData("MangaDexImportRequest")]
     [InlineData("SaveTitleDraftDto")]
     [InlineData("RejectTitleDraftDto")]
+    [InlineData("UpdateUserRoleDto")]
+    [InlineData("UpdateUserLockDto")]
     public void AdminRequestDtos_AreSeparatedFromControllers(string typeName)
     {
         var assembly = typeof(AdminCatalogController).Assembly;

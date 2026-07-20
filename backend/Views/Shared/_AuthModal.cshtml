@@ -1,5 +1,5 @@
 <div id="auth-modal" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0,0,0,0.75); backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center; z-index: 2000; padding: 20px;">
-  <div class="glass-card" style="width: 100%; max-width: 420px; padding: 32px; border-radius: var(--radius-lg); position: relative; background-color: var(--bg-card); box-shadow: var(--shadow-lg);" onclick="event.stopPropagation()">
+  <div class="glass-card" style="width: 100%; max-width: 420px; max-height: calc(100vh - 40px); overflow-y: auto; padding: 32px; border-radius: var(--radius-lg); position: relative; background-color: var(--bg-card); box-shadow: var(--shadow-lg);" onclick="event.stopPropagation()">
     <button id="auth-modal-close" style="position: absolute; top: 20px; right: 20px; color: var(--text-muted); cursor: pointer; background: none; border: none;" title="&#272;&#243;ng">
       <i data-lucide="x" style="width: 20px; height: 20px;"></i>
     </button>
@@ -18,6 +18,9 @@
         <div class="form-group">
           <label class="form-label">M&#7853;t kh&#7849;u</label>
           <input type="password" id="login-password" class="form-control" placeholder="Nh&#7853;p m&#7853;t kh&#7849;u..." required autocomplete="current-password" />
+        </div>
+        <div style="text-align: right; margin-top: -6px;">
+          <button type="button" id="switch-to-forgot" class="auth-text-button">Qu&#234;n m&#7853;t kh&#7849;u?</button>
         </div>
         <button type="submit" class="btn btn-primary" style="width: 100%; border-radius: 24px; margin-top: 16px; font-weight: 700;">&#272;&#259;ng nh&#7853;p</button>
       </form>
@@ -54,6 +57,55 @@
       <p style="text-align: center; font-size: 0.85rem; color: var(--text-muted); margin-top: 24px;">
         &#272;&#227; c&#243; t&#224;i kho&#7843;n? <span id="switch-to-login" style="color: var(--accent-primary); cursor: pointer; font-weight: 600;">&#272;&#259;ng nh&#7853;p</span>
       </p>
+    </div>
+
+    <div id="auth-modal-forgot-request-view" style="display: none;">
+      <h3 style="font-size: 1.5rem; font-weight: 800; color: var(--text-bright); margin-bottom: 12px;">Qu&#234;n m&#7853;t kh&#7849;u</h3>
+      <p style="color: var(--text-muted); margin-bottom: 20px;">Nh&#7853;p email &#273;&#227; &#273;&#259;ng k&#253; &#273;&#7875; nh&#7853;n m&#227; OTP.</p>
+      <div id="forgot-request-message" class="auth-flow-message"><span class="msg-txt"></span></div>
+      <form id="forgot-request-form">
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input type="email" id="forgot-email" class="form-control" placeholder="name@example.com" required autocomplete="email" />
+        </div>
+        <button type="submit" class="btn btn-primary auth-flow-submit">G&#7917;i m&#227; OTP</button>
+      </form>
+      <button type="button" class="auth-text-button auth-flow-back" data-auth-back-login>Quay l&#7841;i &#273;&#259;ng nh&#7853;p</button>
+    </div>
+
+    <div id="auth-modal-forgot-otp-view" style="display: none;">
+      <h3 style="font-size: 1.5rem; font-weight: 800; color: var(--text-bright); margin-bottom: 12px;">Nh&#7853;p m&#227; OTP</h3>
+      <p style="color: var(--text-muted); margin-bottom: 20px;">M&#227; g&#7891;m 6 ch&#7919; s&#7889; v&#224; c&#243; hi&#7879;u l&#7921;c trong 10 ph&#250;t.</p>
+      <div id="forgot-otp-message" class="auth-flow-message"><span class="msg-txt"></span></div>
+      <form id="forgot-otp-form">
+        <div class="form-group">
+          <label class="form-label">M&#227; OTP</label>
+          <input type="text" id="forgot-otp" class="form-control auth-otp-input" inputmode="numeric" pattern="[0-9]{6}" minlength="6" maxlength="6" autocomplete="one-time-code" required />
+        </div>
+        <button type="submit" class="btn btn-primary auth-flow-submit">X&#225;c nh&#7853;n OTP</button>
+      </form>
+      <div class="auth-flow-links">
+        <button type="button" id="forgot-resend" class="auth-text-button">G&#7917;i l&#7841;i m&#227;</button>
+        <button type="button" class="auth-text-button" data-auth-back-login>Quay l&#7841;i &#273;&#259;ng nh&#7853;p</button>
+      </div>
+    </div>
+
+    <div id="auth-modal-forgot-reset-view" style="display: none;">
+      <h3 style="font-size: 1.5rem; font-weight: 800; color: var(--text-bright); margin-bottom: 12px;">T&#7841;o m&#7853;t kh&#7849;u m&#7899;i</h3>
+      <p style="color: var(--text-muted); margin-bottom: 20px;">M&#7853;t kh&#7849;u ph&#7843;i c&#243; &#237;t nh&#7845;t 8 k&#253; t&#7921;, g&#7891;m ch&#7919; v&#224; s&#7889;.</p>
+      <div id="forgot-reset-message" class="auth-flow-message"><span class="msg-txt"></span></div>
+      <form id="forgot-reset-form">
+        <div class="form-group">
+          <label class="form-label">M&#7853;t kh&#7849;u m&#7899;i</label>
+          <input type="password" id="forgot-new-password" class="form-control" minlength="8" maxlength="128" required autocomplete="new-password" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">X&#225;c nh&#7853;n m&#7853;t kh&#7849;u</label>
+          <input type="password" id="forgot-confirm-password" class="form-control" minlength="8" maxlength="128" required autocomplete="new-password" />
+        </div>
+        <button type="submit" class="btn btn-primary auth-flow-submit">&#272;&#7893;i m&#7853;t kh&#7849;u</button>
+      </form>
+      <button type="button" class="auth-text-button auth-flow-back" data-auth-back-login>H&#7911;y v&#224; quay l&#7841;i</button>
     </div>
   </div>
 </div>

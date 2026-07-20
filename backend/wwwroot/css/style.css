@@ -299,6 +299,26 @@ button {
   background-color: var(--bg-input-focus);
 }
 
+.auth-text-button {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--accent-primary);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.auth-text-button:hover { color: var(--accent-secondary); text-decoration: underline; }
+.auth-flow-submit { width: 100%; border-radius: 24px; margin-top: 16px; font-weight: 700; }
+.auth-flow-back { display: block; margin: 22px auto 0; }
+.auth-flow-links { display: flex; justify-content: center; gap: 18px; margin-top: 22px; }
+.auth-flow-message { display: none; margin-bottom: 16px; padding: 10px; border-radius: 6px; font-size: 0.85rem; }
+.auth-flow-message.visible { display: block; background: rgba(255,69,82,0.15); border: 1px solid rgba(255,69,82,0.3); color: #FF4552; }
+.auth-flow-message.success { background: rgba(60,200,120,0.14); border-color: rgba(60,200,120,0.3); color: #63d69a; }
+.auth-otp-input { letter-spacing: 0.4em; text-align: center; font-weight: 700; }
+
 .btn {
   display: inline-flex;
   align-items: center;

@@ -1,4 +1,7 @@
-// Shared login/register modal behavior.
+// Shared login/register/password-reset modal behavior.
+
+let passwordResetEmail = '';
+let passwordResetToken = '';
 
 function initAuthModals() {
   const modal = document.getElementById('auth-modal');
@@ -27,6 +30,18 @@ function initAuthModals() {
 
   document.getElementById('switch-to-login')?.addEventListener('click', () => {
     switchAuthView('login');
+  });
+
+  document.getElementById('switch-to-forgot')?.addEventListener('click', () => {
+    clearPasswordResetState();
+    switchAuthView('forgot-request');
+  });
+
+  document.querySelectorAll('[data-auth-back-login]').forEach(button => {
+    button.addEventListener('click', () => {
+      clearPasswordResetState();
+      switchAuthView('login');
+    });
   });
 
   // Form submit: Login
@@ -142,6 +157,127 @@ function initAuthModals() {
       }
     }
   });
+
+  document.getElementById('forgot-request-form')?.addEventListener('submit', submitForgotRequest);
+  document.getElementById('forgot-resend')?.addEventListener('click', resendForgotOtp);
+  document.getElementById('forgot-otp-form')?.addEventListener('submit', submitForgotOtp);
+  document.getElementById('forgot-reset-form')?.addEventListener('submit', submitForgotReset);
+}
+
+async function submitForgotRequest(event) {
+  event.preventDefault();
+  const email = document.getElementById('forgot-email')?.value.trim() || '';
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    setPasswordResetMessage('forgot-request-message', 'Vui lòng nhập email hợp lệ.');
+    return;
+  }
+
+  passwordResetEmail = email;
+  await requestForgotOtp();
+}
+
+async function requestForgotOtp() {
+  const submit = document.querySelector('#forgot-request-form button[type="submit"]');
+  if (submit) submit.disabled = true;
+  try {
+    const response = await apiFetch(`${API_BASE}/auth/forgot-password`, {
+      method: 'POST',
+      body: JSON.stringify({ email: passwordResetEmail })
+    });
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(payload.message || 'Không thể gửi mã OTP.');
+    setPasswordResetMessage('forgot-request-message', payload.message || 'Nếu email tồn tại, mã OTP đã được gửi.', true);
+    switchAuthView('forgot-otp');
+  } catch (error) {
+    setPasswordResetMessage('forgot-request-message', error.message || 'Không thể gửi mã OTP.');
+  } finally {
+    if (submit) submit.disabled = false;
+  }
+}
+
+async function resendForgotOtp() {
+  if (!passwordResetEmail) {
+    switchAuthView('forgot-request');
+    return;
+  }
+  await requestForgotOtp();
+}
+
+async function submitForgotOtp(event) {
+  event.preventDefault();
+  const otp = document.getElementById('forgot-otp')?.value.trim() || '';
+  if (!/^\d{6}$/.test(otp)) {
+    setPasswordResetMessage('forgot-otp-message', 'Mã OTP phải gồm đúng 6 chữ số.');
+    return;
+  }
+
+  const submit = event.currentTarget.querySelector('button[type="submit"]');
+  if (submit) submit.disabled = true;
+  try {
+    const response = await apiFetch(`${API_BASE}/auth/verify-reset-otp`, {
+      method: 'POST',
+      body: JSON.stringify({ email: passwordResetEmail, otp })
+    });
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(payload.message || 'Mã OTP không hợp lệ hoặc đã hết hạn.');
+    passwordResetToken = payload.resetToken || '';
+    switchAuthView('forgot-reset');
+  } catch (error) {
+    setPasswordResetMessage('forgot-otp-message', error.message || 'Mã OTP không hợp lệ hoặc đã hết hạn.');
+  } finally {
+    if (submit) submit.disabled = false;
+  }
+}
+
+async function submitForgotReset(event) {
+  event.preventDefault();
+  const password = document.getElementById('forgot-new-password')?.value || '';
+  const confirmPassword = document.getElementById('forgot-confirm-password')?.value || '';
+  if (password.length < 8 || !/[A-Za-z]/.test(password) || !/[0-9]/.test(password)) {
+    setPasswordResetMessage('forgot-reset-message', 'Mật khẩu phải có ít nhất 8 ký tự, gồm chữ và số.');
+    return;
+  }
+  if (password !== confirmPassword) {
+    setPasswordResetMessage('forgot-reset-message', 'Mật khẩu xác nhận không khớp.');
+    return;
+  }
+
+  const submit = event.currentTarget.querySelector('button[type="submit"]');
+  if (submit) submit.disabled = true;
+  try {
+    const response = await apiFetch(`${API_BASE}/auth/reset-password`, {
+      method: 'POST',
+      body: JSON.stringify({ email: passwordResetEmail, resetToken: passwordResetToken, password, confirmPassword })
+    });
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(payload.message || 'Không thể đổi mật khẩu.');
+    clearPasswordResetState();
+    switchAuthView('login');
+    showToast(payload.message || 'Đổi mật khẩu thành công.', true);
+  } catch (error) {
+    setPasswordResetMessage('forgot-reset-message', error.message || 'Không thể đổi mật khẩu.');
+  } finally {
+    if (submit) submit.disabled = false;
+  }
+}
+
+function setPasswordResetMessage(id, message, success = false) {
+  const element = document.getElementById(id);
+  if (!element) return;
+  element.classList.toggle('visible', Boolean(message));
+  element.classList.toggle('success', success);
+  const text = element.querySelector('.msg-txt');
+  if (text) text.textContent = message;
+}
+
+function clearPasswordResetState() {
+  passwordResetEmail = '';
+  passwordResetToken = '';
+  ['forgot-email', 'forgot-otp', 'forgot-new-password', 'forgot-confirm-password'].forEach(id => {
+    const input = document.getElementById(id);
+    if (input) input.value = '';
+  });
+  ['forgot-request-message', 'forgot-otp-message', 'forgot-reset-message'].forEach(id => setPasswordResetMessage(id, ''));
 }
 
 function normalizeAuthModalText() {
@@ -225,12 +361,13 @@ function openAuthModal(viewMode = 'login') {
 function switchAuthView(viewMode) {
   const loginView = document.getElementById('auth-modal-login-view');
   const registerView = document.getElementById('auth-modal-register-view');
-
-  if (viewMode === 'login') {
-    if (loginView) loginView.style.display = 'block';
-    if (registerView) registerView.style.display = 'none';
-  } else {
-    if (loginView) loginView.style.display = 'none';
-    if (registerView) registerView.style.display = 'block';
-  }
+  const views = {
+    login: loginView,
+    register: registerView,
+    'forgot-request': document.getElementById('auth-modal-forgot-request-view'),
+    'forgot-otp': document.getElementById('auth-modal-forgot-otp-view'),
+    'forgot-reset': document.getElementById('auth-modal-forgot-reset-view')
+  };
+  Object.values(views).forEach(view => { if (view) view.style.display = 'none'; });
+  if (views[viewMode]) views[viewMode].style.display = 'block';
 }

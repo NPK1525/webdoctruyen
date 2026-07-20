@@ -41,6 +41,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   renderUnifiedSidebarDrawer();
   initSidebar();
   initAuthModals();
+  const authView = new URLSearchParams(window.location.search).get('auth');
+  if (authView === 'login' || authView === 'register') openAuthModal(authView);
   initHeaderSearch();
   initHeaderScroll();
   initTheme();

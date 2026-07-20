@@ -55,6 +55,8 @@ builder.Services.AddScoped<MangaListService>();
 builder.Services.AddOptions<SmtpOptions>()
     .BindConfiguration(SmtpOptions.SectionName);
 builder.Services.AddScoped<IEmailSender, SmtpEmailSender>();
+builder.Services.AddSingleton(TimeProvider.System);
+builder.Services.AddScoped<PasswordResetService>();
 
 // ── CORS ──────────────────────────────────────────────────────────────────────
 // In development allow localhost origins; in production set AllowedOrigins in config.

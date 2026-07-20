@@ -191,6 +191,9 @@ function togglePasswordVisibility(event, inputId, buttonId) {
   input.type = visible ? 'password' : 'text';
   button.setAttribute('aria-label', visible ? 'Hiển thị mật khẩu' : 'Ẩn mật khẩu');
   button.setAttribute('title', visible ? 'Hiển thị mật khẩu' : 'Ẩn mật khẩu');
+  button.innerHTML = visible
+    ? '<svg class="password-eye-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"></path><circle cx="12" cy="12" r="3"></circle></svg>'
+    : '<svg class="password-eye-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m3 3 18 18"></path><path d="M10.6 5.1A10.7 10.7 0 0 1 12 5c6.5 0 10 7 10 7a18.4 18.4 0 0 1-3.1 4.1M6.3 6.3C3.5 8.4 2 12 2 12s3.5 7 10 7a10.7 10.7 0 0 0 3.1-.5"></path><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"></path></svg>';
   button.blur();
 }
 

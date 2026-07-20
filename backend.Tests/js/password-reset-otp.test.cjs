@@ -59,4 +59,6 @@ test('password visibility toggle does not submit or rerender the page', () => {
   assert.doesNotMatch(toggle, /window\.lucide\.createIcons/);
   assert.match(toggle, /typeof event === 'string'/);
   assert.match(toggle, /input\.type = visible \? 'password' : 'text'/);
+  assert.match(toggle, /password-eye-icon/);
+  assert.match(toggle, /button\.innerHTML = visible/);
 });

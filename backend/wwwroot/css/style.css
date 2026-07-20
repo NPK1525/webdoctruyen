@@ -342,7 +342,9 @@ button {
 }
 .password-visibility-toggle:hover,
 .password-visibility-toggle:focus-visible { color: var(--text-bright); background: var(--bg-hover); }
-.password-visibility-toggle [data-lucide] { width: 18px; height: 18px; }
+.password-visibility-toggle [data-lucide],
+.password-visibility-toggle .password-eye-icon { width: 18px; height: 18px; }
+.password-visibility-toggle .password-eye-icon { fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 
 .btn {
   display: inline-flex;

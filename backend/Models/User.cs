@@ -15,5 +15,6 @@ namespace MangaNPK.Models
         public string? Badge { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public List<MangaContributor> MangaContributions { get; set; } = [];
+        public List<PasswordResetRequest> PasswordResetRequests { get; set; } = [];
     }
 }

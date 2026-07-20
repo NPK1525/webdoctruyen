@@ -1,4 +1,5 @@
 using MangaNPK.Data;
+using MangaNPK.Contracts.Auth;
 using MangaNPK.Models;
 using MangaNPK.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -8,9 +9,10 @@ namespace MangaNPK.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class AuthController(MangaDbContext context) : ControllerBase
+    public class AuthController(MangaDbContext context, PasswordResetService passwordResetService) : ControllerBase
     {
         private readonly MangaDbContext _context = context;
+        private readonly PasswordResetService _passwordResetService = passwordResetService;
 
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterDto dto)
@@ -94,6 +96,53 @@ namespace MangaNPK.Controllers
                 message = "Đăng nhập thành công!",
                 user = new { id = user.Id, username = user.Username, email = user.Email, role = user.Role }
             });
+        }
+
+        [HttpPost("forgot-password")]
+        public async Task<IActionResult> ForgotPassword(
+            [FromBody] ForgotPasswordDto dto,
+            CancellationToken cancellationToken)
+        {
+            var result = await _passwordResetService.RequestOtpAsync(dto.Email, cancellationToken);
+            if (result.DeliveryUnavailable)
+                return StatusCode(StatusCodes.Status503ServiceUnavailable, new { message = result.Message });
+
+            return Ok(new { message = result.Message });
+        }
+
+        [HttpPost("verify-reset-otp")]
+        public async Task<IActionResult> VerifyResetOtp(
+            [FromBody] VerifyResetOtpDto dto,
+            CancellationToken cancellationToken)
+        {
+            var otp = dto.Otp?.Trim() ?? string.Empty;
+            if (otp.Length != 6 || !otp.All(char.IsDigit))
+                return BadRequest(new { message = "Mã OTP phải gồm đúng 6 chữ số." });
+
+            var result = await _passwordResetService.VerifyOtpAsync(dto.Email, otp, cancellationToken);
+            if (!result.Succeeded)
+                return BadRequest(new { message = result.Message });
+
+            return Ok(new { message = result.Message, resetToken = result.ResetToken });
+        }
+
+        [HttpPost("reset-password")]
+        public async Task<IActionResult> ResetPassword(
+            [FromBody] ResetPasswordDto dto,
+            CancellationToken cancellationToken)
+        {
+            var result = await _passwordResetService.ResetPasswordAsync(
+                dto.Email,
+                dto.ResetToken,
+                dto.Password,
+                dto.ConfirmPassword,
+                cancellationToken);
+
+            if (!result.Succeeded)
+                return BadRequest(new { message = result.Message });
+
+            HttpContext.Session.Clear();
+            return Ok(new { message = result.Message });
         }
 
         [HttpGet("me")]

@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using MangaNPK.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace MangaNPK.Filters
 {
@@ -30,6 +31,21 @@ namespace MangaNPK.Filters
                 else
                     context.Result = new UnauthorizedObjectResult(new { message = "Cần đăng nhập để sử dụng tính năng này." });
                 return;
+            }
+
+            if (string.Equals(role, "Admin", StringComparison.OrdinalIgnoreCase))
+            {
+                var db = context.HttpContext.RequestServices.GetRequiredService<MangaDbContext>();
+                var activeAdmin = db.Users.AsNoTracking().Any(user =>
+                    user.Id == userId.Value && user.Role == "Admin" && !user.IsLocked);
+                if (!activeAdmin)
+                {
+                    context.HttpContext.Session.Clear();
+                    context.Result = isMvcRequest
+                        ? new RedirectToActionResult("Index", "Home", null)
+                        : new ObjectResult(new { message = "Phiên quản trị không còn hợp lệ." }) { StatusCode = 403 };
+                    return;
+                }
             }
 
             if (role != "Admin" && IsContributorChapterRequest(context, descriptor, userId.Value))

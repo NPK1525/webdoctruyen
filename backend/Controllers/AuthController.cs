@@ -77,6 +77,9 @@ namespace MangaNPK.Controllers
             if (user == null || !AuthService.VerifyPassword(dto.Password, user.PasswordHash))
                 return Unauthorized(new { message = "Tên đăng nhập/email hoặc mật khẩu không chính xác." });
 
+            if (user.IsLocked)
+                return StatusCode(StatusCodes.Status403Forbidden, new { message = "Tài khoản đã bị khóa. Vui lòng liên hệ quản trị viên." });
+
             // Automatically upgrade legacy SHA-256 hash to BCrypt on next login
             if (AuthService.IsLegacyHash(user.PasswordHash))
             {
@@ -105,6 +108,12 @@ namespace MangaNPK.Controllers
             {
                 HttpContext.Session.Clear();
                 return Unauthorized(new { message = "Phiên đăng nhập không hợp lệ." });
+            }
+
+            if (user.IsLocked)
+            {
+                HttpContext.Session.Clear();
+                return StatusCode(StatusCodes.Status403Forbidden, new { message = "Tài khoản đã bị khóa." });
             }
 
             return Ok(new { user = new { id = user.Id, username = user.Username, email = user.Email, role = user.Role } });

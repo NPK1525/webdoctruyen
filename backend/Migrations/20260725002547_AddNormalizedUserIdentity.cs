@@ -50,6 +50,34 @@ namespace MangaNPK.Migrations
                 BEGIN
                     THROW 50002, 'Cannot create unique email index: duplicate normalized emails exist.', 1;
                 END;
+
+                DECLARE @constraintName nvarchar(128);
+                DECLARE @dropConstraint nvarchar(max);
+
+                SELECT @constraintName = [dc].[name]
+                FROM [sys].[default_constraints] AS [dc]
+                INNER JOIN [sys].[columns] AS [column]
+                    ON [column].[default_object_id] = [dc].[object_id]
+                WHERE [dc].[parent_object_id] = OBJECT_ID(N'[Users]')
+                  AND [column].[name] = N'NormalizedUsername';
+                IF @constraintName IS NOT NULL
+                BEGIN
+                    SET @dropConstraint = N'ALTER TABLE [Users] DROP CONSTRAINT ' + QUOTENAME(@constraintName);
+                    EXEC sp_executesql @dropConstraint;
+                END;
+
+                SET @constraintName = NULL;
+                SELECT @constraintName = [dc].[name]
+                FROM [sys].[default_constraints] AS [dc]
+                INNER JOIN [sys].[columns] AS [column]
+                    ON [column].[default_object_id] = [dc].[object_id]
+                WHERE [dc].[parent_object_id] = OBJECT_ID(N'[Users]')
+                  AND [column].[name] = N'NormalizedEmail';
+                IF @constraintName IS NOT NULL
+                BEGIN
+                    SET @dropConstraint = N'ALTER TABLE [Users] DROP CONSTRAINT ' + QUOTENAME(@constraintName);
+                    EXEC sp_executesql @dropConstraint;
+                END;
                 """);
 
             migrationBuilder.CreateIndex(

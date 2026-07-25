@@ -14,6 +14,8 @@ public class UserIdentityMigrationTests
         Assert.Contains("LTRIM(RTRIM", source, StringComparison.OrdinalIgnoreCase);
         Assert.Contains("UPPER(", source, StringComparison.OrdinalIgnoreCase);
         Assert.Contains("THROW 50001", source, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("default_constraints", source, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("DROP CONSTRAINT", source, StringComparison.OrdinalIgnoreCase);
         Assert.True(source.IndexOf("THROW 50001", StringComparison.OrdinalIgnoreCase)
             < source.IndexOf("CreateIndex", StringComparison.OrdinalIgnoreCase));
     }

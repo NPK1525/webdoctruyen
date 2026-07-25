@@ -27,9 +27,45 @@ namespace MangaNPK.Data
         public DbSet<Report> Reports { get; set; } = null!;
         public DbSet<PasswordResetRequest> PasswordResetRequests { get; set; } = null!;
 
+        public override int SaveChanges(bool acceptAllChangesOnSuccess)
+        {
+            NormalizeUserIdentities();
+            return base.SaveChanges(acceptAllChangesOnSuccess);
+        }
+
+        public override Task<int> SaveChangesAsync(
+            bool acceptAllChangesOnSuccess,
+            CancellationToken cancellationToken = default)
+        {
+            NormalizeUserIdentities();
+            return base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
+        }
+
+        private void NormalizeUserIdentities()
+        {
+            foreach (var entry in ChangeTracker.Entries<User>()
+                         .Where(entry => entry.State is EntityState.Added or EntityState.Modified))
+            {
+                entry.Entity.NormalizedUsername = entry.Entity.Username.Trim().ToUpperInvariant();
+                entry.Entity.NormalizedEmail = entry.Entity.Email.Trim().ToUpperInvariant();
+            }
+        }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<User>(entity =>
+            {
+                entity.Property(user => user.NormalizedUsername).HasMaxLength(24).IsRequired();
+                entity.Property(user => user.NormalizedEmail).HasMaxLength(256).IsRequired();
+                entity.HasIndex(user => user.NormalizedUsername)
+                    .HasDatabaseName("IX_Users_NormalizedUsername")
+                    .IsUnique();
+                entity.HasIndex(user => user.NormalizedEmail)
+                    .HasDatabaseName("IX_Users_NormalizedEmail")
+                    .IsUnique();
+            });
 
             modelBuilder.Entity<PasswordResetRequest>(entity =>
             {

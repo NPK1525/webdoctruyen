@@ -19,6 +19,8 @@ namespace MangaNPK.Controllers
         {
             var usernameClean = dto.Username.Trim();
             var emailClean = dto.Email.Trim().ToLowerInvariant();
+            var normalizedUsername = UserIdentityNormalizer.Username(usernameClean);
+            var normalizedEmail = UserIdentityNormalizer.Email(emailClean);
 
             if (!AuthService.IsValidUsername(usernameClean))
                 return BadRequest(new { message = "Tên đăng nhập phải dài 3-24 ký tự và chỉ gồm chữ, số, dấu gạch dưới hoặc gạch ngang." });
@@ -30,12 +32,12 @@ namespace MangaNPK.Controllers
                 return BadRequest(new { message = "Mật khẩu phải có ít nhất 8 ký tự, gồm chữ và số." });
 
 #pragma warning disable CA1862
-            if (await _context.Users.AnyAsync(u => u.Username.ToLower() == usernameClean.ToLower()))
+            if (await _context.Users.AnyAsync(u => u.NormalizedUsername == normalizedUsername))
 #pragma warning restore CA1862
                 return BadRequest(new { message = "Tên đăng nhập đã tồn tại." });
 
 #pragma warning disable CA1862
-            if (await _context.Users.AnyAsync(u => u.Email.ToLower() == emailClean))
+            if (await _context.Users.AnyAsync(u => u.NormalizedEmail == normalizedEmail))
 #pragma warning restore CA1862
                 return BadRequest(new { message = "Email đã được sử dụng." });
 
@@ -52,7 +54,15 @@ namespace MangaNPK.Controllers
             };
 
             _context.Users.Add(user);
-            await _context.SaveChangesAsync();
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateException exception) when (UserIdentityConflict.FromDbUpdateException(exception) is not null)
+            {
+                var conflict = UserIdentityConflict.FromDbUpdateException(exception)!;
+                return Conflict(new { message = conflict.Message });
+            }
 
             SetUserSession(user);
 
@@ -70,11 +80,12 @@ namespace MangaNPK.Controllers
                 return BadRequest(new { message = "Vui lòng nhập tên đăng nhập/email và mật khẩu." });
 
             var loginClean = dto.Username.Trim().ToLowerInvariant();
+            var normalizedLoginUsername = UserIdentityNormalizer.Username(loginClean);
+            var normalizedLoginEmail = UserIdentityNormalizer.Email(loginClean);
 
-#pragma warning disable CA1862
             var user = await _context.Users.FirstOrDefaultAsync(u =>
-                u.Username.ToLower() == loginClean || u.Email.ToLower() == loginClean);
-#pragma warning restore CA1862
+                u.NormalizedUsername == normalizedLoginUsername ||
+                u.NormalizedEmail == normalizedLoginEmail);
 
             if (user == null || !AuthService.VerifyPassword(dto.Password, user.PasswordHash))
                 return Unauthorized(new { message = "Tên đăng nhập/email hoặc mật khẩu không chính xác." });

@@ -141,6 +141,23 @@ public class AdminUserManagementTests
         Assert.IsType<ConflictObjectResult>(result);
     }
 
+    [Fact]
+    public async Task UpdateProfile_RejectsDuplicateUsernameIgnoringCase()
+    {
+        await using var context = CreateContext();
+        var admin = new User { Username = "admin", Email = "admin@test.local", Role = "Admin" };
+        var user = new User { Username = "reader", Email = "reader@test.local", Role = "User" };
+        context.Users.AddRange(admin, user); await context.SaveChangesAsync();
+        var controller = CreateController(context, admin.Id);
+
+        var result = await controller.UpdateProfile(user.Id, new UpdateUserProfileDto
+        {
+            Username = " ADMIN ", Email = "reader-new@test.local"
+        });
+
+        Assert.IsType<ConflictObjectResult>(result);
+    }
+
     private static MangaDbContext CreateContext()
     {
         var options = new DbContextOptionsBuilder<MangaDbContext>()

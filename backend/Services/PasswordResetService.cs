@@ -33,7 +33,7 @@ public sealed class PasswordResetService(
     {
         var normalizedEmail = NormalizeEmail(email);
         var user = await context.Users
-            .FirstOrDefaultAsync(candidate => candidate.Email.ToLower() == normalizedEmail, cancellationToken);
+            .FirstOrDefaultAsync(candidate => candidate.NormalizedEmail == normalizedEmail, cancellationToken);
 
         if (user is null || user.IsLocked)
             return new(true, GenericRequestMessage);
@@ -158,7 +158,7 @@ public sealed class PasswordResetService(
     {
         var normalizedEmail = NormalizeEmail(email);
         return await context.Users
-            .FirstOrDefaultAsync(candidate => candidate.Email.ToLower() == normalizedEmail, cancellationToken);
+            .FirstOrDefaultAsync(candidate => candidate.NormalizedEmail == normalizedEmail, cancellationToken);
     }
 
     private Task<PasswordResetRequest?> FindLatestActiveRequestAsync(
@@ -170,7 +170,7 @@ public sealed class PasswordResetService(
             .FirstOrDefaultAsync(cancellationToken);
 
     private static string NormalizeEmail(string? email) =>
-        email?.Trim().ToLowerInvariant() ?? string.Empty;
+        UserIdentityNormalizer.Email(email);
 
     private static string Hash(string value) =>
         Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(value)));

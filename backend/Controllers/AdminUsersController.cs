@@ -68,6 +68,8 @@ public sealed class AdminUsersController(MangaDbContext context) : ControllerBas
     {
         var username = dto.Username.Trim();
         var email = dto.Email.Trim().ToLowerInvariant();
+        var normalizedUsername = UserIdentityNormalizer.Username(username);
+        var normalizedEmail = UserIdentityNormalizer.Email(email);
         if (!AuthService.IsValidUsername(username)) return BadRequest(new { message = "Tên đăng nhập phải dài 3-24 ký tự và chỉ gồm chữ, số, dấu gạch dưới hoặc gạch ngang." });
         if (!AuthService.IsValidEmail(email)) return BadRequest(new { message = "Email không hợp lệ." });
         if (dto.Bio?.Length > 500) return BadRequest(new { message = "Tiểu sử không được vượt quá 500 ký tự." });
@@ -85,19 +87,25 @@ public sealed class AdminUsersController(MangaDbContext context) : ControllerBas
             return Conflict(new { message = "Bạn không thể tự hạ quyền tài khoản đang đăng nhập." });
         if (requestedRole == "User" && user.Role == "Admin" && !user.IsLocked && await CountActiveAdminsAsync() <= 1)
             return Conflict(new { message = "Không thể hạ quyền quản trị viên hoạt động cuối cùng." });
-#pragma warning disable CA1862
-        if (await context.Users.AnyAsync(other => other.Id != id && other.Username.ToLower() == username.ToLower(), HttpContext.RequestAborted))
+        if (await context.Users.AnyAsync(other => other.Id != id && other.NormalizedUsername == normalizedUsername, HttpContext.RequestAborted))
             return Conflict(new { message = "Tên đăng nhập đã được sử dụng." });
-        if (await context.Users.AnyAsync(other => other.Id != id && other.Email.ToLower() == email, HttpContext.RequestAborted))
+        if (await context.Users.AnyAsync(other => other.Id != id && other.NormalizedEmail == normalizedEmail, HttpContext.RequestAborted))
             return Conflict(new { message = "Email đã được sử dụng." });
-#pragma warning restore CA1862
         user.Username = username;
         user.Email = email;
         if (requestedRole is not null) user.Role = requestedRole;
         user.AvatarUrl = string.IsNullOrWhiteSpace(dto.AvatarUrl) ? null : dto.AvatarUrl.Trim();
         user.Bio = string.IsNullOrWhiteSpace(dto.Bio) ? null : dto.Bio.Trim();
         user.Badge = string.IsNullOrWhiteSpace(dto.Badge) ? null : dto.Badge.Trim();
-        await context.SaveChangesAsync(HttpContext.RequestAborted);
+        try
+        {
+            await context.SaveChangesAsync(HttpContext.RequestAborted);
+        }
+        catch (DbUpdateException exception) when (UserIdentityConflict.FromDbUpdateException(exception) is not null)
+        {
+            var conflict = UserIdentityConflict.FromDbUpdateException(exception)!;
+            return Conflict(new { message = conflict.Message });
+        }
         if (transaction is not null) await transaction.CommitAsync(HttpContext.RequestAborted);
         if (id == currentUserId)
         {

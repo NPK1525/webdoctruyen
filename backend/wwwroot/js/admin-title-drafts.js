@@ -5,13 +5,6 @@ function normalizeTitleAuthorRole(value) {
   return ['Story', 'Art', 'Story & Art'].includes(decoded) ? decoded : 'Story & Art';
 }
 
-function populateTitleAuthorDropdown() {
-  const select = document.getElementById('draft-author-select');
-  if (!select) return;
-  select.innerHTML = `<option value="">${t('admin.selectAuthor', '-- Chọn tác giả --')}</option>` +
-    authorsList.map(a => `<option value="${a.id}">${escapeAdminHtml(a.name)}</option>`).join('');
-}
-
 function renderTitleAuthors() {
   const container = document.getElementById('draft-authors-list');
   if (!container) return;
@@ -27,18 +20,18 @@ function renderTitleAuthors() {
 }
 
 function addTitleAuthor() {
-  const select = document.getElementById('draft-author-select');
   const role = normalizeTitleAuthorRole(document.getElementById('draft-author-role')?.value);
   const newNameInput = document.getElementById('draft-new-author-name');
-  const authorId = Number(select?.value || 0) || null;
+  const authorId = titleAuthorCombobox?.getSelectedId() || null;
+  const selectedName = titleAuthorCombobox?.getSelectedName() || '';
   const newName = newNameInput?.value.trim() || '';
-  const name = authorId ? select.options[select.selectedIndex].text : newName;
+  const name = authorId ? selectedName : newName;
   if (!name) { showToast(t('admin.authorRequired', 'Vui lòng chọn hoặc nhập tác giả.'), 'warning'); return; }
   if (selectedTitleAuthors.some(a => a.authorId === authorId && a.name.trim().toLowerCase() === name.trim().toLowerCase() && a.role === role)) {
     showToast(t('admin.authorRoleDuplicate', 'Tác giả đã được thêm với vai trò này.'), 'warning'); return;
   }
   selectedTitleAuthors.push({ authorId, name, role });
-  if (select) select.value = '';
+  titleAuthorCombobox?.reset();
   if (newNameInput) newNameInput.value = '';
   renderTitleAuthors();
 }
@@ -102,7 +95,7 @@ function formatAdminDate(value) {
 }
 
 function refreshTitleDraftFormLocale() {
-  populateTitleAuthorDropdown();
+  titleAuthorCombobox?.refresh();
   renderTitleAuthors();
 }
 
@@ -148,6 +141,7 @@ function resetTitleDraftForm() {
   currentTitleDraft = null;
   const form = document.getElementById('title-draft-form');
   form?.reset();
+  titleAuthorCombobox?.reset();
   selectedTitleAuthors = [];
   renderTitleAuthors();
   document.getElementById('title-draft-id').value = '';

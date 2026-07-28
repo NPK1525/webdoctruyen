@@ -97,6 +97,7 @@ function resetMangaForm() {
   editingMangaId = null;
   editingMangaTitle = '';
   document.getElementById('admin-manga-form').reset();
+  mangaAuthorCombobox?.reset();
   document.getElementById('manga-form-demographic').dispatchEvent(new Event('change'));
   document.getElementById('manga-form-format').dispatchEvent(new Event('change'));
   document.querySelectorAll('input[name="manga-genres"]').forEach(cb => cb.checked = false);

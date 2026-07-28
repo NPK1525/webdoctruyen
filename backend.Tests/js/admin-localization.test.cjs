@@ -218,3 +218,12 @@ test('author and genre submit buttons preserve icons while translating their lab
   assert.match(indexView, /<i[^>]*data-lucide="plus"[^>]*><\/i>\s*<span data-i18n="admin\.addAuthor">/);
   assert.match(indexView, /<i[^>]*data-lucide="plus"[^>]*><\/i>\s*<span data-i18n="admin\.addGenre">/);
 });
+
+test('author search combobox copy exists in both locales', () => {
+  for (const key of ['admin.searchAuthorPlaceholder', 'admin.noAuthorMatches']) {
+    assert.equal(typeof en[key], 'string', `missing English key ${key}`);
+    assert.equal(typeof vi[key], 'string', `missing Vietnamese key ${key}`);
+    assert.ok(en[key].trim(), `empty English key ${key}`);
+    assert.ok(vi[key].trim(), `empty Vietnamese key ${key}`);
+  }
+});

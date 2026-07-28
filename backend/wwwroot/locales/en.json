@@ -663,6 +663,8 @@
   "admin.originalLanguage": "Original language",
   "admin.mangaStatus": "Status",
   "admin.availableAuthor": "Existing author",
+  "admin.searchAuthorPlaceholder": "Type an author name to search...",
+  "admin.noAuthorMatches": "No matching authors found.",
   "admin.authorRole": "Role",
   "admin.newAuthor": "Or enter a new author",
   "admin.bannerUrl": "Banner image",

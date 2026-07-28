@@ -207,7 +207,14 @@
                           <div class="title-draft-section" data-section-panel="authors">
                             <h4 data-i18n="admin.authorSection">T&#225;c gi&#7843;</h4>
                             <div style="display:grid;grid-template-columns:2fr 1fr auto;gap:10px;align-items:end;">
-                              <label class="form-group"><span class="form-label" data-i18n="admin.availableAuthor">Tác giả có sẵn</span><select id="draft-author-select" class="form-control"><option value="" data-i18n="admin.selectAuthor">-- Chọn tác giả --</option></select></label>
+                              <label class="form-group">
+                                <span class="form-label" data-i18n="admin.availableAuthor">Tác giả có sẵn</span>
+                                <div class="admin-author-combobox">
+                                  <input id="draft-author-search" class="form-control" type="text" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="draft-author-results" autocomplete="off" placeholder="Nhập tên để tìm tác giả..." data-i18n="admin.searchAuthorPlaceholder" data-i18n-attr="placeholder" />
+                                  <input id="draft-author-id" type="hidden" />
+                                  <div id="draft-author-results" class="admin-author-combobox-results" role="listbox" hidden></div>
+                                </div>
+                              </label>
                               <label class="form-group"><span class="form-label" data-i18n="admin.authorRole">Vai trò</span><select id="draft-author-role" class="form-control"><option value="Story &amp; Art" data-i18n="admin.roleStoryArt">Story &amp; Art</option><option value="Story" data-i18n="admin.roleStory">Story</option><option value="Art" data-i18n="admin.roleArt">Art</option></select></label>
                               <button type="button" id="btn-add-draft-author" class="btn btn-secondary" data-i18n="admin.add">Thêm</button>
                             </div>
@@ -370,9 +377,11 @@
                       <div class="form-group" style="margin-top: 20px;">
                         <label class="form-label" data-i18n="admin.authorAndRole">T&#225;c gi&#7843; v&#224; vai tr&#242; *</label>
                         <div style="display: flex; gap: 10px; margin-bottom: 12px;">
-                          <select id="manga-form-author-select" class="form-control" style="flex: 2;">
-                            <option value="" data-i18n="admin.selectAuthor">-- Ch&#7885;n t&#225;c gi&#7843; --</option>
-                          </select>
+                          <div class="admin-author-combobox" style="flex: 2;">
+                            <input id="manga-form-author-search" class="form-control" type="text" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="manga-form-author-results" autocomplete="off" placeholder="Nhập tên để tìm tác giả..." data-i18n="admin.searchAuthorPlaceholder" data-i18n-attr="placeholder" />
+                            <input id="manga-form-author-id" type="hidden" />
+                            <div id="manga-form-author-results" class="admin-author-combobox-results" role="listbox" hidden></div>
+                          </div>
                           <select id="manga-form-author-role" class="form-control" style="flex: 1;">
                             <option value="Story & Art" data-i18n="admin.roleStoryArt">Story & Art</option>
                             <option value="Story" data-i18n="admin.roleStory">Story</option>
@@ -577,16 +586,23 @@
   <script src="/js/admin-chapter-edit.js?v=1.0"></script>
   <script src="/js/admin-mangadex.js?v=1.1"></script>
   <script src="/js/admin-upload.js?v=1.1"></script>
-  <script src="/js/admin-manga.js?v=1.2"></script>
+  <script src="/js/admin-manga.js?v=1.3"></script>
   <script src="/js/admin-reports.js?v=1.3"></script>
       <script src="/js/admin-users.js?v=1.4"></script>
       <script src="/js/admin-title-review.js?v=2.0"></script>
-          <script src="/js/admin-title-drafts.js?v=1.3"></script>
-      <script src="/js/admin.js?v=4.2"></script>
+      <script src="/js/admin-author-combobox.js?v=1.0"></script>
+          <script src="/js/admin-title-drafts.js?v=1.4"></script>
+      <script src="/js/admin.js?v=4.3"></script>
     <style>
        .admin-tab-btn { background: transparent; color: var(--text-muted); border: none; cursor: pointer; }
       .admin-tab-btn:hover { background-color: rgba(255,255,255,0.04); color: white; }
       .admin-tab-btn.active { background-color: var(--accent-primary) !important; color: #fff !important; }
+      .admin-author-combobox { position: relative; min-width: 0; }
+      .admin-author-combobox-results { position: absolute; z-index: 30; top: calc(100% + 6px); left: 0; right: 0; max-height: 280px; overflow-y: auto; padding: 6px; border: 1px solid var(--border-subtle); border-radius: 10px; background: var(--bg-card); box-shadow: 0 14px 30px rgba(0,0,0,.28); }
+      .admin-author-combobox-option { width: 100%; border: 0; border-radius: 7px; padding: 10px 12px; background: transparent; color: var(--text-main); text-align: left; cursor: pointer; }
+      .admin-author-combobox-option:hover,
+      .admin-author-combobox-option.active { background: var(--accent-primary); color: #fff; }
+      .admin-author-combobox-empty { padding: 12px; color: var(--text-muted); text-align: center; }
       th, td { padding: 10px 8px; border-bottom: 1px solid rgba(255,255,255,0.05); }
       tr:hover td { background-color: rgba(255,255,255,0.02); }
       .title-draft-shell { display: grid; grid-template-columns: 190px minmax(0, 1fr); gap: 20px; align-items: start; }

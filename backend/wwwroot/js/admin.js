@@ -27,6 +27,8 @@ let titleDraftsList = [];
 let mangaDexPreview = null;
 let editingTitleDraftId = null;
 let currentTitleDraft = null;
+let titleAuthorCombobox = null;
+let mangaAuthorCombobox = null;
 
 function adminEscapeHtml(value) {
   return String(value ?? '').replace(/[&<>"']/g, character => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[character]));
@@ -46,6 +48,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('admin-access-denied').style.display = 'none';
   document.getElementById('admin-panel-wrapper').style.display = 'block';
   initAdminTabs();
+  initAuthorComboboxes();
   window.AdminTitleReview?.init();
   window.AdminUsers?.init();
   initAdminMangaFilters();
@@ -68,7 +71,7 @@ async function loadAdminData() {
 async function loadAuthors() {
   try {
     const res = await fetch(`${API_BASE}/author`);
-    if (res.ok) { authorsList = await res.json(); populateAuthorsDropdowns(); populateTitleAuthorDropdown(); renderAuthorManagement(); }
+    if (res.ok) { authorsList = await res.json(); populateAuthorsDropdowns(); renderAuthorManagement(); }
   } catch (e) { console.error(e); }
 }
 
@@ -195,11 +198,28 @@ function initAdminMangaFilters() {
 }
 
 function populateAuthorsDropdowns() {
-  const select = document.getElementById('manga-form-author-select');
-  if (select) {
-    select.innerHTML = `<option value="">${t('admin.selectAuthor', '-- Chọn tác giả --')}</option>` +
-      authorsList.map(a => `<option value="${a.id}">${a.name}</option>`).join('');
-  }
+  titleAuthorCombobox?.refresh();
+  mangaAuthorCombobox?.refresh();
+}
+
+function initAuthorComboboxes() {
+  if (!window.AdminAuthorCombobox) return;
+  const sharedOptions = {
+    getItems: () => authorsList,
+    emptyText: () => t('admin.noAuthorMatches', 'Không tìm thấy tác giả.')
+  };
+  titleAuthorCombobox = window.AdminAuthorCombobox.create({
+    ...sharedOptions,
+    inputId: 'draft-author-search',
+    valueId: 'draft-author-id',
+    listId: 'draft-author-results'
+  });
+  mangaAuthorCombobox = window.AdminAuthorCombobox.create({
+    ...sharedOptions,
+    inputId: 'manga-form-author-search',
+    valueId: 'manga-form-author-id',
+    listId: 'manga-form-author-results'
+  });
 }
 
 function populateMangasDropdowns() {
@@ -409,16 +429,15 @@ function normalizeEnumValue(value, map) {
 }
 
 document.getElementById('btn-add-form-author')?.addEventListener('click', () => {
-  const select = document.getElementById('manga-form-author-select');
   const roleSelect = document.getElementById('manga-form-author-role');
-  if (!select || !roleSelect) return;
-  const authorId = Number(select.value);
+  if (!roleSelect) return;
+  const authorId = mangaAuthorCombobox?.getSelectedId() || null;
   if (!authorId) { showToast(t('admin.pleaseSelectAuthor', 'Vui lòng chọn tác giả!'), 'warning'); return; }
   if (selectedAdminMangaAuthors.some(a => a.authorId === authorId)) { showToast(t('admin.authorAlreadyAdded', 'T\u00e1c gi\u1ea3 \u0111\u00e3 \u0111\u01b0\u1ee3c th\u00eam!'), 'warning'); return; }
-  const name = select.options[select.selectedIndex].text;
+  const name = mangaAuthorCombobox?.getSelectedName() || '';
   selectedAdminMangaAuthors.push({ authorId, role: roleSelect.value, name });
   renderMangaFormAuthorsList();
-  select.value = "";
+  mangaAuthorCombobox?.reset();
 });
 
 function initAdminTabs() {

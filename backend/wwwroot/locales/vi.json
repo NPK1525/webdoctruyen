@@ -665,6 +665,8 @@
   "admin.originalLanguage": "Ngôn ngữ gốc",
   "admin.mangaStatus": "Tình trạng",
   "admin.availableAuthor": "Tác giả có sẵn",
+  "admin.searchAuthorPlaceholder": "Nhập tên để tìm tác giả...",
+  "admin.noAuthorMatches": "Không tìm thấy tác giả.",
   "admin.authorRole": "Vai trò",
   "admin.newAuthor": "Hoặc nhập tác giả mới",
   "admin.bannerUrl": "Ảnh banner",

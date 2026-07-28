@@ -65,8 +65,33 @@ test('admin users use server pagination and guarded lock endpoint', () => {
 test('admin user list replaces the created date with detail and lock actions', () => {
   assert.doesNotMatch(view, /id="admin-user-editor"/);
   assert.doesNotMatch(js, /formatDate\(user\.createdAt\)/);
-  assert.match(js, /href="\/admin\/users\/\$\{user\.id\}"/);
+  assert.doesNotMatch(js, /href="\/admin\/users\/\$\{user\.id\}"/);
+  assert.match(js, /data-user-edit="\$\{user\.id\}"/);
   assert.match(js, /data-user-toggle-lock/);
+});
+
+test('user list opens and closes the inline drawer without navigating away', () => {
+  assert.match(js, /function openDrawer\(userId,\s*trigger\)/);
+  assert.match(js, /function closeDrawer\(\)/);
+  assert.match(js, /data-user-edit[\s\S]*?openDrawer/);
+  assert.match(js, /addEventListener\('keydown'[\s\S]*?Escape/);
+  assert.match(js, /event\.target === event\.currentTarget[\s\S]*?closeDrawer/);
+});
+
+test('drawer mutations use protected existing endpoints and preserve list state', () => {
+  assert.match(js, /apiFetch\(`\$\{API_BASE\}\/admin\/users\/\$\{state\.drawerUserId\}`/);
+  assert.match(js, /apiFetch\(`\$\{API_BASE\}\/admin\/users\/\$\{state\.drawerUserId\}\/lock`/);
+  assert.match(js, /apiFetch\(`\$\{API_BASE\}\/admin\/users\/\$\{state\.drawerUserId\}\/password`/);
+  assert.match(js, /async function saveDrawer[\s\S]*?await load\(\)/);
+  const saveDrawer = js.match(/async function saveDrawer[\s\S]*?\n  \}/)?.[0] || '';
+  assert.doesNotMatch(saveDrawer, /state\.page\s*=\s*1/);
+});
+
+test('drawer validates the administrator password reset policy', () => {
+  assert.match(js, /newPassword\.length < 8/);
+  assert.match(js, /!\/\[A-Za-z\]\//);
+  assert.match(js, /!\/\[0-9\]\//);
+  assert.match(js, /admin-user-drawer-password-form'\)\.reset\(\)/);
 });
 
 test('admin user detail route exposes profile editing and account locking', () => {

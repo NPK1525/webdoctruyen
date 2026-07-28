@@ -41,8 +41,8 @@ test('auth modal provides password visibility toggles for login and registration
   assert.match(js, /togglePasswordVisibility/);
 });
 
-test('remaining static profile shell receives the shared password reset controls', () => {
-  const html = fs.readFileSync(path.join(root, 'backend/wwwroot/profile.html'), 'utf8');
+test('profile MVC shell receives the shared password reset controls', () => {
+  const html = fs.readFileSync(path.join(root, 'backend/Views/ProfileView/Index.cshtml'), 'utf8');
   assert.match(html, /common-auth\.js/);
   assert.match(js, /ensurePasswordVisibilityControls/);
   assert.match(js, /ensurePasswordResetViews/);

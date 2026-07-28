@@ -12,7 +12,7 @@ const viewPaths = [
   'Views/LibraryView/Index.cshtml', 'Views/MangaView/Detail.cshtml',
   'Views/MangaView/Index.cshtml', 'Views/RecentlyAddedView/Index.cshtml',
   'Views/UpdatesView/Index.cshtml',
-  'wwwroot/profile.html'
+  'Views/ProfileView/Index.cshtml'
 ];
 const modulePath = path.join(root, 'wwwroot/js/common-auth.js');
 const coordinator = fs.readFileSync(path.join(root, 'wwwroot/js/common.js'), 'utf8');
@@ -66,7 +66,7 @@ test('my profile menu opens the profile page instead of the library', () => {
     /<a href="([^"]+)"[^>]*>[\s\S]*?<span>\$\{t\('user\.profile'/
   );
   assert.ok(profileLink, 'my profile link');
-  assert.equal(profileLink[1], '/profile.html');
+  assert.equal(profileLink[1], '/profile');
 });
 
 test('my lists menu opens the MDList page', () => {
@@ -94,7 +94,7 @@ test('settings opens profile and sidebar MDLists opens the lists page', () => {
     /<a href="([^"]+)"[^>]*>(?:(?!<\/a>)[\s\S])*?<span>\$\{t\('user\.settings'/
   );
   assert.ok(settingsLink, 'settings link');
-  assert.equal(settingsLink[1], '/profile.html');
+  assert.equal(settingsLink[1], '/profile');
   assert.match(coordinator, /nav-lists-btn[\s\S]*?window\.location\.href = '\/lists'/);
 });
 
@@ -104,15 +104,15 @@ test('followed updates and latest updates use distinct MVC routes', () => {
   assert.match(coordinator, /path\.startsWith\('\/follow-updates'\)\) activeId = 'nav-updates-btn'/);
 });
 
-test('remaining static profile page opts into the MVC sidebar renderer', () => {
-  const page = fs.readFileSync(path.join(root, 'wwwroot/profile.html'), 'utf8');
-  assert.match(page, /id="sidebar-drawer"[^>]*data-use-unified-sidebar="true"/);
+test('profile page renders the shared sidebar partial', () => {
+  const page = fs.readFileSync(path.join(root, 'Views/ProfileView/Index.cshtml'), 'utf8');
+  assert.match(page, /PartialAsync\("_Sidebar"\)/);
   assert.match(coordinator, /drawer\.children\.length > 0 && !useUnifiedSidebar/);
 });
 
 test('home recommendations and profile back link use live routes', () => {
   const home = fs.readFileSync(path.join(root, 'Views/Home/Index.cshtml'), 'utf8');
-  const profile = fs.readFileSync(path.join(root, 'wwwroot/profile.html'), 'utf8');
+  const profile = fs.readFileSync(path.join(root, 'Views/ProfileView/Index.cshtml'), 'utf8');
 
   assert.doesNotMatch(home, /\/titles\/recommended/);
   assert.match(home, /href="\/manga"[^>]*data-i18n="section\.recommended"/);

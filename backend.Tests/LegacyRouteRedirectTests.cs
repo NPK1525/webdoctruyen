@@ -14,6 +14,7 @@ public class LegacyRouteRedirectTests
     [InlineData("/reader.html", null, "18", "/chapter/18")]
     [InlineData("/reader.html", null, null, "/")]
     [InlineData("/reader.html", null, "0", "/")]
+    [InlineData("/profile.html", null, null, "/profile")]
     public void Resolve_ReturnsExpectedDestination(
         string path,
         string? mangaId,
@@ -26,6 +27,6 @@ public class LegacyRouteRedirectTests
     [Fact]
     public void Resolve_IgnoresNonLegacyPath()
     {
-        Assert.Null(LegacyRouteRedirect.Resolve("/profile.html", null, null));
+        Assert.Null(LegacyRouteRedirect.Resolve("/profile", null, null));
     }
 }

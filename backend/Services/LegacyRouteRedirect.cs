@@ -14,6 +14,11 @@ public static class LegacyRouteRedirect
             return "/lists";
         }
 
+        if (string.Equals(path, "/profile.html", StringComparison.OrdinalIgnoreCase))
+        {
+            return "/profile";
+        }
+
         if (string.Equals(path, "/detail.html", StringComparison.OrdinalIgnoreCase))
         {
             return TryGetPositiveId(mangaId, out var id) ? $"/manga/{id}" : "/manga";

@@ -66,10 +66,10 @@ test('saving a profile synchronizes the shared session avatar immediately', () =
 
 test('avatar consumers request fresh script versions', () => {
   const detailView = fs.readFileSync(path.resolve(root, '../../Views/MangaView/Detail.cshtml'), 'utf8');
-  const profilePage = fs.readFileSync(path.resolve(root, '../profile.html'), 'utf8');
+  const profilePage = fs.readFileSync(path.resolve(root, '../../Views/ProfileView/Index.cshtml'), 'utf8');
 
   assert.match(detailView, /common\.js\?v=5\.7/);
   assert.match(detailView, /detail-comments\.js\?v=3\.2/);
   assert.match(profilePage, /common\.js\?v=5\.7/);
-  assert.match(profilePage, /profile\.js\?v=1\.2/);
+  assert.match(profilePage, /profile\.js\?v=1\.3/);
 });

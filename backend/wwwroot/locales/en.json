@@ -168,7 +168,7 @@
   "profile.saveSuccess": "Changes saved successfully!",
   "profile.saveError": "Cannot save changes.",
   "profile.passwordMismatch": "Password confirmation does not match.",
-  "profile.passwordTooShort": "Password must be at least 6 characters.",
+  "profile.passwordTooShort": "Password must be at least 8 characters and include a letter and a number.",
   "profile.passwordSuccess": "Password changed successfully!",
   "profile.passwordError": "Cannot change password.",
   "profile.uploadAvatar": "Upload avatar",

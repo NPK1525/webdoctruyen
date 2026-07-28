@@ -156,7 +156,7 @@
   "profile.saveSuccess": "\u0110\u00e3 l\u01b0u thay \u0111\u1ed5i th\u00e0nh c\u00f4ng!",
   "profile.saveError": "Kh\u00f4ng th\u1ec3 l\u01b0u thay \u0111\u1ed5i.",
   "profile.passwordMismatch": "M\u1eadt kh\u1ea9u x\u00e1c nh\u1eadn kh\u00f4ng kh\u1edbp.",
-  "profile.passwordTooShort": "M\u1eadt kh\u1ea9u ph\u1ea3i c\u00f3 \u00edt nh\u1ea5t 6 k\u00fd t\u1ef1.",
+  "profile.passwordTooShort": "M\u1eadt kh\u1ea9u ph\u1ea3i c\u00f3 \u00edt nh\u1ea5t 8 k\u00fd t\u1ef1, g\u1ed3m ch\u1eef v\u00e0 s\u1ed1.",
   "profile.passwordSuccess": "\u0110\u1ed5i m\u1eadt kh\u1ea9u th\u00e0nh c\u00f4ng!",
   "profile.passwordError": "Kh\u00f4ng th\u1ec3 \u0111\u1ed5i m\u1eadt kh\u1ea9u.",
   "profile.uploadAvatar": "T\u1ea3i l\u00ean \u1ea3nh \u0111\u1ea1i di\u1ec7n",

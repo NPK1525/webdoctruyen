@@ -14,7 +14,7 @@ const viewPaths = [
   'Views/MangaView/Index.cshtml',
   'Views/RecentlyAddedView/Index.cshtml',
   'Views/UpdatesView/Index.cshtml',
-  'wwwroot/profile.html'
+  'Views/ProfileView/Index.cshtml'
 ];
 const modulePath = path.join(root, 'wwwroot/js/common-library.js');
 const coordinator = fs.readFileSync(path.join(root, 'wwwroot/js/common.js'), 'utf8');

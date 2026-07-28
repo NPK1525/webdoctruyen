@@ -6,7 +6,7 @@ const path = require('node:path');
 const root = path.resolve(__dirname, '../../backend');
 const adminView = fs.readFileSync(path.join(root, 'Views/AdminView/UserDetail.cshtml'), 'utf8');
 const adminScript = fs.readFileSync(path.join(root, 'wwwroot/js/admin-user-detail.js'), 'utf8');
-const profileView = fs.readFileSync(path.join(root, 'wwwroot/profile.html'), 'utf8');
+const profileView = fs.readFileSync(path.join(root, 'Views/ProfileView/Index.cshtml'), 'utf8');
 const profileScript = fs.readFileSync(path.join(root, 'wwwroot/js/profile.js'), 'utf8');
 
 test('admin avatar editor accepts only HTTPS URLs up to 2048 characters', () => {
@@ -50,5 +50,5 @@ test('profile avatar editor documents the HTTPS and 2048-character rule', () => 
 
 test('changed admin and profile scripts use fresh cache versions', () => {
   assert.match(adminView, /admin-user-detail\.js\?v=1\.1/);
-  assert.match(profileView, /profile\.js\?v=1\.2/);
+  assert.match(profileView, /profile\.js\?v=1\.3/);
 });

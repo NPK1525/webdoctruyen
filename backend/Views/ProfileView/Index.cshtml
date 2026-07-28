@@ -1,15 +1,22 @@
+@{
+  Layout = null;
+}
 <!DOCTYPE html>
 <html lang="vi">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title data-i18n="profile.title">Hồ Sơ - MangaNPK</title>
-    <link rel="stylesheet" href="css/style.css?v=4.6" />
+    <link rel="stylesheet" href="/css/style.css?v=4.9" />
     <script src="https://unpkg.com/lucide@latest"></script>
   </head>
   <body>
     <div id="root">
+      @await Html.PartialAsync("_Header")
+      @await Html.PartialAsync("_Sidebar")
+      @await Html.PartialAsync("_AuthModal")
 
+      @*
       <!-- Global Sticky Header -->
       <header id="global-header" class="glass" style="position: sticky; top: 0; z-index: 1000; transition: all 0.3s ease;">
         <div class="container" style="display: flex; align-items: center; justify-content: space-between; height: 70px;">
@@ -214,6 +221,7 @@
         </div>
       </div>
 
+      *@
       <!-- Main Layout -->
       <main id="main-layout" style="flex: 1; display: flex; flex-direction: column; width: 100%;">
 
@@ -329,12 +337,12 @@
 
                     <div class="form-group">
                       <label class="form-label" data-i18n="profile.newPassword">Mật khẩu mới</label>
-                      <input type="password" id="new-password" class="form-control" placeholder="Mật khẩu mới" required minlength="6" data-i18n="profile.newPassword" data-i18n-attr="placeholder" />
+                      <input type="password" id="new-password" class="form-control" placeholder="Mật khẩu mới" required minlength="8" maxlength="128" data-i18n="profile.newPassword" data-i18n-attr="placeholder" />
                     </div>
 
                     <div class="form-group">
                       <label class="form-label" data-i18n="profile.confirmPassword">Xác nhận mật khẩu mới</label>
-                      <input type="password" id="confirm-password" class="form-control" placeholder="Xác nhận mật khẩu mới" required minlength="6" data-i18n="profile.confirmPassword" data-i18n-attr="placeholder" />
+                      <input type="password" id="confirm-password" class="form-control" placeholder="Xác nhận mật khẩu mới" required minlength="8" maxlength="128" data-i18n="profile.confirmPassword" data-i18n-attr="placeholder" />
                     </div>
 
                     <button type="submit" class="btn btn-secondary" style="border-radius: 20px; padding: 10px 24px; font-weight: 700;">
@@ -366,10 +374,10 @@
     </div>
 
     <!-- Scripts -->
-    <script src="js/i18n.js?v=1.0"></script>
-    <script src="js/common-library.js?v=1.0"></script>
-    <script src="js/common-auth.js?v=1.2"></script>
-    <script src="js/common.js?v=5.7"></script>
-    <script src="js/profile.js?v=1.2"></script>
+    <script src="/js/i18n.js?v=1.0"></script>
+    <script src="/js/common-library.js?v=1.0"></script>
+    <script src="/js/common-auth.js?v=1.2"></script>
+    <script src="/js/common.js?v=5.7"></script>
+    <script src="/js/profile.js?v=1.3"></script>
   </body>
 </html>

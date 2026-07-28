@@ -16,6 +16,9 @@ appsettings.Development.json
 /App_Data/
 /backend/App_Data/
 
+# User-uploaded runtime content
+/backend/wwwroot/uploads/
+
 # Local database files and backups
 *.mdf
 *.ldf

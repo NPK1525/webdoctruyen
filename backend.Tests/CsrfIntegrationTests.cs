@@ -39,6 +39,27 @@ public sealed class CsrfIntegrationTests : IClassFixture<CsrfIntegrationTests.Fa
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
     }
 
+    [Fact]
+    public async Task ProfileRoute_UsesMvcAndLegacyUrlRedirects()
+    {
+        using var profile = await _client.GetAsync("/profile");
+        Assert.Equal(HttpStatusCode.OK, profile.StatusCode);
+
+        using var legacy = await _client.GetAsync("/profile.html");
+        Assert.Equal(HttpStatusCode.Redirect, legacy.StatusCode);
+        Assert.Equal("/profile", legacy.Headers.Location?.OriginalString);
+    }
+
+    [Fact]
+    public async Task VendoredLucideBundle_IsServedLocally()
+    {
+        using var response = await _client.GetAsync("/vendor/lucide/lucide.min.js");
+        var source = await response.Content.ReadAsStringAsync();
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Contains("createIcons", source, StringComparison.Ordinal);
+    }
+
     public sealed class Factory : WebApplicationFactory<Program>
     {
         protected override void ConfigureWebHost(IWebHostBuilder builder)

@@ -8,7 +8,7 @@ function normalizeTitleAuthorRole(value) {
 function populateTitleAuthorDropdown() {
   const select = document.getElementById('draft-author-select');
   if (!select) return;
-  select.innerHTML = '<option value="">-- Chọn tác giả --</option>' +
+  select.innerHTML = `<option value="">-- ${t('admin.selectAuthor', 'Chọn tác giả')} --</option>` +
     authorsList.map(a => `<option value="${a.id}">${escapeAdminHtml(a.name)}</option>`).join('');
 }
 
@@ -33,9 +33,9 @@ function addTitleAuthor() {
   const authorId = Number(select?.value || 0) || null;
   const newName = newNameInput?.value.trim() || '';
   const name = authorId ? select.options[select.selectedIndex].text : newName;
-  if (!name) { showToast('Vui lòng chọn hoặc nhập tác giả.', 'warning'); return; }
+  if (!name) { showToast(t('admin.authorRequired', 'Vui lòng chọn hoặc nhập tác giả.'), 'warning'); return; }
   if (selectedTitleAuthors.some(a => a.authorId === authorId && a.name.trim().toLowerCase() === name.trim().toLowerCase() && a.role === role)) {
-    showToast('Tác giả đã được thêm với vai trò này.', 'warning'); return;
+    showToast(t('admin.authorRoleDuplicate', 'Tác giả đã được thêm với vai trò này.'), 'warning'); return;
   }
   selectedTitleAuthors.push({ authorId, name, role });
   if (select) select.value = '';
@@ -70,7 +70,7 @@ function renderTitleDraftsTable() {
   if (!tbody) return;
 
   if (titleDraftsList.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="5" style="padding:18px;text-align:center;color:var(--text-muted);">${'\u0043\u0068\u01b0\u0061 \u0063\u00f3 \u0062\u1ea3\u006e \u006e\u0068\u00e1\u0070 \u006e\u00e0\u006f.'}</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="5" style="padding:18px;text-align:center;color:var(--text-muted);">${t('admin.noDrafts', 'Chưa có bản nháp nào.')}</td></tr>`;
     return;
   }
 

@@ -6,6 +6,8 @@
     page: 1,
     pageSize: 20,
     totalPages: 1,
+    totalItems: 0,
+    lastItems: [],
     timer: null,
     editorUserId: null,
     editorUser: null
@@ -26,7 +28,7 @@
     const root = document.getElementById('admin-user-list');
     if (!root) return;
     if (!users.length) {
-      root.innerHTML = '<div class="management-empty">Không tìm thấy người dùng phù hợp.</div>';
+      root.innerHTML = `<div class="management-empty">${t('admin.noUsers', 'Không tìm thấy người dùng phù hợp.')}</div>`;
       return;
     }
 
@@ -40,12 +42,12 @@
         </div>
         <span class="admin-user-email">${escape(user.email)}</span>
         <span class="admin-user-badge">${escape(user.role)}</span>
-        <span class="admin-user-badge ${locked ? 'locked' : ''}">${locked ? 'Đã khóa' : 'Hoạt động'}</span>
+        <span class="admin-user-badge ${locked ? 'locked' : ''}">${locked ? t('admin.locked', 'Đã khóa') : t('admin.active', 'Hoạt động')}</span>
         <div class="admin-user-actions">
-          <button type="button" class="btn btn-secondary" data-user-edit="${user.id}">Xem / Chỉnh sửa</button>
+          <button type="button" class="btn btn-secondary" data-user-edit="${user.id}">${t('admin.viewEdit', 'Xem / Chỉnh sửa')}</button>
           <button type="button" class="btn ${locked ? 'btn-secondary' : 'btn-primary'}"
-            data-user-toggle-lock="${user.id}" ${current ? 'disabled' : ''}>
-            ${locked ? 'Mở khóa' : 'Khóa'}
+            data-user-toggle-lock="${user.id}" data-user-locked="${locked}" ${current ? 'disabled' : ''}>
+            ${locked ? t('admin.unlockShort', 'Mở khóa') : t('admin.lockShort', 'Khóa')}
           </button>
         </div>
       </div>`;
@@ -62,7 +64,10 @@
   function renderSummary(total) {
     const summary = document.getElementById('admin-user-summary');
     if (summary) {
-      summary.textContent = `${total} người dùng · Trang ${state.page}/${Math.max(state.totalPages, 1)}`;
+      summary.textContent = t('admin.userSummary', '{count} người dùng · Trang {page}/{pages}')
+        .replace('{count}', total)
+        .replace('{page}', state.page)
+        .replace('{pages}', Math.max(state.totalPages, 1));
     }
   }
 
@@ -99,7 +104,7 @@
     if (state.loading) return;
     state.loading = true;
     const root = document.getElementById('admin-user-list');
-    if (root) root.innerHTML = '<div class="management-empty">Đang tải người dùng...</div>';
+    if (root) root.innerHTML = `<div class="management-empty">${t('admin.loadingUsers', 'Đang tải người dùng...')}</div>`;
     const params = new URLSearchParams({
       page: String(state.page),
       pageSize: String(state.pageSize),
@@ -115,13 +120,15 @@
       const response = await apiFetch(`${API_BASE}/admin/users?${params}`);
       const payload = await response.json().catch(() => ({}));
       if (!response.ok) {
-        throw new Error(payload.message || 'Không thể tải danh sách người dùng.');
+        throw new Error(payload.message || t('admin.loadUsersError', 'Không thể tải danh sách người dùng.'));
       }
       state.loaded = true;
       state.page = payload.page || 1;
       state.totalPages = payload.totalPages || 1;
-      renderRows(payload.items || []);
-      renderSummary(payload.totalItems || 0);
+      state.lastItems = payload.items || [];
+      state.totalItems = payload.totalItems || 0;
+      renderRows(state.lastItems);
+      renderSummary(state.totalItems);
       renderPagination();
     } catch (error) {
       if (root) root.innerHTML = `<div class="management-empty">${escape(error.message)}</div>`;
@@ -132,8 +139,10 @@
   }
 
   async function updateLock(id, button) {
-    const locked = button.textContent.trim() === 'Mở khóa';
-    if (!confirm(locked ? 'Mở khóa tài khoản này?' : 'Khóa tài khoản này?')) return;
+    const locked = button.dataset.userLocked === 'true';
+    if (!confirm(locked
+      ? t('admin.confirmUnlock', 'Mở khóa tài khoản này?')
+      : t('admin.confirmLock', 'Khóa tài khoản này?'))) return;
     button.disabled = true;
     try {
       const response = await apiFetch(`${API_BASE}/admin/users/${id}/lock`, {
@@ -143,9 +152,11 @@
       });
       const payload = await response.json().catch(() => ({}));
       if (!response.ok) {
-        throw new Error(payload.message || 'Không thể cập nhật trạng thái tài khoản.');
+        throw new Error(payload.message || t('admin.updateAccountStatusError', 'Không thể cập nhật trạng thái tài khoản.'));
       }
-      showToast(locked ? 'Đã mở khóa tài khoản.' : 'Đã khóa tài khoản.', true);
+      showToast(locked
+        ? t('admin.unlockSuccess', 'Đã mở khóa tài khoản.')
+        : t('admin.lockSuccess', 'Đã khóa tài khoản.'), true);
       await load();
     } catch (error) {
       button.disabled = false;
@@ -179,11 +190,11 @@
     byId('admin-user-editor-avatar-preview').src = safeImage(user.avatarUrl);
 
     const status = byId('admin-user-editor-status');
-    status.textContent = user.isLocked ? 'Đã khóa' : 'Hoạt động';
+    status.textContent = user.isLocked ? t('admin.locked', 'Đã khóa') : t('admin.active', 'Hoạt động');
     status.classList.toggle('locked', Boolean(user.isLocked));
 
     const lockButton = byId('admin-user-editor-lock');
-    lockButton.textContent = user.isLocked ? 'Mở khóa tài khoản' : 'Khóa tài khoản';
+    lockButton.textContent = user.isLocked ? t('admin.unlock', 'Mở khóa tài khoản') : t('admin.lock', 'Khóa tài khoản');
     lockButton.disabled = Boolean(user.isCurrentUser);
   }
 
@@ -199,7 +210,7 @@
       const response = await apiFetch(`${API_BASE}/admin/users/${userId}`);
       const payload = await response.json().catch(() => ({}));
       if (!response.ok) {
-        throw new Error(payload.message || 'Không thể tải thông tin người dùng.');
+        throw new Error(payload.message || t('admin.loadUserError', 'Không thể tải thông tin người dùng.'));
       }
       state.editorUser = payload;
       renderEditor();
@@ -241,12 +252,12 @@
       });
       const payload = await response.json().catch(() => ({}));
       if (!response.ok) {
-        throw new Error(payload.message || 'Không thể cập nhật người dùng.');
+        throw new Error(payload.message || t('admin.updateUserError', 'Không thể cập nhật người dùng.'));
       }
       state.editorUser = payload;
       renderEditor();
       await load();
-      showEditorMessage('Đã lưu thông tin người dùng.', true);
+      showEditorMessage(t('admin.saveUserSuccess', 'Đã lưu thông tin người dùng.'), true);
     } catch (error) {
       showEditorMessage(error.message);
     } finally {
@@ -258,7 +269,9 @@
     const user = state.editorUser;
     if (!user || user.isCurrentUser) return;
     const nextLocked = !user.isLocked;
-    if (!confirm(nextLocked ? 'Khóa tài khoản này?' : 'Mở khóa tài khoản này?')) return;
+    if (!confirm(nextLocked
+      ? t('admin.confirmLock', 'Khóa tài khoản này?')
+      : t('admin.confirmUnlock', 'Mở khóa tài khoản này?'))) return;
     const button = byId('admin-user-editor-lock');
     button.disabled = true;
     try {
@@ -269,12 +282,14 @@
       });
       const payload = await response.json().catch(() => ({}));
       if (!response.ok) {
-        throw new Error(payload.message || 'Không thể cập nhật trạng thái tài khoản.');
+        throw new Error(payload.message || t('admin.updateAccountStatusError', 'Không thể cập nhật trạng thái tài khoản.'));
       }
       state.editorUser = payload;
       renderEditor();
       await load();
-      showEditorMessage(nextLocked ? 'Đã khóa tài khoản.' : 'Đã mở khóa tài khoản.', true);
+      showEditorMessage(nextLocked
+        ? t('admin.lockSuccess', 'Đã khóa tài khoản.')
+        : t('admin.unlockSuccess', 'Đã mở khóa tài khoản.'), true);
     } catch (error) {
       showEditorMessage(error.message);
       button.disabled = false;
@@ -288,11 +303,11 @@
     const confirmPassword = byId('admin-user-editor-confirm-password').value;
 
     if (newPassword !== confirmPassword) {
-      showEditorMessage('Mật khẩu xác nhận không khớp.');
+      showEditorMessage(t('admin.passwordMismatch', 'Mật khẩu xác nhận không khớp.'));
       return;
     }
     if (newPassword.length < 8 || !/[A-Za-z]/.test(newPassword) || !/[0-9]/.test(newPassword)) {
-      showEditorMessage('Mật khẩu mới phải có ít nhất 8 ký tự, gồm chữ và số.');
+      showEditorMessage(t('admin.passwordPolicy', 'Mật khẩu mới phải có ít nhất 8 ký tự, gồm chữ và số.'));
       return;
     }
 
@@ -306,10 +321,10 @@
       });
       const payload = await response.json().catch(() => ({}));
       if (!response.ok) {
-        throw new Error(payload.message || 'Không thể đặt lại mật khẩu người dùng.');
+        throw new Error(payload.message || t('admin.resetPasswordError', 'Không thể đặt lại mật khẩu người dùng.'));
       }
       byId('admin-user-editor-password-form').reset();
-      showEditorMessage(payload.message || 'Đã đặt lại mật khẩu người dùng.', true);
+      showEditorMessage(payload.message || t('admin.resetPasswordSuccess', 'Đã đặt lại mật khẩu người dùng.'), true);
     } catch (error) {
       showEditorMessage(error.message);
     } finally {
@@ -351,5 +366,15 @@
     if (!state.loaded) load();
   }
 
+  function refreshLocale() {
+    if (state.loaded) {
+      renderRows(state.lastItems);
+      renderSummary(state.totalItems);
+      renderPagination();
+    }
+    if (state.editorUser) renderEditor();
+  }
+
   window.AdminUsers = { init, activate };
+  window.AdminUsers.refreshLocale = refreshLocale;
 })();

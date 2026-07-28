@@ -84,7 +84,7 @@ function renderAuthorManagement() {
   const totalPages = Math.max(1, Math.ceil(filtered.length / adminCatalogPageSize));
   authorManagementPage = Math.min(authorManagementPage, totalPages);
   const items = filtered.slice((authorManagementPage - 1) * adminCatalogPageSize, authorManagementPage * adminCatalogPageSize);
-  root.innerHTML = items.map(a => `<div class="management-row"><input value="${adminEscapeHtml(a.name)}" data-author-name="${a.id}"><button class="management-save" data-author-save="${a.id}">Lưu</button><button class="management-delete" data-author-delete="${a.id}">Xóa</button></div>`).join('') || '<p class="management-empty">Chưa có tác giả.</p>';
+  root.innerHTML = items.map(a => `<div class="management-row"><input value="${adminEscapeHtml(a.name)}" data-author-name="${a.id}"><button class="management-save" data-author-save="${a.id}">${t('admin.save', 'Lưu')}</button><button class="management-delete" data-author-delete="${a.id}">${t('admin.delete', 'Xóa')}</button></div>`).join('') || `<p class="management-empty">${t('admin.noAuthors', 'Chưa có tác giả.')}</p>`;
   renderCatalogPagination('admin-author-pagination', authorManagementPage, totalPages, page => { authorManagementPage = page; renderAuthorManagement(); });
   root.querySelectorAll('[data-author-save]').forEach(b => b.onclick = async () => { const id=Number(b.dataset.authorSave), author=authorsList.find(a=>a.id===id); const name=root.querySelector(`[data-author-name="${id}"]`).value.trim(); const res=await apiFetch(`${API_BASE}/admin/author/${id}`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,biography:author?.biography||''})}); if(res.ok) await loadAuthors(); else showToast('Không thể cập nhật tác giả.',false); });
   root.querySelectorAll('[data-author-delete]').forEach(b => b.onclick = async () => { if(!confirm('Xóa tác giả này?')) return; const res=await apiFetch(`${API_BASE}/admin/author/${b.dataset.authorDelete}`,{method:'DELETE'}); if(res.ok) await loadAuthors(); else showToast((await res.json().catch(()=>({}))).message||'Không thể xóa tác giả.',false); });
@@ -97,7 +97,7 @@ function renderGenreManagement() {
   const totalPages = Math.max(1, Math.ceil(filtered.length / adminCatalogPageSize));
   genreManagementPage = Math.min(genreManagementPage, totalPages);
   const items = filtered.slice((genreManagementPage - 1) * adminCatalogPageSize, genreManagementPage * adminCatalogPageSize);
-  root.innerHTML = items.map(g => `<div class="management-row"><input value="${adminEscapeHtml(g.name)}" data-genre-name="${g.id}"><input value="${adminEscapeHtml(g.slug||'')}" data-genre-slug="${g.id}"><button class="management-save" data-genre-save="${g.id}">Lưu</button><button class="management-delete" data-genre-delete="${g.id}">Xóa</button></div>`).join('') || '<p class="management-empty">Chưa có thể loại.</p>';
+  root.innerHTML = items.map(g => `<div class="management-row"><input value="${adminEscapeHtml(g.name)}" data-genre-name="${g.id}"><input value="${adminEscapeHtml(g.slug||'')}" data-genre-slug="${g.id}"><button class="management-save" data-genre-save="${g.id}">${t('admin.save', 'Lưu')}</button><button class="management-delete" data-genre-delete="${g.id}">${t('admin.delete', 'Xóa')}</button></div>`).join('') || `<p class="management-empty">${t('admin.noGenres', 'Chưa có thể loại.')}</p>`;
   renderCatalogPagination('admin-genre-pagination', genreManagementPage, totalPages, page => { genreManagementPage = page; renderGenreManagement(); });
   root.querySelectorAll('[data-genre-save]').forEach(b => b.onclick = async () => { const id=Number(b.dataset.genreSave), name=root.querySelector(`[data-genre-name="${id}"]`).value.trim(), slug=root.querySelector(`[data-genre-slug="${id}"]`).value.trim(); const res=await apiFetch(`${API_BASE}/admin/genre/${id}`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,slug})}); if(res.ok) await loadGenres(); else showToast('Không thể cập nhật thể loại.',false); });
   root.querySelectorAll('[data-genre-delete]').forEach(b => b.onclick = async () => { if(!confirm('Xóa thể loại này?')) return; const res=await apiFetch(`${API_BASE}/admin/genre/${b.dataset.genreDelete}`,{method:'DELETE'}); if(res.ok) await loadGenres(); else showToast((await res.json().catch(()=>({}))).message||'Không thể xóa thể loại.',false); });
@@ -610,3 +610,13 @@ function showToast(message, type = 'success') {
   }
   toastTimeout = setTimeout(() => { toast.style.display = 'none'; }, 4000);
 }
+
+window.addEventListener('manganpk:localechanged', () => {
+  window.AdminUsers?.refreshLocale();
+  window.AdminReports?.refreshLocale?.();
+  if (Array.isArray(mangasList)) renderMangasTable();
+  if (Array.isArray(authorsList)) renderAuthorsManagementList();
+  if (Array.isArray(genresList)) renderGenresManagementList();
+  if (typeof renderTitleDraftsTable === 'function') renderTitleDraftsTable();
+  if (mangaDexPreview && typeof renderMangaDexPreview === 'function') renderMangaDexPreview(mangaDexPreview);
+});

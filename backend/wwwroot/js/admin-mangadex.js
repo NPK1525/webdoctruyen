@@ -9,7 +9,7 @@ function initMangaDexImport() {
   previewBtn?.addEventListener('click', async () => {
     const value = input?.value.trim() || '';
     if (!value) {
-      showToast('\u0056\u0075\u0069 \u006c\u00f2\u006e\u0067 \u006e\u0068\u1ead\u0070 \u0055\u0052\u004c \u0068\u006f\u1eb7\u0063 \u0055\u0055\u0049\u0044 \u004d\u0061\u006e\u0067\u0061\u0044\u0065\u0078.', 'warning');
+      showToast(t('admin.mangaDexInputRequired', 'Vui lòng nhập URL hoặc UUID MangaDex.'), 'warning');
       return;
     }
 
@@ -24,7 +24,7 @@ function initMangaDexImport() {
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
-        showToast(data.message || '\u004b\u0068\u00f4\u006e\u0067 \u0074\u0068\u1ec3 \u0078\u0065\u006d \u0074\u0072\u01b0\u1edb\u0063 \u0074\u0072\u0075\u0079\u1ec7\u006e \u004d\u0061\u006e\u0067\u0061\u0044\u0065\u0078.', false);
+        showToast(data.message || t('admin.mangaDexPreviewError', 'Không thể xem trước truyện MangaDex.'), false);
         renderMangaDexPreview(null);
         return;
       }
@@ -33,11 +33,11 @@ function initMangaDexImport() {
       renderMangaDexPreview(data);
       if (importBtn) importBtn.disabled = false;
       showToast(data.exists
-        ? '\u0054\u0072\u0075\u0079\u1ec7\u006e \u0111\u00e3 \u0074\u1ed3\u006e \u0074\u1ea1\u0069, \u0062\u1ea1\u006e \u0063\u00f3 \u0074\u0068\u1ec3 \u0111\u1ed3\u006e\u0067 \u0062\u1ed9 \u0063\u1ead\u0070 \u006e\u0068\u1ead\u0074.'
-        : '\u0110\u00e3 \u006c\u1ea5\u0079 \u0078\u0065\u006d \u0074\u0072\u01b0\u1edb\u0063 \u0074\u1eeb \u004d\u0061\u006e\u0067\u0061\u0044\u0065\u0078.', true);
+          ? t('admin.mangaDexExists', 'Truyện đã tồn tại, bạn có thể đồng bộ cập nhật.')
+          : t('admin.mangaDexPreviewSuccess', 'Đã lấy xem trước từ MangaDex.'), true);
     } catch (e) {
       console.error(e);
-      showToast('\u004c\u1ed7\u0069 \u006b\u1ebf\u0074 \u006e\u1ed1\u0069 \u006b\u0068\u0069 \u0067\u1ecdi \u004d\u0061\u006e\u0067\u0061\u0044\u0065\u0078.', false);
+      showToast(t('admin.mangaDexConnectionError', 'Lỗi kết nối khi gọi MangaDex.'), false);
     } finally {
       setMangaDexBusy(false);
     }
@@ -47,7 +47,7 @@ function initMangaDexImport() {
     e.preventDefault();
     const value = input?.value.trim() || '';
     if (!value || !mangaDexPreview) {
-      showToast('\u0056\u0075\u0069 \u006c\u00f2\u006e\u0067 \u0078\u0065\u006d \u0074\u0072\u01b0\u1edb\u0063 \u0074\u0072\u0075\u0079\u1ec7\u006e \u0074\u0072\u01b0\u1edb\u0063 \u006b\u0068\u0069 \u0111\u1ed3\u006e\u0067 \u0062\u1ed9.', 'warning');
+      showToast(t('admin.mangaDexPreviewFirst', 'Vui lòng xem trước truyện trước khi đồng bộ.'), 'warning');
       return;
     }
 
@@ -59,16 +59,16 @@ function initMangaDexImport() {
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
-        showToast(data.message || '\u0110\u1ed3\u006e\u0067 \u0062\u1ed9 \u004d\u0061\u006e\u0067\u0061\u0044\u0065\u0078 \u0074\u0068\u1ea5\u0074 \u0062\u1ea1\u0069.', false);
+        showToast(data.message || t('admin.mangaDexImportError', 'Đồng bộ MangaDex thất bại.'), false);
         return;
       }
 
-      showToast(`${data.message || '\u0110\u1ed3\u006e\u0067 \u0062\u1ed9 \u0074\u0068\u00e0\u006e\u0068 \u0063\u00f4\u006e\u0067.'} (${data.chapterCount || 0} chương)`, true);
+      showToast(`${data.message || t('admin.mangaDexImportSuccess', 'Đồng bộ thành công.')} (${data.chapterCount || 0} ${t('admin.chapters', 'chương')})`, true);
       await loadAdminData();
       if (data.mangaId) window.location.href = `/manga/${data.mangaId}`;
     } catch (e) {
       console.error(e);
-      showToast('\u004c\u1ed7\u0069 \u006b\u1ebf\u0074 \u006e\u1ed1\u0069 \u006b\u0068\u0069 \u0111\u1ed3\u006e\u0067 \u0062\u1ed9.', false);
+      showToast(t('admin.mangaDexSyncConnectionError', 'Lỗi kết nối khi đồng bộ.'), false);
     } finally {
       setMangaDexBusy(false);
     }
@@ -99,7 +99,7 @@ function renderMangaDexPreview(data) {
   const tagBadge = tag => `<span class="badge" style="background:rgba(255,255,255,.08);color:white;">${escapeAdminHtml(tag.name)}</span>`;
   const genres = (data.tags || []).filter(tag => String(tag.group).toLowerCase() === 'genre').map(tagBadge).join('');
   const themes = (data.tags || []).filter(tag => String(tag.group).toLowerCase() === 'theme').map(tagBadge).join('');
-  const authors = (data.authors || []).map(a => escapeAdminHtml(a.name)).join(', ') || '\u0110\u0061\u006e\u0067 \u0063\u1ead\u0070 \u006e\u0068\u1ead\u0074';
+  const authors = (data.authors || []).map(a => escapeAdminHtml(a.name)).join(', ') || t('admin.updating', 'Đang cập nhật');
 
   panel.style.display = 'block';
   panel.innerHTML = `

@@ -9,6 +9,16 @@ const vi = JSON.parse(read('backend/wwwroot/locales/vi.json'));
 const en = JSON.parse(read('backend/wwwroot/locales/en.json'));
 const indexView = read('backend/Views/AdminView/Index.cshtml');
 const css = read('backend/wwwroot/css/style.css');
+const adminCoordinator = read('backend/wwwroot/js/admin.js');
+const adminUsers = read('backend/wwwroot/js/admin-users.js');
+const dynamicModules = [
+  'backend/wwwroot/js/admin-manga.js',
+  'backend/wwwroot/js/admin-mangadex.js',
+  'backend/wwwroot/js/admin-reports.js',
+  'backend/wwwroot/js/admin-title-drafts.js',
+  'backend/wwwroot/js/admin-upload.js',
+  'backend/wwwroot/js/admin-users.js'
+].map(read);
 
 test('admin dictionaries stay complete in Vietnamese and English', () => {
   const viKeys = Object.keys(vi).filter(key => key.startsWith('admin.')).sort();
@@ -65,4 +75,14 @@ test('admin control panel static controls expose translation hooks', () => {
     indexView,
     /id="admin-user-search"[^>]*data-i18n="admin\.searchUsers"[^>]*data-i18n-attr="placeholder"/
   );
+});
+
+test('dynamic admin modules use the shared dictionary and refresh on locale changes', () => {
+  for (const source of dynamicModules) {
+    assert.match(source, /\bt\(['"]admin\./);
+  }
+  assert.match(adminUsers, /function refreshLocale\(\)/);
+  assert.match(adminUsers, /AdminUsers\.refreshLocale\s*=\s*refreshLocale/);
+  assert.match(adminCoordinator, /manganpk:localechanged/);
+  assert.match(adminCoordinator, /AdminUsers\?\.refreshLocale\(\)/);
 });

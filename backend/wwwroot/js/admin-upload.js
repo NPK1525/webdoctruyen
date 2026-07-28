@@ -47,7 +47,7 @@ function initUploadHandlers() {
           coverPreview.style.display = 'block';
           coverPreview.querySelector('img').src = result.url;
         }
-        coverBtn.textContent = 'Done!';
+        coverBtn.textContent = t('admin.uploadDone', 'Đã tải!');
         setTimeout(() => { coverBtn.textContent = t('admin.upload', 'Tải lên'); coverBtn.disabled = false; }, 1500);
       } catch (e) {
         showToast(t('upload.error', 'Tải lên thất bại.'), false);
@@ -119,10 +119,10 @@ async function uploadDraftImage(file, fieldId) {
     const result = await uploadFile(file);
     document.getElementById(fieldId).value = result.url;
     renderDraftImagePreview();
-    showToast('\u0110\u00e3 \u0074\u1ea3\u0069 \u1ea3\u006e\u0068 \u006c\u00ea\u006e.', true);
+    showToast(t('admin.uploadSuccess', 'Đã tải ảnh lên.'), true);
   } catch (e) {
     console.error(e);
-    showToast('\u0054\u1ea3\u0069 \u1ea3\u006e\u0068 \u0074\u0068\u1ea5\u0074 \u0062\u1ea1\u0069.', false);
+    showToast(t('admin.uploadError', 'Tải ảnh thất bại.'), false);
   }
 }
 
@@ -164,7 +164,7 @@ function renderChapterPagesPreview() {
       image.src = '/img/chibi_mascot.png';
       image.alt = 'Ảnh lỗi - hãy xóa hoặc tải ảnh thay thế';
       image.closest('.page-preview-item').style.borderColor = '#FF4552';
-      showToast('Phát hiện ảnh chapter bị lỗi. Hãy xóa ảnh đó và tải ảnh thay thế.', 'warning');
+      showToast(t('admin.invalidChapterImage', 'Phát hiện ảnh chapter bị lỗi. Hãy xóa ảnh đó và tải ảnh thay thế.'), 'warning');
     }, { once: true });
   });
 

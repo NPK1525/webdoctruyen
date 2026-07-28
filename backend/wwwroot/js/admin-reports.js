@@ -2,7 +2,7 @@
   const list = document.getElementById('admin-reports-list');
   if (!list) return;
 
-  let page = 1;
+  let adminReportPage = 1;
   let totalPages = 1;
   let lastItems = [];
   let pagination = document.getElementById('admin-reports-pagination');
@@ -58,17 +58,17 @@
       return;
     }
     const pages = [];
-    for (let number = Math.max(1, page - 2); number <= Math.min(totalPages, page + 2); number += 1) {
+    for (let number = Math.max(1, adminReportPage - 2); number <= Math.min(totalPages, adminReportPage + 2); number += 1) {
       pages.push(number);
     }
-    pagination.innerHTML = `<button data-page="${page - 1}" ${page === 1 ? 'disabled' : ''}>‹</button>
-      ${pages.map(number => `<button data-page="${number}" class="${number === page ? 'active' : ''}">${number}</button>`).join('')}
-      <button data-page="${page + 1}" ${page === totalPages ? 'disabled' : ''}>›</button>`;
+    pagination.innerHTML = `<button data-page="${adminReportPage - 1}" ${adminReportPage === 1 ? 'disabled' : ''}>‹</button>
+      ${pages.map(number => `<button data-page="${number}" class="${number === adminReportPage ? 'active' : ''}">${number}</button>`).join('')}
+      <button data-page="${adminReportPage + 1}" ${adminReportPage === totalPages ? 'disabled' : ''}>›</button>`;
     pagination.querySelectorAll('[data-page]').forEach(button => {
       button.onclick = () => {
         const nextPage = Number(button.dataset.page);
-        if (nextPage >= 1 && nextPage <= totalPages && nextPage !== page) {
-          page = nextPage;
+        if (nextPage >= 1 && nextPage <= totalPages && nextPage !== adminReportPage) {
+          adminReportPage = nextPage;
           load();
         }
       };
@@ -77,21 +77,21 @@
 
   async function load() {
     list.textContent = t('admin.loadingReports', 'Đang tải báo cáo...');
-    const query = new URLSearchParams({ page: String(page), pageSize: '20' });
+    const query = new URLSearchParams({ page: String(adminReportPage), pageSize: '20' });
     const status = document.getElementById('report-status-filter')?.value;
     const target = document.getElementById('report-target-filter')?.value;
     if (status) query.set('status', status);
     if (target) query.set('targetType', target);
 
     try {
-      const response = await fetch(`/api/reports?${query}`, { credentials: 'same-origin' });
+      const response = await apiFetch(`/api/reports?${query}`);
       if (!response.ok) {
         list.textContent = t('admin.loadReportsError', 'Không thể tải báo cáo.');
         return;
       }
       const data = await response.json();
       lastItems = data.items || [];
-      page = data.page || 1;
+      adminReportPage = data.page || 1;
       totalPages = data.totalPages || 1;
       render();
     } catch {
@@ -104,11 +104,11 @@
   }
 
   document.getElementById('report-status-filter')?.addEventListener('change', () => {
-    page = 1;
+    adminReportPage = 1;
     load();
   });
   document.getElementById('report-target-filter')?.addEventListener('change', () => {
-    page = 1;
+    adminReportPage = 1;
     load();
   });
 

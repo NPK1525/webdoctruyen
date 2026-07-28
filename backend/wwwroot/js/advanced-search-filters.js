@@ -92,6 +92,7 @@
 
   function create(options = {}) {
     const documentRef = options.document || document;
+    const translate = (key, fallback) => typeof window.t === 'function' ? window.t(key, fallback) : fallback;
     const state = { value: resetState() };
     const metadata = options.metadata || { format: [], genre: [], theme: [], content: [], people: [] };
     const tagGroupIds = {
@@ -144,7 +145,7 @@
           const label = String(item.name ?? item.label ?? value)
             .replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
           return `<button type="button" class="advanced-filter-tag ${current}" data-filter-tag="${value}" data-filter-tag-group="${group}" aria-pressed="${current !== 'neutral'}">${label}</button>`;
-        }).join('') || '<span class="advanced-person-empty">No matching tags.</span>';
+        }).join('') || `<span class="advanced-person-empty" data-i18n="search.noTagMatches">${translate('search.noTagMatches', 'No matching tags.')}</span>`;
         container.querySelectorAll('[data-filter-tag]').forEach(button => {
           button.addEventListener('click', () => {
             const current = tagState(group, button.dataset.filterTag);
@@ -166,7 +167,7 @@
       const available = peopleForRole(metadata.people, role)
         .filter(person => !selectedIds.includes(String(person.id)));
       const items = filterOptions(available, input.value);
-      results.innerHTML = items.map(person => `<button type="button" class="advanced-person-option" role="option" data-person-id="${person.id}">${String(person.name).replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]))}</button>`).join('') || '<div class="advanced-person-empty">No matches.</div>';
+      results.innerHTML = items.map(person => `<button type="button" class="advanced-person-option" role="option" data-person-id="${person.id}">${String(person.name).replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]))}</button>`).join('') || `<div class="advanced-person-empty">${translate('search.noMatches', 'No matches.')}</div>`;
       const hasQuery = input.value.trim().length > 0;
       results.hidden = !hasQuery;
       input.setAttribute('aria-expanded', String(hasQuery));
@@ -183,7 +184,7 @@
         const person = metadata.people.find(item => String(item.id) === id);
         if (!person) return '';
         const label = String(person.name).replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
-        return `<span class="advanced-person-chip">${label}<button type="button" data-remove-person="${id}" aria-label="Remove ${label}">×</button></span>`;
+        return `<span class="advanced-person-chip">${label}<button type="button" data-remove-person="${id}" aria-label="Remove ${label}">&times;</button></span>`;
       }).join('');
       selected.querySelectorAll('[data-remove-person]').forEach(button => button.addEventListener('click', () => {
         const key = role === 'author' ? 'authors' : 'artists';
@@ -200,7 +201,9 @@
       const includeCount = Object.values(state.value.tags).reduce((sum, group) => sum + group.include.length, 0);
       const excludeCount = Object.values(state.value.tags).reduce((sum, group) => sum + group.exclude.length, 0);
       const label = get('advanced-filter-tags-label');
-      if (label) label.textContent = includeCount || excludeCount ? `${includeCount} included · ${excludeCount} excluded` : 'Include any';
+      if (label) label.textContent = includeCount || excludeCount
+        ? `${includeCount} ${translate('search.include', 'included')} / ${excludeCount} ${translate('search.exclude', 'excluded')}`
+        : translate('search.includeAny', 'Include any');
     }
 
     function setState(next) {

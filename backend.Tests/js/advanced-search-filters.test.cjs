@@ -6,11 +6,11 @@ const test = require('node:test');
 
 const root = path.resolve(__dirname, '..', '..');
 const modulePath = path.join(root, 'backend', 'wwwroot', 'js', 'advanced-search-filters.js');
+const filterModule = fs.readFileSync(modulePath, 'utf8');
 
 function loadUtils() {
-  const source = fs.readFileSync(modulePath, 'utf8');
   const context = { window: {} };
-  vm.runInNewContext(source, context, { filename: modulePath });
+  vm.runInNewContext(filterModule, context, { filename: modulePath });
   return context.window.AdvancedSearchFilterUtils;
 }
 
@@ -108,6 +108,14 @@ const advancedSearchScript = fs.readFileSync(
   path.join(root, 'backend', 'wwwroot', 'js', 'advanced-search.js'),
   'utf8'
 );
+const enLocale = JSON.parse(fs.readFileSync(
+  path.join(root, 'backend', 'wwwroot', 'locales', 'en.json'),
+  'utf8'
+));
+const viLocale = JSON.parse(fs.readFileSync(
+  path.join(root, 'backend', 'wwwroot', 'locales', 'vi.json'),
+  'utf8'
+));
 
 test('advanced search exposes tag, author, and artist controls with ARIA markup', () => {
   for (const id of [
@@ -125,6 +133,36 @@ test('advanced search exposes tag, author, and artist controls with ARIA markup'
   assert.match(mangaView, /data-filter-group="genre"/);
   assert.match(mangaView, /data-filter-group="theme"/);
   assert.match(mangaView, /data-filter-group="content"/);
+});
+
+test('advanced search new filters are wired for localization', () => {
+  for (const key of [
+    'search.filterTags',
+    'search.includeAny',
+    'search.searchTags',
+    'search.tagHint',
+    'search.dismiss',
+    'search.authors',
+    'search.artists',
+    'search.any',
+    'filter.format',
+    'filter.genre',
+    'filter.theme',
+    'filter.content'
+  ]) {
+    assert.match(mangaView, new RegExp(`data-i18n="${key.replace('.', '\\.')}"`));
+  }
+  assert.match(filterModule, /search\.noMatches/);
+  assert.match(filterModule, /search\.noTagMatches/);
+  assert.match(filterModule, /search\.include/);
+  assert.match(filterModule, /search\.exclude/);
+
+  for (const locale of [enLocale, viLocale]) {
+    assert.equal(typeof locale['search.filterTags'], 'string');
+    assert.equal(typeof locale['search.any'], 'string');
+    assert.equal(typeof locale['search.noTagMatches'], 'string');
+    assert.equal(typeof locale['filter.content'], 'string');
+  }
 });
 
 test('advanced search styles include responsive tag panel and selected states', () => {

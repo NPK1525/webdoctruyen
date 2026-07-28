@@ -1,3 +1,84 @@
 @model List<MangaNPK.Models.Genre>
 @{ Layout = null; }
-<!DOCTYPE html><html lang="vi"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Quản lý thể loại - Admin</title><link rel="stylesheet" href="/css/style.css?v=5.0"><script src="/vendor/lucide/lucide.min.js?v=1.27.0"></script></head><body class="admin-page reports-page"><div id="root"><header id="global-header" class="glass admin-global-header"><div class="container admin-header-inner"><div class="admin-brand-group"><button id="sidebar-toggle-btn" class="admin-menu-btn"><i data-lucide="menu"></i></button><a href="/admin" class="admin-brand"><i data-lucide="book-open"></i><span>Manga<span>NPK</span></span></a><span class="admin-panel-label">ADMIN CONTROL PANEL</span></div><div id="header-user-area" class="admin-user-area"></div></div></header>@await Html.PartialAsync("_Sidebar")<main class="reports-shell admin-reports-shell"><div class="reports-heading"><div><a class="reports-back" href="/admin">← Bảng quản trị</a><h1>Quản lý thể loại</h1><p>Danh sách này được dùng trực tiếp trong trang tạo truyện.</p></div><span class="reports-role-badge">GENRES</span></div><section class="management-grid"><form asp-action="GenreCreate" method="post" class="reports-panel management-form">@Html.AntiForgeryToken()<h2>Thêm thể loại</h2><label>Tên thể loại<input name="name" required></label><label>Slug<input name="slug" placeholder="tu-dong-tao"></label><button class="management-primary">Thêm thể loại</button></form><section class="reports-panel"><div class="management-toolbar"><input id="genre-search" placeholder="Tìm thể loại..."></div><div class="management-list">@foreach (var g in Model) {<article class="management-row"><form asp-action="GenreUpdate" asp-route-id="@g.Id" method="post">@Html.AntiForgeryToken()<input name="name" value="@g.Name" required><input name="slug" value="@g.Slug" required><button class="management-save">Lưu</button></form><form asp-action="GenreDelete" asp-route-id="@g.Id" method="post" onsubmit="return confirm('Xóa thể loại này?')">@Html.AntiForgeryToken()<button class="management-delete">Xóa</button></form></article>}@if (!Model.Any()) {<p class="management-empty">Chưa có thể loại nào.</p>}</div></section></section></main></div><script src="/js/common-auth.js?v=1.0"></script><script src="/js/common.js?v=5.8"></script><script>document.getElementById('genre-search')?.addEventListener('input',e=>document.querySelectorAll('.management-row').forEach(r=>r.hidden=!r.textContent.toLowerCase().includes(e.target.value.toLowerCase())));</script></body></html>
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Quản lý thể loại - Admin</title>
+  <link rel="stylesheet" href="/css/style.css?v=5.0">
+  <script src="/vendor/lucide/lucide.min.js?v=1.27.0"></script>
+</head>
+<body class="admin-page reports-page">
+  <div id="root">
+    <header id="global-header" class="glass admin-global-header">
+      <div class="container admin-header-inner">
+        <div class="admin-brand-group">
+          <button id="sidebar-toggle-btn" class="admin-menu-btn"><i data-lucide="menu"></i></button>
+          <a href="/admin" class="admin-brand"><i data-lucide="book-open"></i><span>Manga<span>NPK</span></span></a>
+          <span class="admin-panel-label" data-i18n="admin.controlPanel">ADMIN CONTROL PANEL</span>
+        </div>
+        <div id="header-user-area" class="admin-user-area"></div>
+      </div>
+    </header>
+    @await Html.PartialAsync("_Sidebar")
+    <main class="reports-shell admin-reports-shell">
+      <div class="reports-heading">
+        <div>
+          <a class="reports-back" href="/admin" data-i18n="admin.backToPanel">← Bảng quản trị</a>
+          <h1 data-i18n="admin.genres">Quản lý thể loại</h1>
+          <p data-i18n="admin.genresDescription">Danh sách này được dùng trực tiếp trong trang tạo truyện.</p>
+        </div>
+        <span class="reports-role-badge">GENRES</span>
+      </div>
+      <section class="management-grid">
+        <form asp-action="GenreCreate" method="post" class="reports-panel management-form">
+          @Html.AntiForgeryToken()
+          <h2 data-i18n="admin.addGenre">Thêm thể loại</h2>
+          <label><span data-i18n="admin.genreNamePlain">Tên thể loại</span><input name="name" required></label>
+          <label>Slug<input name="slug" placeholder="tu-dong-tao"></label>
+          <button class="management-primary" data-i18n="admin.addGenre">Thêm thể loại</button>
+        </form>
+        <section class="reports-panel">
+          <div class="management-toolbar">
+            <input id="genre-search" placeholder="Tìm thể loại..." data-i18n="admin.searchGenres" data-i18n-attr="placeholder">
+          </div>
+          <div class="management-list">
+            @foreach (var genre in Model)
+            {
+              <article class="management-row">
+                <form asp-action="GenreUpdate" asp-route-id="@genre.Id" method="post">
+                  @Html.AntiForgeryToken()
+                  <input name="name" value="@genre.Name" required>
+                  <input name="slug" value="@genre.Slug" required>
+                  <button class="management-save" data-i18n="admin.save">Lưu</button>
+                </form>
+                <form asp-action="GenreDelete" asp-route-id="@genre.Id" method="post" class="admin-delete-genre-form">
+                  @Html.AntiForgeryToken()
+                  <button class="management-delete" data-i18n="admin.delete">Xóa</button>
+                </form>
+              </article>
+            }
+            @if (!Model.Any())
+            {
+              <p class="management-empty" data-i18n="admin.noGenres">Chưa có thể loại.</p>
+            }
+          </div>
+        </section>
+      </section>
+    </main>
+  </div>
+  <script src="/js/i18n.js?v=4.0"></script>
+  <script src="/js/common-auth.js?v=1.0"></script>
+  <script src="/js/common.js?v=5.8"></script>
+  <script>
+    document.getElementById('genre-search')?.addEventListener('input', event =>
+      document.querySelectorAll('.management-row').forEach(row =>
+        row.hidden = !row.textContent.toLowerCase().includes(event.target.value.toLowerCase())));
+    document.querySelectorAll('.admin-delete-genre-form').forEach(form =>
+      form.addEventListener('submit', event => {
+        if (!confirm(t('admin.confirmDeleteGenre', 'Xóa thể loại này?'))) event.preventDefault();
+      }));
+  </script>
+</body>
+</html>

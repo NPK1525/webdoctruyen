@@ -15,7 +15,7 @@
         <div class="admin-brand-group">
           <button id="sidebar-toggle-btn" class="admin-menu-btn" title="Menu"><i data-lucide="menu"></i></button>
           <a href="/admin" class="admin-brand"><i data-lucide="book-open"></i><span>Manga<span>NPK</span></span></a>
-          <span class="admin-panel-label">ADMIN CONTROL PANEL</span>
+          <span class="admin-panel-label" data-i18n="admin.controlPanel">ADMIN CONTROL PANEL</span>
         </div>
         <div id="header-user-area" class="admin-user-area"></div>
       </div>
@@ -24,17 +24,18 @@
     @await Html.PartialAsync("_AuthModal")
     <main class="reports-shell admin-reports-shell">
       <div class="reports-heading">
-        <div><a class="reports-back" href="/admin">← Bảng quản trị</a><h1>Báo cáo người dùng</h1><p>Theo dõi và xử lý các báo cáo từ cộng đồng.</p></div>
+        <div><a class="reports-back" href="/admin" data-i18n="admin.backToPanel">← Bảng quản trị</a><h1 data-i18n="admin.reports">Báo cáo người dùng</h1><p data-i18n="admin.reportsDescription">Theo dõi và xử lý các báo cáo từ cộng đồng.</p></div>
         <span class="reports-role-badge">ADMIN</span>
       </div>
       <section class="reports-panel">
-        <div class="reports-toolbar"><label>Trạng thái<select id="report-status-filter"><option value="">Tất cả</option><option>Pending</option><option>Resolved</option><option>Dismissed</option></select></label><label>Đối tượng<select id="report-target-filter"><option value="">Truyện và chương</option><option>Manga</option><option>Chapter</option></select></label></div>
-        <div id="admin-reports-list" class="reports-list">Đang tải...</div>
+        <div class="reports-toolbar"><label><span data-i18n="admin.status">Trạng thái</span><select id="report-status-filter"><option value="" data-i18n="admin.all">Tất cả</option><option>Pending</option><option>Resolved</option><option>Dismissed</option></select></label><label><span data-i18n="admin.target">Đối tượng</span><select id="report-target-filter"><option value="" data-i18n="admin.mangaAndChapters">Truyện và chương</option><option>Manga</option><option>Chapter</option></select></label></div>
+        <div id="admin-reports-list" class="reports-list" data-i18n="admin.loadingReports">Đang tải...</div>
       </section>
     </main>
   </div>
+  <script src="/js/i18n.js?v=4.0"></script>
   <script src="/js/common-auth.js?v=1.0"></script>
   <script src="/js/common.js?v=5.8"></script>
-  <script src="/js/admin-reports.js?v=1.1"></script>
+  <script src="/js/admin-reports.js?v=1.3"></script>
 </body>
 </html>

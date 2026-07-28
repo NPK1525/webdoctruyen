@@ -33,11 +33,11 @@
     byId('admin-user-detail-avatar-preview').src = safeImage(user.avatarUrl);
 
     const status = byId('admin-user-detail-status');
-    status.textContent = user.isLocked ? 'Đã khóa' : 'Hoạt động';
+    status.textContent = user.isLocked ? t('admin.locked', 'Đã khóa') : t('admin.active', 'Hoạt động');
     status.classList.toggle('locked', Boolean(user.isLocked));
 
     const lockButton = byId('admin-user-detail-lock');
-    lockButton.textContent = user.isLocked ? 'Mở khóa tài khoản' : 'Khóa tài khoản';
+    lockButton.textContent = user.isLocked ? t('admin.unlock', 'Mở khóa tài khoản') : t('admin.lock', 'Khóa tài khoản');
     lockButton.disabled = Boolean(user.isCurrentUser);
   }
 
@@ -45,7 +45,7 @@
     try {
       const response = await apiFetch(`${API_BASE}/admin/users/${userId}`);
       const payload = await response.json().catch(() => ({}));
-      if (!response.ok) throw new Error(payload.message || 'Không thể tải thông tin người dùng.');
+      if (!response.ok) throw new Error(payload.message || t('admin.loadUserError', 'Không thể tải thông tin người dùng.'));
       user = payload;
       render();
     } catch (error) {
@@ -74,10 +74,10 @@
         body: JSON.stringify(body)
       });
       const payload = await response.json().catch(() => ({}));
-      if (!response.ok) throw new Error(payload.message || 'Không thể cập nhật người dùng.');
+      if (!response.ok) throw new Error(payload.message || t('admin.updateUserError', 'Không thể cập nhật người dùng.'));
       user = payload;
       render();
-      showMessage('Đã lưu thông tin người dùng.', true);
+      showMessage(t('admin.saveUserSuccess', 'Đã lưu thông tin người dùng.'), true);
     } catch (error) {
       showMessage(error.message, false);
     } finally {
@@ -88,7 +88,9 @@
   async function toggleLock() {
     if (!user || user.isCurrentUser) return;
     const nextLocked = !user.isLocked;
-    if (!confirm(nextLocked ? 'Khóa tài khoản này?' : 'Mở khóa tài khoản này?')) return;
+    if (!confirm(nextLocked
+      ? t('admin.confirmLock', 'Khóa tài khoản này?')
+      : t('admin.confirmUnlock', 'Mở khóa tài khoản này?'))) return;
     const button = byId('admin-user-detail-lock');
     button.disabled = true;
     try {
@@ -98,10 +100,12 @@
         body: JSON.stringify({ isLocked: nextLocked })
       });
       const payload = await response.json().catch(() => ({}));
-      if (!response.ok) throw new Error(payload.message || 'Không thể cập nhật trạng thái tài khoản.');
+      if (!response.ok) throw new Error(payload.message || t('admin.updateAccountStatusError', 'Không thể cập nhật trạng thái tài khoản.'));
       user = payload;
       render();
-      showMessage(nextLocked ? 'Đã khóa tài khoản.' : 'Đã mở khóa tài khoản.', true);
+      showMessage(nextLocked
+        ? t('admin.lockSuccess', 'Đã khóa tài khoản.')
+        : t('admin.unlockSuccess', 'Đã mở khóa tài khoản.'), true);
     } catch (error) {
       showMessage(error.message, false);
       button.disabled = false;
@@ -114,11 +118,11 @@
     const confirmPassword = byId('admin-user-confirm-password').value;
 
     if (newPassword !== confirmPassword) {
-      showMessage('Mật khẩu xác nhận không khớp.', false);
+      showMessage(t('admin.passwordMismatch', 'Mật khẩu xác nhận không khớp.'), false);
       return;
     }
     if (newPassword.length < 8 || !/[A-Za-z]/.test(newPassword) || !/[0-9]/.test(newPassword)) {
-      showMessage('Mật khẩu mới phải có ít nhất 8 ký tự, gồm chữ và số.', false);
+      showMessage(t('admin.passwordPolicy', 'Mật khẩu mới phải có ít nhất 8 ký tự, gồm chữ và số.'), false);
       return;
     }
 
@@ -131,9 +135,9 @@
         body: JSON.stringify({ newPassword, confirmPassword })
       });
       const payload = await response.json().catch(() => ({}));
-      if (!response.ok) throw new Error(payload.message || 'Không thể đặt lại mật khẩu người dùng.');
+      if (!response.ok) throw new Error(payload.message || t('admin.resetPasswordError', 'Không thể đặt lại mật khẩu người dùng.'));
       byId('admin-user-password-form').reset();
-      showMessage(payload.message || 'Đã đặt lại mật khẩu người dùng.', true);
+      showMessage(payload.message || t('admin.resetPasswordSuccess', 'Đã đặt lại mật khẩu người dùng.'), true);
     } catch (error) {
       showMessage(error.message, false);
     } finally {
@@ -145,6 +149,7 @@
     byId('admin-user-detail-form')?.addEventListener('submit', save);
     byId('admin-user-password-form')?.addEventListener('submit', resetPassword);
     byId('admin-user-detail-lock')?.addEventListener('click', toggleLock);
+    window.addEventListener('manganpk:localechanged', render);
     load();
   });
 })();

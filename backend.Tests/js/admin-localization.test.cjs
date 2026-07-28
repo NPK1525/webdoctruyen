@@ -19,6 +19,13 @@ const dynamicModules = [
   'backend/wwwroot/js/admin-upload.js',
   'backend/wwwroot/js/admin-users.js'
 ].map(read);
+const standaloneViews = [
+  'backend/Views/AdminView/Authors.cshtml',
+  'backend/Views/AdminView/Genres.cshtml',
+  'backend/Views/AdminView/Reports.cshtml',
+  'backend/Views/AdminView/UserDetail.cshtml'
+].map(read);
+const adminUserDetail = read('backend/wwwroot/js/admin-user-detail.js');
 
 test('admin dictionaries stay complete in Vietnamese and English', () => {
   const viKeys = Object.keys(vi).filter(key => key.startsWith('admin.')).sort();
@@ -85,4 +92,13 @@ test('dynamic admin modules use the shared dictionary and refresh on locale chan
   assert.match(adminUsers, /AdminUsers\.refreshLocale\s*=\s*refreshLocale/);
   assert.match(adminCoordinator, /manganpk:localechanged/);
   assert.match(adminCoordinator, /AdminUsers\?\.refreshLocale\(\)/);
+});
+
+test('standalone admin pages use the shared locale system', () => {
+  for (const source of standaloneViews) {
+    assert.match(source, /\/js\/i18n\.js\?v=4\.0/);
+    assert.match(source, /data-i18n="admin\./);
+    assert.match(source, /class="admin-panel-label"/);
+  }
+  assert.match(adminUserDetail, /\bt\(['"]admin\./);
 });

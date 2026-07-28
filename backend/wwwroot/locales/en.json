@@ -595,5 +595,18 @@
   "admin.uploadError": "Image upload failed.",
   "admin.invalidChapterImage": "A chapter image is invalid. Remove it and upload a replacement.",
   "admin.noAuthors": "No authors found.",
-  "admin.noGenres": "No genres found."
+  "admin.noGenres": "No genres found.",
+  "admin.backToPanel": "← Admin panel",
+  "admin.authorsDescription": "Add, edit, and manage authors used by the manga form.",
+  "admin.addAuthor": "Add author",
+  "admin.authorNamePlain": "Author name",
+  "admin.confirmDeleteAuthor": "Delete this author?",
+  "admin.genresDescription": "This list is used directly by the manga creation form.",
+  "admin.addGenre": "Add genre",
+  "admin.genreNamePlain": "Genre name",
+  "admin.confirmDeleteGenre": "Delete this genre?",
+  "admin.reportsDescription": "Review and process reports from the community.",
+  "admin.userDetails": "User details",
+  "admin.userDetailsDescription": "View profile information, edit the user, and control account status.",
+  "admin.resetPasswordDescription": "Administrators can set a new password without the current password."
 }

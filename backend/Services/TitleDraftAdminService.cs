@@ -89,7 +89,8 @@ public sealed class TitleDraftAdminService(MangaDbContext context)
         var draft = await _context.TitleDrafts.FirstOrDefaultAsync(item => item.Id == id, cancellationToken);
         if (draft == null) return new(TitleDraftAdminStatus.NotFound, "Khong tim thay ban nhap.");
         if (draft.ReviewStatus == TitleDraftReviewStatus.Approved) return new(TitleDraftAdminStatus.BadRequest, "Ban nhap da duyet khong the tu choi.");
-        draft.ReviewStatus = TitleDraftReviewStatus.Rejected; draft.RejectionReason = reason?.Trim() ?? string.Empty;
+        if (string.IsNullOrWhiteSpace(reason)) return new(TitleDraftAdminStatus.BadRequest, "Ly do tu choi la bat buoc.");
+        draft.ReviewStatus = TitleDraftReviewStatus.Rejected; draft.RejectionReason = reason.Trim();
         draft.ReviewedByUserId = reviewerId; draft.ReviewedAt = DateTime.UtcNow; draft.UpdatedAt = DateTime.UtcNow;
         await _context.SaveChangesAsync(cancellationToken); return new(TitleDraftAdminStatus.Success, "Da tu choi ban nhap.");
     }

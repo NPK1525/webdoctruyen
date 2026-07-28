@@ -46,6 +46,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('admin-access-denied').style.display = 'none';
   document.getElementById('admin-panel-wrapper').style.display = 'block';
   initAdminTabs();
+  window.AdminTitleReview?.init();
   window.AdminUsers?.init();
   initAdminMangaFilters();
   initSingleChoiceChips('manga-form-demographic', 'manga-demographic-chips');
@@ -451,8 +452,6 @@ function initAdminTabs() {
   document.getElementById('btn-cancel-title-draft')?.addEventListener('click', resetTitleDraftForm);
   document.getElementById('btn-save-title-draft')?.addEventListener('click', () => saveTitleDraft(false));
   document.getElementById('btn-submit-title-draft')?.addEventListener('click', () => saveTitleDraft(true));
-  document.getElementById('btn-approve-title-draft')?.addEventListener('click', approveTitleDraft);
-  document.getElementById('btn-reject-title-draft')?.addEventListener('click', rejectTitleDraft);
 }
 
 function switchTab(tabName) {
@@ -464,6 +463,7 @@ function switchTab(tabName) {
     pane.style.display = pane.id === `adm-content-${tabName}` ? 'block' : 'none';
   });
   if (tabName === 'users') window.AdminUsers?.activate();
+  if (tabName === 'title-review') window.AdminTitleReview?.activate();
 }
 
 // ========== FILE UPLOAD HANDLERS ==========

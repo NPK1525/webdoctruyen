@@ -26,6 +26,9 @@ namespace MangaNPK.Controllers
         [HttpGet("reports")]
         public IActionResult Reports() => View();
 
+        [HttpGet("title-drafts")]
+        public IActionResult TitleDrafts() => Redirect("/admin?tab=title-review");
+
         [HttpGet("users/{id:int}")]
         public async Task<IActionResult> UserDetail(int id)
         {

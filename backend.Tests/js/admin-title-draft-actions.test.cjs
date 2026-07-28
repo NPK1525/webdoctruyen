@@ -6,6 +6,7 @@ const test = require('node:test');
 const root = path.resolve(__dirname, '..', '..');
 const view = fs.readFileSync(path.join(root, 'backend', 'Views', 'AdminView', 'Index.cshtml'), 'utf8');
 const script = fs.readFileSync(path.join(root, 'backend', 'wwwroot', 'js', 'admin-title-drafts.js'), 'utf8');
+const adminScript = fs.readFileSync(path.join(root, 'backend', 'wwwroot', 'js', 'admin.js'), 'utf8');
 
 test('title draft actions use Vietnamese copy and shared rounded button treatment', () => {
   const cancelAction = view.match(/<button type="button" id="btn-cancel-title-draft"[\s\S]*?<\/button>/)?.[0] ?? '';
@@ -24,6 +25,12 @@ test('title draft primary action includes an upload icon', () => {
 test('title draft actions wrap consistently on small screens', () => {
   assert.match(view, /\.title-draft-actions\s*\{[^}]*flex-wrap:\s*wrap/s);
   assert.match(view, /\.title-draft-actions \.btn\s*\{[^}]*min-width:\s*130px/s);
+});
+
+test('creation action bar does not expose review decisions', () => {
+  assert.doesNotMatch(view, /id="btn-approve-title-draft"/);
+  assert.doesNotMatch(view, /id="btn-reject-title-draft"/);
+  assert.match(adminScript, /saveTitleDraft\(true\)/);
 });
 
 test('title draft action bar blends into the form surface', () => {

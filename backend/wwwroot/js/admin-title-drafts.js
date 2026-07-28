@@ -104,16 +104,6 @@ function formatAdminDate(value) {
 function refreshTitleDraftFormLocale() {
   populateTitleAuthorDropdown();
   renderTitleAuthors();
-  const statusLabel = document.getElementById('draft-review-status-label');
-  const createdAtLabel = document.getElementById('draft-created-at-label');
-  if (statusLabel) {
-    statusLabel.value = currentTitleDraft
-      ? getDraftStatusText(currentTitleDraft.reviewStatus)
-      : t('admin.draftStatus', 'Nháp');
-  }
-  if (createdAtLabel && currentTitleDraft) {
-    createdAtLabel.value = formatAdminDate(currentTitleDraft.createdAt);
-  }
 }
 
 let titleDraftSectionObserver = null;
@@ -162,12 +152,6 @@ function resetTitleDraftForm() {
   renderTitleAuthors();
   document.getElementById('title-draft-id').value = '';
   document.querySelectorAll('input[name="draft-genres"],input[name="draft-themes"]').forEach(cb => cb.checked = false);
-  document.getElementById('draft-review-status-label').value = t('admin.draftStatus', 'Nháp');
-  document.getElementById('draft-created-by-label').value = currentUser?.username || '';
-  document.getElementById('draft-created-at-label').value = '';
-  document.getElementById('draft-rejection-reason').value = '';
-  document.getElementById('btn-approve-title-draft').style.display = 'none';
-  document.getElementById('btn-reject-title-draft').style.display = 'none';
   document.getElementById('title-draft-list-panel').style.display = 'block';
   disconnectTitleDraftSectionObserver();
   setActiveTitleDraftSection('basic');
@@ -222,15 +206,8 @@ async function loadTitleDraftForEditing(id) {
     document.getElementById('draft-mangadex-id').value = d.mangaDexId || '';
     document.getElementById('draft-scanlation-group').value = d.scanlationGroup || '';
     document.getElementById('draft-note').value = d.note || '';
-    document.getElementById('draft-review-status-label').value = getDraftStatusText(d.reviewStatus);
-    document.getElementById('draft-created-by-label').value = d.createdBy || currentUser?.username || '';
-    document.getElementById('draft-created-at-label').value = formatAdminDate(d.createdAt);
-    document.getElementById('draft-rejection-reason').value = d.rejectionReason || '';
     setCheckedValues('draft-genres', d.genreIds || []);
     setCheckedValues('draft-themes', d.themeIds || []);
-    const reviewValue = normalizeEnumValue(d.reviewStatus, { Draft: 0, Pending: 1, Approved: 2, Rejected: 3 });
-    document.getElementById('btn-approve-title-draft').style.display = reviewValue === 2 ? 'none' : 'inline-flex';
-    document.getElementById('btn-reject-title-draft').style.display = reviewValue === 2 ? 'none' : 'inline-flex';
     renderDraftImagePreview();
     showTitleDraftForm();
   } catch (e) {
@@ -306,6 +283,7 @@ async function saveTitleDraft(submitForReview) {
   }
 }
 
+/*
 async function approveTitleDraft() {
   if (!editingTitleDraftId) return;
   try {
@@ -340,3 +318,4 @@ async function rejectTitleDraft() {
     showToast('\u004c\u1ed7\u0069 \u006b\u1ebf\u0074 \u006e\u1ed1\u0069.', false);
   }
 }
+*/

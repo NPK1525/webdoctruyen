@@ -55,6 +55,7 @@
                 <button class="admin-tab-btn" data-tab="title-draft" style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 6px; font-size: 0.9rem; font-weight: 600; text-align: left; width: 100%; transition: all 0.2s;">
                   <i data-lucide="file-plus-2" style="width: 18px; height: 18px;"></i><span data-i18n="admin.postManga">Đăng truyện</span>
                 </button>
+                <button class="admin-tab-btn" data-tab="title-review" style="display:flex;align-items:center;gap:12px;padding:12px 16px;border-radius:6px;font-size:.9rem;font-weight:600;text-align:left;width:100%;"><i data-lucide="shield-check" style="width:18px;height:18px;"></i><span data-i18n="admin.titleReview">Duyệt truyện</span><span id="title-review-pending-count" class="admin-count-badge" hidden>0</span></button>
                 <button class="admin-tab-btn" data-tab="manga" style="display: none; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 6px; font-size: 0.9rem; font-weight: 600; text-align: left; width: 100%; transition: all 0.2s;">
                   <i data-lucide="plus" style="width: 18px; height: 18px;"></i><span id="tab-label-manga-form" data-i18n="admin.postManga">&#272;&#259;ng truy&#7879;n m&#7899;i</span>
                 </button>
@@ -116,6 +117,32 @@
                     <div id="admin-manga-pagination" class="admin-manga-pagination"></div>
                   </div>
 
+                  <div id="adm-content-title-review" class="admin-tab-pane" style="display: none;">
+                    <div class="admin-section-heading">
+                      <div>
+                        <h3 data-i18n="admin.titleReview">Duyệt truyện</h3>
+                        <p data-i18n="admin.titleReviewDescription">Kiểm tra các truyện đã gửi trước khi xuất bản.</p>
+                      </div>
+                    </div>
+                    <div class="admin-manga-filters">
+                      <div class="admin-manga-search-row">
+                        <div class="admin-manga-search-wrap"><i data-lucide="search"></i><input id="title-review-search" class="form-control" type="search" placeholder="Tìm theo tên truyện hoặc người tạo..." data-i18n="admin.searchTitleReview" data-i18n-attr="placeholder" /></div>
+                        <select id="title-review-status" class="form-control"><option value="" data-i18n="admin.allReviewStatuses">Tất cả trạng thái</option><option value="1" data-i18n="admin.pendingStatus">Chờ duyệt</option><option value="2" data-i18n="admin.approvedStatus">Đã duyệt</option><option value="3" data-i18n="admin.rejectedStatus">Từ chối</option></select>
+                      </div>
+                    </div>
+                    <div id="title-review-list">
+                      <div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;text-align:left;font-size:.85rem;"><thead><tr><th data-i18n="admin.cover">Ảnh bìa</th><th data-i18n="admin.mangaTitle">Tên truyện</th><th data-i18n="admin.createdBy">Người tạo</th><th data-i18n="admin.reviewStatus">Trạng thái</th><th data-i18n="admin.updatedAt">Cập nhật</th><th data-i18n="admin.actions">Hành động</th></tr></thead><tbody id="title-review-table-body"></tbody></table></div>
+                      <div id="title-review-pagination" class="admin-manga-pagination"></div>
+                    </div>
+                    <section id="title-review-detail" hidden style="margin-top:24px;padding-top:24px;border-top:1px solid var(--border-subtle);">
+                      <button id="title-review-back" type="button" class="btn btn-secondary"><i data-lucide="arrow-left"></i><span data-i18n="admin.backToReviewList">Quay lại danh sách</span></button>
+                      <h4 id="title-review-detail-heading" style="margin:20px 0 8px;" data-i18n="admin.reviewingTitle">Chi tiết duyệt truyện</h4>
+                      <div id="title-review-detail-content"></div>
+                      <label class="form-group" style="margin-top:16px;"><span class="form-label" data-i18n="admin.rejectionReason">Lý do từ chối</span><textarea id="title-review-reason" class="form-control" rows="3" placeholder="Nhập lý do khi từ chối..." data-i18n="admin.rejectionReasonPlaceholder" data-i18n-attr="placeholder"></textarea></label>
+                      <div style="display:flex;justify-content:flex-end;gap:12px;margin-top:16px;flex-wrap:wrap;"><button id="title-review-reject" type="button" class="btn btn-secondary"><i data-lucide="circle-x"></i><span data-i18n="admin.reject">Từ chối</span></button><button id="title-review-approve" type="button" class="btn btn-primary"><i data-lucide="circle-check"></i><span data-i18n="admin.approve">Duyệt</span></button></div>
+                    </section>
+                  </div>
+
                   <div id="adm-content-title-draft" class="admin-tab-pane" style="display: none;">
                     <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:20px;flex-wrap:wrap;">
                       <div>
@@ -153,7 +180,6 @@
                           <button type="button" class="title-draft-section-btn" data-section="images"><i data-lucide="image"></i><span data-i18n="admin.images">Hình ảnh</span></button>
                           <button type="button" class="title-draft-section-btn" data-section="links"><i data-lucide="globe"></i><span data-i18n="admin.links">Liên kết</span></button>
                           <button type="button" class="title-draft-section-btn" data-section="translation"><i data-lucide="languages"></i><span data-i18n="admin.translation">Dịch thuật</span></button>
-                          <button type="button" class="title-draft-section-btn" data-section="review"><i data-lucide="shield-check"></i><span data-i18n="admin.review">Quản trị</span></button>
                         </aside>
 
                         <section class="title-draft-main">
@@ -242,20 +268,8 @@
                             <label class="form-group" style="margin-top:14px;"><span class="form-label" data-i18n="admin.notes">Ghi ch&#250;</span><textarea id="draft-note" class="form-control" style="min-height:100px;resize:vertical;"></textarea></label>
                           </div>
 
-                          <div class="title-draft-section" data-section-panel="review">
-                            <h4 data-i18n="admin.review">Quản trị</h4>
-                            <div class="draft-grid three">
-                              <label class="form-group"><span class="form-label" data-i18n="admin.reviewStatus">Tr&#7841;ng th&#225;i duy&#7879;t</span><input id="draft-review-status-label" class="form-control" value="Nh&#225;p" data-i18n="admin.draftStatus" data-i18n-attr="value" disabled /></label>
-                              <label class="form-group"><span class="form-label" data-i18n="admin.createdBy">Ng&#432;&#7901;i t&#7841;o</span><input id="draft-created-by-label" class="form-control" disabled /></label>
-                              <label class="form-group"><span class="form-label" data-i18n="admin.createdAt">Ng&#224;y t&#7841;o</span><input id="draft-created-at-label" class="form-control" disabled /></label>
-                            </div>
-                            <label class="form-group" style="margin-top:14px;"><span class="form-label" data-i18n="admin.rejectionReason">L&#253; do t&#7915; ch&#7889;i</span><textarea id="draft-rejection-reason" class="form-control" style="min-height:80px;resize:vertical;" placeholder="Nh&#7853;p l&#253; do khi t&#7915; ch&#7889;i..." data-i18n="admin.rejectionReasonPlaceholder" data-i18n-attr="placeholder"></textarea></label>
-                          </div>
-
                           <div class="title-draft-actions">
                             <button type="button" id="btn-cancel-title-draft" class="btn btn-secondary"><i data-lucide="x"></i><span data-i18n="admin.cancel">Hủy</span></button>
-                            <button type="button" id="btn-reject-title-draft" class="btn btn-secondary" style="display:none;color:#ff6b6b;"><i data-lucide="circle-x"></i><span data-i18n="admin.reject">T&#7915; ch&#7889;i</span></button>
-                            <button type="button" id="btn-approve-title-draft" class="btn btn-secondary" style="display:none;color:#10b981;"><i data-lucide="circle-check"></i><span data-i18n="admin.approve">Duy&#7879;t</span></button>
                             <button type="button" id="btn-save-title-draft" class="btn btn-secondary" style="display:none;"><i data-lucide="save"></i><span data-i18n="admin.saveDraft">Lưu nháp</span></button>
                             <button type="button" id="btn-submit-title-draft" class="btn btn-primary"><i data-lucide="upload"></i><span data-i18n="admin.postManga">Đăng truyện</span></button>
                           </div>
@@ -566,10 +580,11 @@
   <script src="/js/admin-manga.js?v=1.2"></script>
   <script src="/js/admin-reports.js?v=1.3"></script>
       <script src="/js/admin-users.js?v=1.4"></script>
-      <script src="/js/admin-title-drafts.js?v=1.3"></script>
+      <script src="/js/admin-title-review.js?v=2.0"></script>
+          <script src="/js/admin-title-drafts.js?v=1.3"></script>
       <script src="/js/admin.js?v=4.2"></script>
     <style>
-      .admin-tab-btn { background: transparent; color: var(--text-muted); border: none; cursor: pointer; }
+       .admin-tab-btn { background: transparent; color: var(--text-muted); border: none; cursor: pointer; }
       .admin-tab-btn:hover { background-color: rgba(255,255,255,0.04); color: white; }
       .admin-tab-btn.active { background-color: var(--accent-primary) !important; color: #fff !important; }
       th, td { padding: 10px 8px; border-bottom: 1px solid rgba(255,255,255,0.05); }

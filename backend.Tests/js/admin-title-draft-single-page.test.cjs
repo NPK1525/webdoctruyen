@@ -6,7 +6,16 @@ const test = require('node:test');
 const root = path.resolve(__dirname, '..', '..');
 const view = fs.readFileSync(path.join(root, 'backend', 'Views', 'AdminView', 'Index.cshtml'), 'utf8');
 const script = fs.readFileSync(path.join(root, 'backend', 'wwwroot', 'js', 'admin-title-drafts.js'), 'utf8');
-const sections = ['basic', 'publish', 'authors', 'tags', 'images', 'links', 'translation', 'review'];
+const sections = ['basic', 'publish', 'authors', 'tags', 'images', 'links', 'translation'];
+
+test('title draft form excludes administration controls', () => {
+  assert.doesNotMatch(view, /data-section-panel="review"/);
+  assert.doesNotMatch(view, /data-section="review"/);
+  assert.doesNotMatch(view, /id="draft-review-status-label"/);
+  assert.doesNotMatch(view, /id="draft-created-by-label"/);
+  assert.doesNotMatch(view, /id="draft-created-at-label"/);
+  assert.doesNotMatch(view, /id="draft-rejection-reason"/);
+});
 
 test('all title draft sections remain in one continuous form', () => {
   for (const section of sections) {

@@ -12,12 +12,14 @@ const css = read('backend/wwwroot/css/style.css');
 const adminCoordinator = read('backend/wwwroot/js/admin.js');
 const adminManga = read('backend/wwwroot/js/admin-manga.js');
 const adminTitleDrafts = read('backend/wwwroot/js/admin-title-drafts.js');
+const adminTitleReview = read('backend/wwwroot/js/admin-title-review.js');
 const adminUsers = read('backend/wwwroot/js/admin-users.js');
 const dynamicModules = [
   'backend/wwwroot/js/admin-manga.js',
   'backend/wwwroot/js/admin-mangadex.js',
   'backend/wwwroot/js/admin-reports.js',
   'backend/wwwroot/js/admin-title-drafts.js',
+  'backend/wwwroot/js/admin-title-review.js',
   'backend/wwwroot/js/admin-upload.js',
   'backend/wwwroot/js/admin-users.js'
 ].map(read);
@@ -56,6 +58,30 @@ test('admin dictionaries stay complete in Vietnamese and English', () => {
     assert.ok(vi[key], `Missing Vietnamese key ${key}`);
     assert.ok(en[key], `Missing English key ${key}`);
   }
+});
+
+test('integrated title review copy exists in both locales', () => {
+  for (const key of [
+    'admin.titleReview',
+    'admin.titleReviewDescription',
+    'admin.searchTitleReview',
+    'admin.allReviewStatuses',
+    'admin.reviewingTitle',
+    'admin.backToReviewList',
+    'admin.rejectionReasonRequired',
+    'admin.noTitlesForReview',
+    'admin.reviewLoadError',
+    'admin.reviewActionError'
+  ]) {
+    assert.equal(typeof en[key], 'string', `missing English key ${key}`);
+    assert.equal(typeof vi[key], 'string', `missing Vietnamese key ${key}`);
+  }
+});
+
+test('title review refreshes dynamic copy after language change', () => {
+  assert.match(adminTitleReview, /manganpk:localechanged/);
+  assert.match(adminTitleReview, /renderList\(\)/);
+  assert.match(adminTitleReview, /renderDetail/);
 });
 
 test('admin control panel label uses the selected-tab accent', () => {
@@ -114,7 +140,6 @@ test('manga, draft, and chapter admin forms expose their main translation hooks'
     'admin.images',
     'admin.links',
     'admin.translation',
-    'admin.review',
     'admin.description',
     'admin.releaseYear',
     'admin.publisher',
@@ -157,7 +182,6 @@ test('manga filters and create-edit forms expose complete translation controls',
     'admin.notes',
     'admin.reviewStatus',
     'admin.createdBy',
-    'admin.createdAt',
     'admin.rejectionReason',
     'admin.saveDraft',
     'admin.authorAndRole',

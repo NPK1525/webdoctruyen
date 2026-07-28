@@ -95,3 +95,37 @@ test('search text filters visible tag and person options case-insensitively', ()
     [{ id: 1, name: 'Nguyen Khang' }]
   );
 });
+
+const mangaView = fs.readFileSync(
+  path.join(root, 'backend', 'Views', 'MangaView', 'Index.cshtml'),
+  'utf8'
+);
+const styleSheet = fs.readFileSync(
+  path.join(root, 'backend', 'wwwroot', 'css', 'style.css'),
+  'utf8'
+);
+
+test('advanced search exposes tag, author, and artist controls with ARIA markup', () => {
+  for (const id of [
+    'advanced-filter-tags-trigger',
+    'advanced-filter-tags-panel',
+    'advanced-filter-tags-search',
+    'advanced-author-search',
+    'advanced-artist-search'
+  ]) {
+    assert.match(mangaView, new RegExp(`id="${id}"`));
+  }
+  assert.match(mangaView, /aria-expanded="false"/);
+  assert.match(mangaView, /role="listbox"/);
+  assert.match(mangaView, /data-filter-group="format"/);
+  assert.match(mangaView, /data-filter-group="genre"/);
+  assert.match(mangaView, /data-filter-group="theme"/);
+  assert.match(mangaView, /data-filter-group="content"/);
+});
+
+test('advanced search styles include responsive tag panel and selected states', () => {
+  assert.match(styleSheet, /\.advanced-filter-tags-panel/);
+  assert.match(styleSheet, /\.advanced-filter-tag\.include/);
+  assert.match(styleSheet, /\.advanced-filter-tag\.exclude/);
+  assert.match(styleSheet, /@media\s*\(max-width:\s*760px\)/);
+});

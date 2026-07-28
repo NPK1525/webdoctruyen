@@ -88,6 +88,51 @@
                   <option value="suggestive">Suggestive</option>
                 </select>
               </label>
+              <div class="advanced-filter-tags-field">
+                <span>Filter tags</span>
+                <button id="advanced-filter-tags-trigger" type="button" class="advanced-filter-tags-trigger" aria-expanded="false" aria-controls="advanced-filter-tags-panel">
+                  <span id="advanced-filter-tags-label">Include any</span>
+                  <i data-lucide="chevron-down"></i>
+                </button>
+                <div id="advanced-filter-tags-panel" class="advanced-filter-tags-panel" hidden>
+                  <div class="advanced-filter-tags-toolbar">
+                    <label class="advanced-filter-tags-search">
+                      <i data-lucide="search"></i>
+                      <input id="advanced-filter-tags-search" type="search" placeholder="Search tags" autocomplete="off" />
+                    </label>
+                    <button id="advanced-filter-tags-reset" type="button" class="advanced-filter-tags-reset">Reset</button>
+                  </div>
+                  <p class="advanced-filter-tags-hint"><i data-lucide="info"></i>Click a tag once to include it, twice to exclude it, and again to clear it. <button id="advanced-filter-tags-dismiss" type="button">Dismiss</button></p>
+                  <section class="advanced-filter-tag-group" data-filter-group="format">
+                    <h3>Format</h3><div id="advanced-filter-tags-format" class="advanced-filter-tag-list"></div>
+                  </section>
+                  <section class="advanced-filter-tag-group" data-filter-group="genre">
+                    <h3>Genre</h3><div id="advanced-filter-tags-genre" class="advanced-filter-tag-list"></div>
+                  </section>
+                  <section class="advanced-filter-tag-group" data-filter-group="theme">
+                    <h3>Theme</h3><div id="advanced-filter-tags-theme" class="advanced-filter-tag-list"></div>
+                  </section>
+                  <section class="advanced-filter-tag-group" data-filter-group="content">
+                    <h3>Content</h3><div id="advanced-filter-tags-content" class="advanced-filter-tag-list"></div>
+                  </section>
+                </div>
+              </div>
+              <label class="advanced-person-filter">
+                <span>Authors</span>
+                <div class="advanced-person-combobox">
+                  <input id="advanced-author-search" type="search" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="advanced-author-results" placeholder="Any" autocomplete="off" />
+                  <div id="advanced-author-results" class="advanced-person-results" role="listbox" hidden></div>
+                  <div id="advanced-author-selected" class="advanced-person-selected"></div>
+                </div>
+              </label>
+              <label class="advanced-person-filter">
+                <span>Artists</span>
+                <div class="advanced-person-combobox">
+                  <input id="advanced-artist-search" type="search" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="advanced-artist-results" placeholder="Any" autocomplete="off" />
+                  <div id="advanced-artist-results" class="advanced-person-results" role="listbox" hidden></div>
+                  <div id="advanced-artist-selected" class="advanced-person-selected"></div>
+                </div>
+              </label>
             </div>
 
             <div class="advanced-actions">
@@ -127,6 +172,7 @@
     <script src="/js/common-library.js?v=1.0"></script>
     <script src="/js/common-auth.js?v=1.0"></script>
 <script src="/js/common.js?v=5.8"></script>
+    <script src="/js/advanced-search-filters.js?v=1.0"></script>
     <script src="/js/advanced-search.js?v=1.0"></script>
   </body>
 </html>

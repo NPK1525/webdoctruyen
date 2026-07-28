@@ -26,25 +26,24 @@ test('admin user management is an integrated themed tab', () => {
   assert.match(css, /@media\s*\(max-width:\s*768px\)/);
 });
 
-test('admin user editor is an accessible responsive drawer inside the control panel', () => {
+test('admin user editor is an in-panel tab like manga editing', () => {
   for (const id of [
-    'admin-user-drawer-overlay', 'admin-user-drawer', 'admin-user-drawer-close',
-    'admin-user-drawer-form', 'admin-user-drawer-username',
-    'admin-user-drawer-email', 'admin-user-drawer-role',
-    'admin-user-drawer-avatar', 'admin-user-drawer-badge',
-    'admin-user-drawer-bio', 'admin-user-drawer-lock',
-    'admin-user-drawer-save', 'admin-user-drawer-password-form',
-    'admin-user-drawer-new-password', 'admin-user-drawer-confirm-password',
-    'admin-user-drawer-password-save'
+    'adm-content-user-edit', 'admin-user-editor-back',
+    'admin-user-editor-form', 'admin-user-editor-username',
+    'admin-user-editor-email', 'admin-user-editor-role',
+    'admin-user-editor-avatar', 'admin-user-editor-badge',
+    'admin-user-editor-bio', 'admin-user-editor-lock',
+    'admin-user-editor-save', 'admin-user-editor-password-form',
+    'admin-user-editor-new-password', 'admin-user-editor-confirm-password',
+    'admin-user-editor-password-save'
   ]) {
     assert.match(view, new RegExp(`id="${id}"`), id);
   }
-  assert.match(view, /role="dialog"/);
-  assert.match(view, /aria-modal="true"/);
-  assert.match(view, /aria-labelledby="admin-user-drawer-title"/);
-  assert.match(css, /\.admin-user-drawer-overlay/);
-  assert.match(css, /\.admin-user-drawer\s*\{/);
-  assert.match(css, /@media\s*\(max-width:\s*700px\)[\s\S]*?\.admin-user-drawer\s*\{[^}]*width:\s*100%/);
+  assert.doesNotMatch(view, /admin-user-drawer-overlay/);
+  assert.doesNotMatch(css, /\.admin-user-drawer/);
+  assert.match(css, /\.admin-user-editor-sections/);
+  assert.match(css, /\.admin-user-editor-sections\[hidden\]\s*\{[^}]*display:\s*none/);
+  assert.match(css, /@media\s*\(max-width:\s*800px\)[\s\S]*?\.admin-user-editor-sections\s*\{[^}]*grid-template-columns:\s*1fr/);
 });
 
 test('admin user module loads before the coordinator', () => {
@@ -70,28 +69,33 @@ test('admin user list replaces the created date with detail and lock actions', (
   assert.match(js, /data-user-toggle-lock/);
 });
 
-test('user list opens and closes the inline drawer without navigating away', () => {
-  assert.match(js, /function openDrawer\(userId,\s*trigger\)/);
-  assert.match(js, /function closeDrawer\(\)/);
-  assert.match(js, /data-user-edit[\s\S]*?openDrawer/);
-  assert.match(js, /addEventListener\('keydown'[\s\S]*?Escape/);
-  assert.match(js, /event\.target === event\.currentTarget[\s\S]*?closeDrawer/);
+test('user editing switches between list and editor without navigation', () => {
+  assert.match(js, /function openEditor\(userId\)/);
+  assert.match(js, /switchTab\('user-edit'\)/);
+  assert.match(js, /function closeEditor\(\)/);
+  assert.match(js, /switchTab\('users'\)/);
+  assert.match(js, /data-user-edit[\s\S]*?openEditor/);
+  assert.doesNotMatch(js, /openDrawer|closeDrawer|drawerUser/);
+  assert.doesNotMatch(js, /location\.(href|assign)/);
 });
 
-test('drawer mutations use protected existing endpoints and preserve list state', () => {
-  assert.match(js, /apiFetch\(`\$\{API_BASE\}\/admin\/users\/\$\{state\.drawerUserId\}`/);
-  assert.match(js, /apiFetch\(`\$\{API_BASE\}\/admin\/users\/\$\{state\.drawerUserId\}\/lock`/);
-  assert.match(js, /apiFetch\(`\$\{API_BASE\}\/admin\/users\/\$\{state\.drawerUserId\}\/password`/);
-  assert.match(js, /async function saveDrawer[\s\S]*?await load\(\)/);
-  const saveDrawer = js.match(/async function saveDrawer[\s\S]*?\n  \}/)?.[0] || '';
-  assert.doesNotMatch(saveDrawer, /state\.page\s*=\s*1/);
+test('editor mutations use protected existing endpoints and preserve list state', () => {
+  assert.match(js, /apiFetch\(`\$\{API_BASE\}\/admin\/users\/\$\{state\.editorUserId\}`/);
+  assert.match(js, /apiFetch\(`\$\{API_BASE\}\/admin\/users\/\$\{state\.editorUserId\}\/lock`/);
+  assert.match(js, /apiFetch\(`\$\{API_BASE\}\/admin\/users\/\$\{state\.editorUserId\}\/password`/);
+  assert.match(js, /async function saveEditor[\s\S]*?await load\(\)/);
+  const saveEditor = js.match(/async function saveEditor[\s\S]*?\n  \}/)?.[0] || '';
+  assert.doesNotMatch(saveEditor, /state\.page\s*=\s*1/);
+  const closeEditor = js.match(/function closeEditor[\s\S]*?\n  \}/)?.[0] || '';
+  assert.match(closeEditor, /switchTab\('users'\)/);
+  assert.doesNotMatch(closeEditor, /state\.page\s*=\s*1/);
 });
 
-test('drawer validates the administrator password reset policy', () => {
+test('editor validates the administrator password reset policy', () => {
   assert.match(js, /newPassword\.length < 8/);
   assert.match(js, /!\/\[A-Za-z\]\//);
   assert.match(js, /!\/\[0-9\]\//);
-  assert.match(js, /admin-user-drawer-password-form'\)\.reset\(\)/);
+  assert.match(js, /admin-user-editor-password-form'\)\.reset\(\)/);
 });
 
 test('admin user detail route exposes profile editing and account locking', () => {

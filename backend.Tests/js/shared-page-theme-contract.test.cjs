@@ -47,7 +47,7 @@ test('all MVC pages load the same shared stylesheet generation', () => {
 
   assert.ok(consumers.length > 0);
   for (const { file, source } of consumers) {
-    assert.match(source, /\/css\/style\.css\?v=4\.9/, path.relative(backendRoot, file));
+    assert.match(source, /\/css\/style\.css\?v=5\.0/, path.relative(backendRoot, file));
     assert.equal((source.match(/\/css\/style\.css\?v=/g) ?? []).length, 1, path.relative(backendRoot, file));
   }
 });

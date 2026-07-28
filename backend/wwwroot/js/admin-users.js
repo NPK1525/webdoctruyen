@@ -7,9 +7,8 @@
     pageSize: 20,
     totalPages: 1,
     timer: null,
-    drawerUserId: null,
-    drawerUser: null,
-    drawerTrigger: null
+    editorUserId: null,
+    editorUser: null
   };
 
   const byId = id => document.getElementById(id);
@@ -56,7 +55,7 @@
       button.addEventListener('click', () => updateLock(Number(button.dataset.userToggleLock), button));
     });
     root.querySelectorAll('[data-user-edit]').forEach(button => {
-      button.addEventListener('click', () => openDrawer(Number(button.dataset.userEdit), button));
+      button.addEventListener('click', () => openEditor(Number(button.dataset.userEdit)));
     });
   }
 
@@ -154,51 +153,47 @@
     }
   }
 
-  function showDrawerMessage(message, success = false) {
-    const element = byId('admin-user-drawer-message');
+  function showEditorMessage(message, success = false) {
+    const element = byId('admin-user-editor-message');
     if (!element) return;
     element.textContent = message;
     element.classList.toggle('success', success);
     element.hidden = false;
   }
 
-  function renderDrawer() {
-    const user = state.drawerUser;
+  function renderEditor() {
+    const user = state.editorUser;
     if (!user) return;
     for (const [id, value] of Object.entries({
-      'admin-user-drawer-username': user.username || '',
-      'admin-user-drawer-email': user.email || '',
-      'admin-user-drawer-role': user.role || 'User',
-      'admin-user-drawer-avatar': user.avatarUrl || '',
-      'admin-user-drawer-badge': user.badge || '',
-      'admin-user-drawer-bio': user.bio || ''
+      'admin-user-editor-username': user.username || '',
+      'admin-user-editor-email': user.email || '',
+      'admin-user-editor-role': user.role || 'User',
+      'admin-user-editor-avatar': user.avatarUrl || '',
+      'admin-user-editor-badge': user.badge || '',
+      'admin-user-editor-bio': user.bio || ''
     })) {
       byId(id).value = value;
     }
-    byId('admin-user-drawer-name').textContent = user.username || '';
-    byId('admin-user-drawer-email-preview').textContent = user.email || '';
-    byId('admin-user-drawer-avatar-preview').src = safeImage(user.avatarUrl);
+    byId('admin-user-editor-name').textContent = user.username || '';
+    byId('admin-user-editor-email-preview').textContent = user.email || '';
+    byId('admin-user-editor-avatar-preview').src = safeImage(user.avatarUrl);
 
-    const status = byId('admin-user-drawer-status');
+    const status = byId('admin-user-editor-status');
     status.textContent = user.isLocked ? 'Đã khóa' : 'Hoạt động';
     status.classList.toggle('locked', Boolean(user.isLocked));
 
-    const lockButton = byId('admin-user-drawer-lock');
+    const lockButton = byId('admin-user-editor-lock');
     lockButton.textContent = user.isLocked ? 'Mở khóa tài khoản' : 'Khóa tài khoản';
     lockButton.disabled = Boolean(user.isCurrentUser);
   }
 
-  async function openDrawer(userId, trigger) {
-    state.drawerUserId = userId;
-    state.drawerTrigger = trigger;
-    state.drawerUser = null;
-    byId('admin-user-drawer-overlay').hidden = false;
-    byId('admin-user-drawer-loading').hidden = false;
-    byId('admin-user-drawer-content').hidden = true;
-    byId('admin-user-drawer-message').hidden = true;
-    byId('admin-user-drawer-password-form').reset();
-    document.body.classList.add('admin-user-drawer-open');
-    byId('admin-user-drawer').focus();
+  async function openEditor(userId) {
+    state.editorUserId = userId;
+    state.editorUser = null;
+    byId('admin-user-editor-loading').hidden = false;
+    byId('admin-user-editor-content').hidden = true;
+    byId('admin-user-editor-message').hidden = true;
+    byId('admin-user-editor-password-form').reset();
 
     try {
       const response = await apiFetch(`${API_BASE}/admin/users/${userId}`);
@@ -206,75 +201,68 @@
       if (!response.ok) {
         throw new Error(payload.message || 'Không thể tải thông tin người dùng.');
       }
-      state.drawerUser = payload;
-      renderDrawer();
-      byId('admin-user-drawer-loading').hidden = true;
-      byId('admin-user-drawer-content').hidden = false;
+      state.editorUser = payload;
+      renderEditor();
+      byId('admin-user-editor-loading').hidden = true;
+      byId('admin-user-editor-content').hidden = false;
+      switchTab('user-edit');
       if (typeof lucide !== 'undefined') lucide.createIcons();
     } catch (error) {
-      byId('admin-user-drawer-loading').hidden = true;
-      showDrawerMessage(error.message);
+      byId('admin-user-editor-loading').hidden = true;
+      showToast(error.message, false);
     }
   }
 
-  function closeDrawer() {
-    const userId = state.drawerUserId;
-    const trigger = state.drawerTrigger;
-    byId('admin-user-drawer-overlay').hidden = true;
-    document.body.classList.remove('admin-user-drawer-open');
-    byId('admin-user-drawer-password-form').reset();
-    byId('admin-user-drawer-message').hidden = true;
-    state.drawerUserId = null;
-    state.drawerUser = null;
-    state.drawerTrigger = null;
-    const focusTarget = trigger?.isConnected
-      ? trigger
-      : document.querySelector(`[data-user-edit="${userId}"]`);
-    focusTarget?.focus();
+  function closeEditor() {
+    byId('admin-user-editor-password-form').reset();
+    byId('admin-user-editor-message').hidden = true;
+    state.editorUserId = null;
+    state.editorUser = null;
+    switchTab('users');
   }
 
-  async function saveDrawer(event) {
+  async function saveEditor(event) {
     event.preventDefault();
-    if (!state.drawerUserId) return;
-    const button = byId('admin-user-drawer-save');
+    if (!state.editorUserId) return;
+    const button = byId('admin-user-editor-save');
     button.disabled = true;
     try {
-      const response = await apiFetch(`${API_BASE}/admin/users/${state.drawerUserId}`, {
+      const response = await apiFetch(`${API_BASE}/admin/users/${state.editorUserId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          username: byId('admin-user-drawer-username').value.trim(),
-          email: byId('admin-user-drawer-email').value.trim(),
-          role: byId('admin-user-drawer-role').value,
-          avatarUrl: byId('admin-user-drawer-avatar').value.trim(),
-          badge: byId('admin-user-drawer-badge').value.trim(),
-          bio: byId('admin-user-drawer-bio').value.trim()
+          username: byId('admin-user-editor-username').value.trim(),
+          email: byId('admin-user-editor-email').value.trim(),
+          role: byId('admin-user-editor-role').value,
+          avatarUrl: byId('admin-user-editor-avatar').value.trim(),
+          badge: byId('admin-user-editor-badge').value.trim(),
+          bio: byId('admin-user-editor-bio').value.trim()
         })
       });
       const payload = await response.json().catch(() => ({}));
       if (!response.ok) {
         throw new Error(payload.message || 'Không thể cập nhật người dùng.');
       }
-      state.drawerUser = payload;
-      renderDrawer();
+      state.editorUser = payload;
+      renderEditor();
       await load();
-      showDrawerMessage('Đã lưu thông tin người dùng.', true);
+      showEditorMessage('Đã lưu thông tin người dùng.', true);
     } catch (error) {
-      showDrawerMessage(error.message);
+      showEditorMessage(error.message);
     } finally {
       button.disabled = false;
     }
   }
 
-  async function toggleDrawerLock() {
-    const user = state.drawerUser;
+  async function toggleEditorLock() {
+    const user = state.editorUser;
     if (!user || user.isCurrentUser) return;
     const nextLocked = !user.isLocked;
     if (!confirm(nextLocked ? 'Khóa tài khoản này?' : 'Mở khóa tài khoản này?')) return;
-    const button = byId('admin-user-drawer-lock');
+    const button = byId('admin-user-editor-lock');
     button.disabled = true;
     try {
-      const response = await apiFetch(`${API_BASE}/admin/users/${state.drawerUserId}/lock`, {
+      const response = await apiFetch(`${API_BASE}/admin/users/${state.editorUserId}/lock`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ isLocked: nextLocked })
@@ -283,35 +271,35 @@
       if (!response.ok) {
         throw new Error(payload.message || 'Không thể cập nhật trạng thái tài khoản.');
       }
-      state.drawerUser = payload;
-      renderDrawer();
+      state.editorUser = payload;
+      renderEditor();
       await load();
-      showDrawerMessage(nextLocked ? 'Đã khóa tài khoản.' : 'Đã mở khóa tài khoản.', true);
+      showEditorMessage(nextLocked ? 'Đã khóa tài khoản.' : 'Đã mở khóa tài khoản.', true);
     } catch (error) {
-      showDrawerMessage(error.message);
+      showEditorMessage(error.message);
       button.disabled = false;
     }
   }
 
-  async function resetDrawerPassword(event) {
+  async function resetEditorPassword(event) {
     event.preventDefault();
-    if (!state.drawerUserId) return;
-    const newPassword = byId('admin-user-drawer-new-password').value;
-    const confirmPassword = byId('admin-user-drawer-confirm-password').value;
+    if (!state.editorUserId) return;
+    const newPassword = byId('admin-user-editor-new-password').value;
+    const confirmPassword = byId('admin-user-editor-confirm-password').value;
 
     if (newPassword !== confirmPassword) {
-      showDrawerMessage('Mật khẩu xác nhận không khớp.');
+      showEditorMessage('Mật khẩu xác nhận không khớp.');
       return;
     }
     if (newPassword.length < 8 || !/[A-Za-z]/.test(newPassword) || !/[0-9]/.test(newPassword)) {
-      showDrawerMessage('Mật khẩu mới phải có ít nhất 8 ký tự, gồm chữ và số.');
+      showEditorMessage('Mật khẩu mới phải có ít nhất 8 ký tự, gồm chữ và số.');
       return;
     }
 
-    const button = byId('admin-user-drawer-password-save');
+    const button = byId('admin-user-editor-password-save');
     button.disabled = true;
     try {
-      const response = await apiFetch(`${API_BASE}/admin/users/${state.drawerUserId}/password`, {
+      const response = await apiFetch(`${API_BASE}/admin/users/${state.editorUserId}/password`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ newPassword, confirmPassword })
@@ -320,10 +308,10 @@
       if (!response.ok) {
         throw new Error(payload.message || 'Không thể đặt lại mật khẩu người dùng.');
       }
-      byId('admin-user-drawer-password-form').reset();
-      showDrawerMessage(payload.message || 'Đã đặt lại mật khẩu người dùng.', true);
+      byId('admin-user-editor-password-form').reset();
+      showEditorMessage(payload.message || 'Đã đặt lại mật khẩu người dùng.', true);
     } catch (error) {
-      showDrawerMessage(error.message);
+      showEditorMessage(error.message);
     } finally {
       button.disabled = false;
     }
@@ -353,16 +341,10 @@
       state.page = 1;
       load();
     });
-    byId('admin-user-drawer-close')?.addEventListener('click', closeDrawer);
-    byId('admin-user-drawer-overlay')?.addEventListener('click', event => {
-      if (event.target === event.currentTarget) closeDrawer();
-    });
-    document.addEventListener('keydown', event => {
-      if (event.key === 'Escape' && !byId('admin-user-drawer-overlay')?.hidden) closeDrawer();
-    });
-    byId('admin-user-drawer-form')?.addEventListener('submit', saveDrawer);
-    byId('admin-user-drawer-lock')?.addEventListener('click', toggleDrawerLock);
-    byId('admin-user-drawer-password-form')?.addEventListener('submit', resetDrawerPassword);
+    byId('admin-user-editor-back')?.addEventListener('click', closeEditor);
+    byId('admin-user-editor-form')?.addEventListener('submit', saveEditor);
+    byId('admin-user-editor-lock')?.addEventListener('click', toggleEditorLock);
+    byId('admin-user-editor-password-form')?.addEventListener('submit', resetEditorPassword);
   }
 
   function activate() {

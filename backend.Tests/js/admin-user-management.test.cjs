@@ -26,6 +26,27 @@ test('admin user management is an integrated themed tab', () => {
   assert.match(css, /@media\s*\(max-width:\s*768px\)/);
 });
 
+test('admin user editor is an accessible responsive drawer inside the control panel', () => {
+  for (const id of [
+    'admin-user-drawer-overlay', 'admin-user-drawer', 'admin-user-drawer-close',
+    'admin-user-drawer-form', 'admin-user-drawer-username',
+    'admin-user-drawer-email', 'admin-user-drawer-role',
+    'admin-user-drawer-avatar', 'admin-user-drawer-badge',
+    'admin-user-drawer-bio', 'admin-user-drawer-lock',
+    'admin-user-drawer-save', 'admin-user-drawer-password-form',
+    'admin-user-drawer-new-password', 'admin-user-drawer-confirm-password',
+    'admin-user-drawer-password-save'
+  ]) {
+    assert.match(view, new RegExp(`id="${id}"`), id);
+  }
+  assert.match(view, /role="dialog"/);
+  assert.match(view, /aria-modal="true"/);
+  assert.match(view, /aria-labelledby="admin-user-drawer-title"/);
+  assert.match(css, /\.admin-user-drawer-overlay/);
+  assert.match(css, /\.admin-user-drawer\s*\{/);
+  assert.match(css, /@media\s*\(max-width:\s*700px\)[\s\S]*?\.admin-user-drawer\s*\{[^}]*width:\s*100%/);
+});
+
 test('admin user module loads before the coordinator', () => {
   assert.ok(view.indexOf('/js/admin-users.js') > -1);
   assert.ok(view.indexOf('/js/admin-users.js') < view.indexOf('/js/admin.js'));

@@ -4261,7 +4261,7 @@ body.reader-bg-black #viewer-slide-container {
 .admin-brand-group,.admin-brand { display:flex; align-items:center; gap:14px; }
 .admin-menu-btn { border:0; background:none; color:var(--text-main); cursor:pointer; display:flex; }
 .admin-menu-btn svg { width:24px; height:24px; }.admin-brand { color:var(--text-bright); text-decoration:none; font-size:1.25rem; font-weight:800; }.admin-brand svg { width:30px; height:30px; color:var(--accent); }.admin-brand span span { color:var(--accent); }
-.admin-panel-label { border-left:1px solid var(--border-subtle); padding-left:16px; color:var(--accent); font-size:.72rem; font-weight:800; letter-spacing:.08em; }
+.admin-panel-label { border-left:1px solid var(--border-subtle); padding-left:16px; color:var(--accent-primary); font-size:.72rem; font-weight:800; letter-spacing:.08em; }
 .admin-user-area { min-width:120px; display:flex; justify-content:flex-end; }
 .admin-reports-shell { padding-top:34px; }
 @media (max-width:700px) { .admin-panel-label { display:none; }.admin-header-inner { padding:0 12px; } }

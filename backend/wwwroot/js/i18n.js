@@ -9,7 +9,7 @@ const I18N = {
 
   async load(locale) {
     try {
-      const res = await fetch(`/locales/${locale}.json?v=3.9`, { cache: 'no-store' });
+      const res = await fetch(`/locales/${locale}.json?v=4.0`, { cache: 'no-store' });
       if (!res.ok) return;
       this.strings = await res.json();
       this.locale = locale;

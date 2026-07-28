@@ -8,7 +8,7 @@ function normalizeTitleAuthorRole(value) {
 function populateTitleAuthorDropdown() {
   const select = document.getElementById('draft-author-select');
   if (!select) return;
-  select.innerHTML = `<option value="">-- ${t('admin.selectAuthor', 'Chọn tác giả')} --</option>` +
+  select.innerHTML = `<option value="">${t('admin.selectAuthor', '-- Chọn tác giả --')}</option>` +
     authorsList.map(a => `<option value="${a.id}">${escapeAdminHtml(a.name)}</option>`).join('');
 }
 
@@ -17,7 +17,7 @@ function renderTitleAuthors() {
   if (!container) return;
   container.innerHTML = selectedTitleAuthors.length
     ? selectedTitleAuthors.map((a, index) => `<button type="button" class="taxonomy-chip" data-remove-title-author="${index}"><span>${escapeAdminHtml(a.name)} (${escapeAdminHtml(a.role)}) ×</span></button>`).join('')
-    : '<span style="color:var(--text-muted);font-size:.8rem;">Chưa thêm tác giả.</span>';
+    : `<span style="color:var(--text-muted);font-size:.8rem;">${t('admin.noDraftAuthors', 'Chưa thêm tác giả.')}</span>`;
   container.querySelectorAll('[data-remove-title-author]').forEach(button => {
     button.addEventListener('click', () => {
       selectedTitleAuthors.splice(Number(button.dataset.removeTitleAuthor), 1);
@@ -81,7 +81,7 @@ function renderTitleDraftsTable() {
       <td style="padding:10px;"><span class="badge" style="background:rgba(255,255,255,0.08);color:white;">${getDraftStatusText(d.reviewStatus)}</span></td>
       <td style="padding:10px;color:var(--text-muted);">${formatAdminDate(d.updatedAt)}</td>
       <td style="padding:10px;text-align:right;">
-        <button type="button" class="btn-edit-title-draft" data-draft-id="${d.id}" style="color:#FF8C00;padding:6px;display:inline-flex;align-items:center;background:none;border:none;cursor:pointer;" title="Edit">
+        <button type="button" class="btn-edit-title-draft" data-draft-id="${d.id}" style="color:#FF8C00;padding:6px;display:inline-flex;align-items:center;background:none;border:none;cursor:pointer;" title="${t('common.edit', 'Chỉnh sửa')}">
           <i data-lucide="edit" style="width:18px;height:18px;"></i>
         </button>
       </td>
@@ -97,7 +97,23 @@ function renderTitleDraftsTable() {
 function formatAdminDate(value) {
   if (!value) return '';
   const date = new Date(value);
-  return Number.isNaN(date.getTime()) ? '' : date.toLocaleString('vi-VN');
+  const locale = document.documentElement.lang === 'en' ? 'en-US' : 'vi-VN';
+  return Number.isNaN(date.getTime()) ? '' : date.toLocaleString(locale);
+}
+
+function refreshTitleDraftFormLocale() {
+  populateTitleAuthorDropdown();
+  renderTitleAuthors();
+  const statusLabel = document.getElementById('draft-review-status-label');
+  const createdAtLabel = document.getElementById('draft-created-at-label');
+  if (statusLabel) {
+    statusLabel.value = currentTitleDraft
+      ? getDraftStatusText(currentTitleDraft.reviewStatus)
+      : t('admin.draftStatus', 'Nháp');
+  }
+  if (createdAtLabel && currentTitleDraft) {
+    createdAtLabel.value = formatAdminDate(currentTitleDraft.createdAt);
+  }
 }
 
 let titleDraftSectionObserver = null;
@@ -146,7 +162,7 @@ function resetTitleDraftForm() {
   renderTitleAuthors();
   document.getElementById('title-draft-id').value = '';
   document.querySelectorAll('input[name="draft-genres"],input[name="draft-themes"]').forEach(cb => cb.checked = false);
-  document.getElementById('draft-review-status-label').value = '\u004e\u0068\u00e1\u0070';
+  document.getElementById('draft-review-status-label').value = t('admin.draftStatus', 'Nháp');
   document.getElementById('draft-created-by-label').value = currentUser?.username || '';
   document.getElementById('draft-created-at-label').value = '';
   document.getElementById('draft-rejection-reason').value = '';

@@ -44,6 +44,7 @@ async function loadMangaForEditing(id) {
     if (!res.ok) { showToast(t('admin.loadMangaError', 'Không thể tải thông tin truyện.'), false); return; }
     const manga = await res.json();
     editingMangaId = id;
+    editingMangaTitle = manga.title || '';
 
     document.getElementById('manga-form-title').value = manga.title || '';
     document.getElementById('manga-form-alt-title').value = manga.alternativeTitle || '';
@@ -87,14 +88,14 @@ async function loadMangaForEditing(id) {
     renderMangaFormAuthorsList();
 
     document.getElementById('btn-cancel-manga-form').style.display = 'inline-flex';
-    document.getElementById('manga-form-header-title').textContent = t('admin.editing', 'Chỉnh sửa') + `: ${manga.title}`;
-    document.getElementById('tab-label-manga-form').textContent = t('admin.editManga', 'Chỉnh sửa truyện');
+    refreshMangaFormLocale();
     switchTab('manga');
   } catch (e) { console.error(e); showToast(t('admin.connectionError', 'Lỗi kết nối.'), false); }
 }
 
 function resetMangaForm() {
   editingMangaId = null;
+  editingMangaTitle = '';
   document.getElementById('admin-manga-form').reset();
   document.getElementById('manga-form-demographic').dispatchEvent(new Event('change'));
   document.getElementById('manga-form-format').dispatchEvent(new Event('change'));
@@ -104,8 +105,19 @@ function resetMangaForm() {
   selectedAdminMangaAuthors = [];
   renderMangaFormAuthorsList();
   document.getElementById('btn-cancel-manga-form').style.display = 'none';
-  document.getElementById('manga-form-header-title').textContent = t('admin.postNewManga', 'Đăng Truyện Tranh Mới');
-  document.getElementById('tab-label-manga-form').textContent = t('admin.createManga', 'Đăng truyện mới');
+  refreshMangaFormLocale();
+}
+
+function refreshMangaFormLocale() {
+  const heading = document.getElementById('manga-form-header-title');
+  const tabLabel = document.getElementById('tab-label-manga-form');
+  if (editingMangaId !== null) {
+    if (heading) heading.textContent = `${t('admin.editing', 'Chỉnh sửa')}: ${editingMangaTitle}`;
+    if (tabLabel) tabLabel.textContent = t('admin.editManga', 'Chỉnh sửa truyện');
+    return;
+  }
+  if (heading) heading.textContent = t('admin.postNewManga', 'Đăng truyện tranh mới');
+  if (tabLabel) tabLabel.textContent = t('admin.createManga', 'Đăng truyện mới');
 }
 
 async function deleteManga(id) {

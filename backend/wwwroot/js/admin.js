@@ -1,6 +1,7 @@
 // Admin states
 let activeTab = 'manga-list';
 let editingMangaId = null;
+let editingMangaTitle = '';
 let editingChapterId = null;
 let editingChapterSource = 'Local';
 let selectedAdminMangaAuthors = [];
@@ -195,7 +196,7 @@ function initAdminMangaFilters() {
 function populateAuthorsDropdowns() {
   const select = document.getElementById('manga-form-author-select');
   if (select) {
-    select.innerHTML = '<option value="">-- ' + t('admin.selectAuthor', 'Chọn tác giả') + ' --</option>' +
+    select.innerHTML = `<option value="">${t('admin.selectAuthor', '-- Chọn tác giả --')}</option>` +
       authorsList.map(a => `<option value="${a.id}">${a.name}</option>`).join('');
   }
 }
@@ -203,7 +204,7 @@ function populateAuthorsDropdowns() {
 function populateMangasDropdowns() {
   const select = document.getElementById('chapter-form-manga-select');
   if (select) {
-    if (!select.value) select.innerHTML = '<option value="">-- Chọn truyện tranh --</option>';
+    if (!select.value) select.innerHTML = `<option value="">${t('admin.selectManga', '-- Chọn truyện tranh --')}</option>`;
   }
 }
 
@@ -212,7 +213,7 @@ function renderChapterMangaResults(items) {
   if (!container) return;
   container.innerHTML = items.length ? items.map(manga =>
     `<button type="button" class="btn btn-secondary chapter-manga-result" data-id="${manga.id}" data-title="${escapeAdminHtml(manga.title)}" style="text-align:left;padding:7px 10px;">${escapeAdminHtml(manga.title)}</button>`
-  ).join('') : '<span style="color:var(--text-muted);">Không tìm thấy truyện.</span>';
+  ).join('') : `<span style="color:var(--text-muted);">${t('admin.noMangaFound', 'Không tìm thấy truyện.')}</span>`;
   container.querySelectorAll('.chapter-manga-result').forEach(button => button.addEventListener('click', () => {
     const select = document.getElementById('chapter-form-manga-select');
     select.innerHTML = `<option value="${button.dataset.id}">${button.dataset.title}</option>`;
@@ -231,7 +232,7 @@ async function searchChapterMangas(search = '') {
     if (!res.ok) throw new Error('search manga failed');
     const data = await res.json();
     renderChapterMangaResults(data.items || data.mangas || []);
-  } catch { showToast('Không thể tìm danh sách truyện.', 'error'); }
+  } catch { showToast(t('admin.loadMangaListError', 'Không thể tìm danh sách truyện.'), 'error'); }
 }
 
 function renderGenresCheckboxes() {
@@ -303,8 +304,7 @@ async function loadChapterForEditing(id) {
     document.getElementById('btn-upload-pages').disabled = isMangaDex;
     document.getElementById('chapter-source-note').style.display = isMangaDex ? 'inline' : 'none';
     document.getElementById('btn-cancel-chapter-edit').style.display = 'inline-flex';
-    document.getElementById('chapter-form-heading').innerHTML = 'S&#7917;a chapter';
-    document.querySelector('#btn-save-chapter span').innerHTML = 'L&#432;u chapter';
+    refreshChapterFormLocale();
   } catch {
     showToast('L\u1ed7i k\u1ebft n\u1ed1i khi t\u1ea3i chapter.', 'error');
   }
@@ -320,14 +320,28 @@ function resetChapterEdit() {
   document.getElementById('btn-upload-pages').disabled = false;
   document.getElementById('chapter-source-note').style.display = 'none';
   document.getElementById('btn-cancel-chapter-edit').style.display = 'none';
-  document.getElementById('chapter-form-heading').innerHTML = 'Th&#234;m ch&#432;&#417;ng m&#7899;i';
-  document.querySelector('#btn-save-chapter span').innerHTML = '&#272;&#259;ng ch&#432;&#417;ng';
+  refreshChapterFormLocale();
   chapterListPage = 1;
   const mangaSearch = document.getElementById('chapter-form-manga-search');
   if (mangaSearch) mangaSearch.value = '';
   const mangaResults = document.getElementById('chapter-form-manga-results');
   if (mangaResults) mangaResults.innerHTML = '';
   renderChapterPagesPreview();
+}
+
+function refreshChapterFormLocale() {
+  const heading = document.getElementById('chapter-form-heading');
+  const saveLabel = document.querySelector('#btn-save-chapter span');
+  if (heading) {
+    heading.textContent = editingChapterId !== null
+      ? t('admin.editChapter', 'Sửa chương')
+      : t('admin.addChapter', 'Thêm chương mới');
+  }
+  if (saveLabel) {
+    saveLabel.textContent = editingChapterId !== null
+      ? t('admin.saveChapter', 'Lưu chương')
+      : t('admin.publishChapter', 'Đăng chương');
+  }
 }
 
 function renderMangaThemesCheckboxes() {
@@ -382,10 +396,10 @@ function getTypeLabel(type) {
 }
 
 function getDraftStatusText(status) {
-  if (status === 'Draft' || status === 0) return '\u004e\u0068\u00e1\u0070';
-  if (status === 'Pending' || status === 1) return '\u0043\u0068\u1edd \u0064\u0075\u0079\u1ec7\u0074';
-  if (status === 'Approved' || status === 2) return '\u0110\u00e3 \u0064\u0075\u0079\u1ec7\u0074';
-  return '\u0054\u1eeb \u0063\u0068\u1ed1\u0069';
+  if (status === 'Draft' || status === 0) return t('admin.draftStatus', 'Nháp');
+  if (status === 'Pending' || status === 1) return t('admin.pendingStatus', 'Chờ duyệt');
+  if (status === 'Approved' || status === 2) return t('admin.approvedStatus', 'Đã duyệt');
+  return t('admin.rejectedStatus', 'Từ chối');
 }
 
 function normalizeEnumValue(value, map) {
@@ -614,6 +628,11 @@ function showToast(message, type = 'success') {
 window.addEventListener('manganpk:localechanged', () => {
   window.AdminUsers?.refreshLocale();
   window.AdminReports?.refreshLocale?.();
+  refreshMangaFormLocale();
+  refreshChapterFormLocale();
+  populateAuthorsDropdowns();
+  populateMangasDropdowns();
+  refreshTitleDraftFormLocale();
   if (Array.isArray(mangasList)) renderMangasTable();
   if (Array.isArray(authorsList)) renderAuthorsManagementList();
   if (Array.isArray(genresList)) renderGenresManagementList();

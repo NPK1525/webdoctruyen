@@ -90,12 +90,12 @@
                         <button type="button" id="admin-manga-reset" class="btn btn-secondary" data-i18n="admin.reset">Đặt lại</button>
                       </div>
                       <div class="admin-manga-filter-grid">
-                        <select id="admin-manga-type" class="form-control"><option value="">Tất cả loại</option><option value="0">Manga</option><option value="1">Manhwa</option><option value="2">Manhua</option><option value="3">Webtoon</option><option value="4">Comic</option></select>
-                        <select id="admin-manga-status" class="form-control"><option value="">Tất cả trạng thái</option><option value="0">Ongoing</option><option value="1">Completed</option><option value="2">Hiatus</option><option value="3">Cancelled</option></select>
-                        <select id="admin-manga-source" class="form-control"><option value="">Tất cả nguồn</option><option value="Local">Local</option><option value="MangaDex">MangaDex</option></select>
-                        <select id="admin-manga-chapter-state" class="form-control"><option value="">Tất cả chapter</option><option value="with-chapters">Đã có chapter</option><option value="without-chapters">Chưa có chapter</option></select>
-                        <select id="admin-manga-sort" class="form-control"><option value="newest">Mới nhất</option><option value="oldest">Cũ nhất</option><option value="title-asc">Tên A-Z</option><option value="chapter-count">Nhiều chapter nhất</option></select>
-                        <select id="admin-manga-page-size" class="form-control"><option value="20" selected>20 truyện/trang</option><option value="50">50 truyện/trang</option><option value="100">100 truyện/trang</option></select>
+                        <select id="admin-manga-type" class="form-control"><option value="" data-i18n="admin.allTypes">Tất cả loại</option><option value="0">Manga</option><option value="1">Manhwa</option><option value="2">Manhua</option><option value="3">Webtoon</option><option value="4">Comic</option></select>
+                        <select id="admin-manga-status" class="form-control"><option value="" data-i18n="admin.allStatuses">Tất cả trạng thái</option><option value="0" data-i18n="admin.ongoing">Đang phát hành</option><option value="1" data-i18n="admin.completed">Hoàn thành</option><option value="2" data-i18n="admin.hiatus">Tạm ngưng</option><option value="3" data-i18n="admin.cancelled">Đã hủy</option></select>
+                        <select id="admin-manga-source" class="form-control"><option value="" data-i18n="admin.allSources">Tất cả nguồn</option><option value="Local">Local</option><option value="MangaDex">MangaDex</option></select>
+                        <select id="admin-manga-chapter-state" class="form-control"><option value="" data-i18n="admin.allChapterStates">Tất cả chương</option><option value="with-chapters" data-i18n="admin.withChapters">Đã có chương</option><option value="without-chapters" data-i18n="admin.withoutChapters">Chưa có chương</option></select>
+                        <select id="admin-manga-sort" class="form-control"><option value="newest" data-i18n="admin.sortNewest">Mới nhất</option><option value="oldest" data-i18n="admin.sortOldest">Cũ nhất</option><option value="title-asc" data-i18n="admin.sortTitleAsc">Tên A-Z</option><option value="chapter-count" data-i18n="admin.sortChapterCount">Nhiều chương nhất</option></select>
+                        <select id="admin-manga-page-size" class="form-control"><option value="20" selected data-i18n="admin.itemsPerPage20">20 truyện/trang</option><option value="50" data-i18n="admin.itemsPerPage50">50 truyện/trang</option><option value="100" data-i18n="admin.itemsPerPage100">100 truyện/trang</option></select>
                       </div>
                       <div id="admin-manga-count-label" class="admin-manga-count-label"></div>
                     </div>
@@ -131,11 +131,11 @@
                       <table style="width:100%;border-collapse:collapse;text-align:left;font-size:0.85rem;">
                         <thead>
                           <tr style="border-bottom:1px solid rgba(255,255,255,0.08);color:var(--text-muted);">
-                            <th style="padding:10px;">&#7842;nh</th>
-                            <th style="padding:10px;">T&#234;n truy&#7879;n</th>
-                            <th style="padding:10px;">Tr&#7841;ng th&#225;i duy&#7879;t</th>
-                            <th style="padding:10px;">C&#7853;p nh&#7853;t</th>
-                            <th style="padding:10px;text-align:right;">H&#224;nh &#273;&#7897;ng</th>
+                            <th style="padding:10px;" data-i18n="admin.cover">&#7842;nh</th>
+                            <th style="padding:10px;" data-i18n="admin.mangaTitle">T&#234;n truy&#7879;n</th>
+                            <th style="padding:10px;" data-i18n="admin.reviewStatus">Tr&#7841;ng th&#225;i duy&#7879;t</th>
+                            <th style="padding:10px;" data-i18n="admin.updatedAt">C&#7853;p nh&#7853;t</th>
+                            <th style="padding:10px;text-align:right;" data-i18n="admin.actions">H&#224;nh &#273;&#7897;ng</th>
                           </tr>
                         </thead>
                         <tbody id="title-drafts-table-body"></tbody>
@@ -160,10 +160,10 @@
                           <div class="title-draft-section active" data-section-panel="basic">
                             <h4 data-i18n="admin.basicInfo">Thông tin cơ bản</h4>
                             <div class="draft-grid two">
-                              <label class="form-group"><span class="form-label">T&#234;n truy&#7879;n *</span><input id="draft-title" class="form-control" required /></label>
-                              <label class="form-group"><span class="form-label">T&#234;n g&#7889;c</span><input id="draft-original-title" class="form-control" /></label>
-                              <label class="form-group"><span class="form-label">T&#234;n ti&#7871;ng Anh</span><input id="draft-english-title" class="form-control" /></label>
-                              <label class="form-group"><span class="form-label">T&#234;n kh&#225;c</span><input id="draft-alternative-titles" class="form-control" placeholder="C&#225;ch nhau b&#7857;ng d&#7845;u |" /></label>
+                              <label class="form-group"><span class="form-label" data-i18n="admin.mangaTitleRequired">Tên truyện *</span><input id="draft-title" class="form-control" required /></label>
+                              <label class="form-group"><span class="form-label" data-i18n="admin.originalTitle">Tên gốc</span><input id="draft-original-title" class="form-control" /></label>
+                              <label class="form-group"><span class="form-label" data-i18n="admin.englishTitle">Tên tiếng Anh</span><input id="draft-english-title" class="form-control" /></label>
+                              <label class="form-group"><span class="form-label" data-i18n="admin.alternativeTitles">Tên khác</span><input id="draft-alternative-titles" class="form-control" placeholder="Cách nhau bằng dấu |" data-i18n="admin.alternativeTitlesPlaceholder" data-i18n-attr="placeholder" /></label>
                             </div>
                             <label class="form-group" style="margin-top:14px;"><span class="form-label" data-i18n="admin.description">Mô tả / Synopsis *</span><textarea id="draft-description" class="form-control" style="min-height:140px;resize:vertical;" required></textarea></label>
                           </div>
@@ -171,22 +171,22 @@
                           <div class="title-draft-section" data-section-panel="publish">
                             <h4 data-i18n="admin.publishingInfo">Thông tin xuất bản</h4>
                             <div class="draft-grid three">
-                              <label class="form-group"><span class="form-label">Ng&#244;n ng&#7919; g&#7889;c</span><select id="draft-original-language" class="form-control"><option value="vi">Ti&#7871;ng Vi&#7879;t</option><option value="ja">Ti&#7871;ng Nh&#7853;t</option><option value="ko">Ti&#7871;ng H&#224;n</option><option value="zh">Ti&#7871;ng Trung</option><option value="en">Ti&#7871;ng Anh</option></select></label>
-                              <label class="form-group"><span class="form-label">Lo&#7841;i truy&#7879;n</span><select id="draft-type" class="form-control"><option value="0">Manga</option><option value="1">Manhwa</option><option value="2">Manhua</option><option value="3">Webtoon</option><option value="4">Comic</option></select></label>
-                              <label class="form-group"><span class="form-label">T&#236;nh tr&#7841;ng</span><select id="draft-status" class="form-control"><option value="0">&#272;ang ph&#225;t h&#224;nh</option><option value="1">Ho&#224;n th&#224;nh</option><option value="2">T&#7841;m ng&#432;ng</option><option value="3">&#272;&#227; h&#7911;y</option></select></label>
+                              <label class="form-group"><span class="form-label" data-i18n="admin.originalLanguage">Ngôn ngữ gốc</span><select id="draft-original-language" class="form-control"><option value="vi" data-i18n="admin.languageVietnamese">Tiếng Việt</option><option value="ja" data-i18n="admin.languageJapanese">Tiếng Nhật</option><option value="ko" data-i18n="admin.languageKorean">Tiếng Hàn</option><option value="zh" data-i18n="admin.languageChinese">Tiếng Trung</option><option value="en" data-i18n="admin.languageEnglish">Tiếng Anh</option></select></label>
+                              <label class="form-group"><span class="form-label" data-i18n="admin.mangaType">Loại truyện</span><select id="draft-type" class="form-control"><option value="0">Manga</option><option value="1">Manhwa</option><option value="2">Manhua</option><option value="3">Webtoon</option><option value="4">Comic</option></select></label>
+                              <label class="form-group"><span class="form-label" data-i18n="admin.mangaStatus">Tình trạng</span><select id="draft-status" class="form-control"><option value="0" data-i18n="admin.ongoing">Đang phát hành</option><option value="1" data-i18n="admin.completed">Hoàn thành</option><option value="2" data-i18n="admin.hiatus">Tạm ngưng</option><option value="3" data-i18n="admin.cancelled">Đã hủy</option></select></label>
                               <label class="form-group"><span class="form-label" data-i18n="admin.releaseYear">Năm phát hành</span><input id="draft-release-year" type="number" min="1900" max="2100" class="form-control" /></label>
                             </div>
                           </div>
 
                           <div class="title-draft-section" data-section-panel="authors">
-                            <h4>T&#225;c gi&#7843;</h4>
+                            <h4 data-i18n="admin.authorSection">T&#225;c gi&#7843;</h4>
                             <div style="display:grid;grid-template-columns:2fr 1fr auto;gap:10px;align-items:end;">
-                              <label class="form-group"><span class="form-label">Tác giả có sẵn</span><select id="draft-author-select" class="form-control"><option value="">-- Chọn tác giả --</option></select></label>
-                              <label class="form-group"><span class="form-label">Vai trò</span><select id="draft-author-role" class="form-control"><option value="Story &amp; Art">Story &amp; Art</option><option value="Story">Story</option><option value="Art">Art</option></select></label>
-                              <button type="button" id="btn-add-draft-author" class="btn btn-secondary">Thêm</button>
+                              <label class="form-group"><span class="form-label" data-i18n="admin.availableAuthor">Tác giả có sẵn</span><select id="draft-author-select" class="form-control"><option value="" data-i18n="admin.selectAuthor">-- Chọn tác giả --</option></select></label>
+                              <label class="form-group"><span class="form-label" data-i18n="admin.authorRole">Vai trò</span><select id="draft-author-role" class="form-control"><option value="Story &amp; Art" data-i18n="admin.roleStoryArt">Story &amp; Art</option><option value="Story" data-i18n="admin.roleStory">Story</option><option value="Art" data-i18n="admin.roleArt">Art</option></select></label>
+                              <button type="button" id="btn-add-draft-author" class="btn btn-secondary" data-i18n="admin.add">Thêm</button>
                             </div>
                             <div style="display:grid;grid-template-columns:2fr 1fr auto;gap:10px;align-items:end;margin-top:10px;">
-                              <label class="form-group"><span class="form-label">Hoặc nhập tác giả mới</span><input id="draft-new-author-name" class="form-control" /></label>
+                              <label class="form-group"><span class="form-label" data-i18n="admin.newAuthor">Hoặc nhập tác giả mới</span><input id="draft-new-author-name" class="form-control" /></label>
                               <span></span><span></span>
                             </div>
                             <div id="draft-authors-list" class="taxonomy-chip-list" style="margin-bottom:14px;"></div>
@@ -196,26 +196,26 @@
                           <div class="title-draft-section" data-section-panel="tags">
                             <h4 data-i18n="admin.classification">Phân loại</h4>
                             <div class="draft-grid two">
-                              <label class="form-group"><span class="form-label" data-i18n="admin.demographic">Đối tượng</span><select id="draft-demographic" class="form-control"><option value="0">Kh&#244;ng x&#225;c &#273;&#7883;nh</option><option value="1">Shounen</option><option value="2">Shoujo</option><option value="3">Seinen</option><option value="4">Josei</option></select></label>
-                              <label class="form-group"><span class="form-label" data-i18n="admin.ageRating">Độ tuổi</span><select id="draft-age-rating" class="form-control"><option value="0">M&#7885;i l&#7913;a tu&#7893;i</option><option value="1">13+</option><option value="2">16+</option><option value="3">18+</option></select></label>
+                              <label class="form-group"><span class="form-label" data-i18n="admin.demographic">Đối tượng</span><select id="draft-demographic" class="form-control"><option value="0" data-i18n="admin.none">Kh&#244;ng x&#225;c &#273;&#7883;nh</option><option value="1" data-i18n="admin.shounen">Shounen</option><option value="2" data-i18n="admin.shojo">Shoujo</option><option value="3" data-i18n="admin.seinen">Seinen</option><option value="4" data-i18n="admin.josei">Josei</option></select></label>
+                              <label class="form-group"><span class="form-label" data-i18n="admin.ageRating">Độ tuổi</span><select id="draft-age-rating" class="form-control"><option value="0" data-i18n="admin.allAges">M&#7885;i l&#7913;a tu&#7893;i</option><option value="1">13+</option><option value="2">16+</option><option value="3">18+</option></select></label>
                             </div>
-                            <label class="form-group" style="margin-top:14px;"><span class="form-label" data-i18n="admin.format">Format chính</span><select id="draft-format" class="form-control"><option value="0">Không có</option><option value="1">Adaptation</option><option value="2">WebComic</option><option value="3">OneShot</option><option value="4">Comic</option><option value="5">Book</option></select></label>
-                            <div class="form-group" style="margin-top:14px;"><span class="form-label">Thể loại</span><div id="draft-genres-checkbox-container" class="draft-check-grid"></div></div>
-                            <div class="form-group" style="margin-top:14px;"><span class="form-label">Ch&#7911; &#273;&#7873; / Theme</span><div id="draft-themes-checkbox-container" class="draft-check-grid"></div></div>
-                            <div class="form-group" style="margin-top:14px;"><span class="form-label">Content Warning</span><div class="taxonomy-chip-list"><label class="taxonomy-chip warning-chip"><input type="checkbox" name="draft-content-warning" value="Gore" /><span>Gore</span></label><label class="taxonomy-chip warning-chip"><input type="checkbox" name="draft-content-warning" value="Sexual Violence" /><span>Sexual Violence</span></label></div></div>
+                            <label class="form-group" style="margin-top:14px;"><span class="form-label" data-i18n="admin.format">Format chính</span><select id="draft-format" class="form-control"><option value="0" data-i18n="admin.none">Không có</option><option value="1" data-i18n="admin.adaptation">Adaptation</option><option value="2">WebComic</option><option value="3" data-i18n="admin.oneshot">OneShot</option><option value="4">Comic</option><option value="5" data-i18n="admin.book">Book</option></select></label>
+                            <div class="form-group" style="margin-top:14px;"><span class="form-label" data-i18n="admin.genresLabel">Thể loại</span><div id="draft-genres-checkbox-container" class="draft-check-grid"></div></div>
+                            <div class="form-group" style="margin-top:14px;"><span class="form-label" data-i18n="admin.themesLabel">Ch&#7911; &#273;&#7873; / Theme</span><div id="draft-themes-checkbox-container" class="draft-check-grid"></div></div>
+                            <div class="form-group" style="margin-top:14px;"><span class="form-label" data-i18n="admin.contentWarning">Content Warning</span><div class="taxonomy-chip-list"><label class="taxonomy-chip warning-chip"><input type="checkbox" name="draft-content-warning" value="Gore" /><span>Gore</span></label><label class="taxonomy-chip warning-chip"><input type="checkbox" name="draft-content-warning" value="Sexual Violence" /><span>Sexual Violence</span></label></div></div>
                           </div>
 
                           <div class="title-draft-section" data-section-panel="images">
                             <h4 data-i18n="admin.images">Hình ảnh</h4>
                             <div class="draft-grid two">
-                              <label class="form-group"><span class="form-label">&#7842;nh b&#236;a *</span><input id="draft-cover-url" class="form-control" placeholder="/uploads/cover.webp" /></label>
-                              <label class="form-group"><span class="form-label">Banner</span><input id="draft-banner-url" class="form-control" placeholder="/uploads/banner.webp" /></label>
+                              <label class="form-group"><span class="form-label" data-i18n="admin.coverUrl">&#7842;nh b&#236;a *</span><input id="draft-cover-url" class="form-control" placeholder="/uploads/cover.webp" /></label>
+                              <label class="form-group"><span class="form-label" data-i18n="admin.bannerUrl">Banner</span><input id="draft-banner-url" class="form-control" placeholder="/uploads/banner.webp" /></label>
                             </div>
                             <div style="display:flex;gap:12px;margin-top:12px;flex-wrap:wrap;">
                               <input id="draft-cover-file-input" type="file" accept="image/*" style="display:none;" />
-                              <button type="button" id="btn-upload-draft-cover" class="btn btn-secondary" style="border-radius:18px;">T&#7843;i &#7843;nh b&#236;a</button>
+                              <button type="button" id="btn-upload-draft-cover" class="btn btn-secondary" style="border-radius:18px;" data-i18n="admin.uploadCover">T&#7843;i &#7843;nh b&#236;a</button>
                               <input id="draft-banner-file-input" type="file" accept="image/*" style="display:none;" />
-                              <button type="button" id="btn-upload-draft-banner" class="btn btn-secondary" style="border-radius:18px;">T&#7843;i banner</button>
+                              <button type="button" id="btn-upload-draft-banner" class="btn btn-secondary" style="border-radius:18px;" data-i18n="admin.uploadBanner">T&#7843;i banner</button>
                             </div>
                             <div id="draft-image-preview" style="display:flex;gap:16px;margin-top:16px;flex-wrap:wrap;"></div>
                           </div>
@@ -223,12 +223,12 @@
                           <div class="title-draft-section" data-section-panel="links">
                             <h4 data-i18n="admin.links">Liên kết</h4>
                             <div class="draft-grid three">
-                              <label class="form-group"><span class="form-label">Website ch&#237;nh th&#7913;c</span><input id="draft-official-website" class="form-control" /></label>
-                              <label class="form-group"><span class="form-label">Ngu&#7891;n tham kh&#7843;o</span><input id="draft-reference-url" class="form-control" /></label>
-                              <label class="form-group"><span class="form-label">Trang theo d&#245;i</span><input id="draft-tracking-url" class="form-control" placeholder="AniList / MAL..." /></label>
+                              <label class="form-group"><span class="form-label" data-i18n="admin.officialWebsite">Website ch&#237;nh th&#7913;c</span><input id="draft-official-website" class="form-control" /></label>
+                              <label class="form-group"><span class="form-label" data-i18n="admin.referenceUrl">Ngu&#7891;n tham kh&#7843;o</span><input id="draft-reference-url" class="form-control" /></label>
+                              <label class="form-group"><span class="form-label" data-i18n="admin.trackingUrl">Trang theo d&#245;i</span><input id="draft-tracking-url" class="form-control" placeholder="AniList / MAL..." /></label>
                             </div>
                             <div class="draft-grid two" style="margin-top:14px;">
-                              <label class="form-group"><span class="form-label">Ngu&#7891;n d&#7919; li&#7879;u</span><select id="draft-data-source" class="form-control"><option value="Local">N&#7897;i b&#7897;</option><option value="MangaDex">MangaDex</option></select></label>
+                              <label class="form-group"><span class="form-label" data-i18n="admin.dataSource">Ngu&#7891;n d&#7919; li&#7879;u</span><select id="draft-data-source" class="form-control"><option value="Local" data-i18n="admin.localSource">N&#7897;i b&#7897;</option><option value="MangaDex">MangaDex</option></select></label>
                               <label class="form-group"><span class="form-label">MangaDex ID</span><input id="draft-mangadex-id" class="form-control" disabled /></label>
                             </div>
                           </div>
@@ -236,28 +236,28 @@
                           <div class="title-draft-section" data-section-panel="translation">
                             <h4 data-i18n="admin.translation">Thông tin dịch</h4>
                             <div class="draft-grid two">
-                              <label class="form-group"><span class="form-label">Nh&#243;m d&#7883;ch</span><input id="draft-scanlation-group" class="form-control" /></label>
-                              <label class="form-group"><span class="form-label">Ng&#244;n ng&#7919; b&#7843;n d&#7883;ch</span><input class="form-control" value="Ti&#7871;ng Vi&#7879;t" disabled /></label>
+                              <label class="form-group"><span class="form-label" data-i18n="admin.scanlationGroup">Nh&#243;m d&#7883;ch</span><input id="draft-scanlation-group" class="form-control" /></label>
+                              <label class="form-group"><span class="form-label" data-i18n="admin.translationLanguage">Ng&#244;n ng&#7919; b&#7843;n d&#7883;ch</span><input class="form-control" value="Ti&#7871;ng Vi&#7879;t" data-i18n="admin.languageVietnamese" data-i18n-attr="value" disabled /></label>
                             </div>
-                            <label class="form-group" style="margin-top:14px;"><span class="form-label">Ghi ch&#250;</span><textarea id="draft-note" class="form-control" style="min-height:100px;resize:vertical;"></textarea></label>
+                            <label class="form-group" style="margin-top:14px;"><span class="form-label" data-i18n="admin.notes">Ghi ch&#250;</span><textarea id="draft-note" class="form-control" style="min-height:100px;resize:vertical;"></textarea></label>
                           </div>
 
                           <div class="title-draft-section" data-section-panel="review">
                             <h4 data-i18n="admin.review">Quản trị</h4>
                             <div class="draft-grid three">
-                              <label class="form-group"><span class="form-label">Tr&#7841;ng th&#225;i duy&#7879;t</span><input id="draft-review-status-label" class="form-control" value="Nh&#225;p" disabled /></label>
-                              <label class="form-group"><span class="form-label">Ng&#432;&#7901;i t&#7841;o</span><input id="draft-created-by-label" class="form-control" disabled /></label>
-                              <label class="form-group"><span class="form-label">Ng&#224;y t&#7841;o</span><input id="draft-created-at-label" class="form-control" disabled /></label>
+                              <label class="form-group"><span class="form-label" data-i18n="admin.reviewStatus">Tr&#7841;ng th&#225;i duy&#7879;t</span><input id="draft-review-status-label" class="form-control" value="Nh&#225;p" data-i18n="admin.draftStatus" data-i18n-attr="value" disabled /></label>
+                              <label class="form-group"><span class="form-label" data-i18n="admin.createdBy">Ng&#432;&#7901;i t&#7841;o</span><input id="draft-created-by-label" class="form-control" disabled /></label>
+                              <label class="form-group"><span class="form-label" data-i18n="admin.createdAt">Ng&#224;y t&#7841;o</span><input id="draft-created-at-label" class="form-control" disabled /></label>
                             </div>
-                            <label class="form-group" style="margin-top:14px;"><span class="form-label">L&#253; do t&#7915; ch&#7889;i</span><textarea id="draft-rejection-reason" class="form-control" style="min-height:80px;resize:vertical;" placeholder="Nh&#7853;p l&#253; do khi t&#7915; ch&#7889;i..."></textarea></label>
+                            <label class="form-group" style="margin-top:14px;"><span class="form-label" data-i18n="admin.rejectionReason">L&#253; do t&#7915; ch&#7889;i</span><textarea id="draft-rejection-reason" class="form-control" style="min-height:80px;resize:vertical;" placeholder="Nh&#7853;p l&#253; do khi t&#7915; ch&#7889;i..." data-i18n="admin.rejectionReasonPlaceholder" data-i18n-attr="placeholder"></textarea></label>
                           </div>
 
                           <div class="title-draft-actions">
-                            <button type="button" id="btn-cancel-title-draft" class="btn btn-secondary"><i data-lucide="x"></i> Hủy</button>
-                            <button type="button" id="btn-reject-title-draft" class="btn btn-secondary" style="display:none;color:#ff6b6b;"><i data-lucide="circle-x"></i> T&#7915; ch&#7889;i</button>
-                            <button type="button" id="btn-approve-title-draft" class="btn btn-secondary" style="display:none;color:#10b981;"><i data-lucide="circle-check"></i> Duy&#7879;t</button>
-                            <button type="button" id="btn-save-title-draft" class="btn btn-secondary" style="display:none;"><i data-lucide="save"></i> Lưu nháp</button>
-                            <button type="button" id="btn-submit-title-draft" class="btn btn-primary"><i data-lucide="upload"></i> Đăng truyện</button>
+                            <button type="button" id="btn-cancel-title-draft" class="btn btn-secondary"><i data-lucide="x"></i><span data-i18n="admin.cancel">Hủy</span></button>
+                            <button type="button" id="btn-reject-title-draft" class="btn btn-secondary" style="display:none;color:#ff6b6b;"><i data-lucide="circle-x"></i><span data-i18n="admin.reject">T&#7915; ch&#7889;i</span></button>
+                            <button type="button" id="btn-approve-title-draft" class="btn btn-secondary" style="display:none;color:#10b981;"><i data-lucide="circle-check"></i><span data-i18n="admin.approve">Duy&#7879;t</span></button>
+                            <button type="button" id="btn-save-title-draft" class="btn btn-secondary" style="display:none;"><i data-lucide="save"></i><span data-i18n="admin.saveDraft">Lưu nháp</span></button>
+                            <button type="button" id="btn-submit-title-draft" class="btn btn-primary"><i data-lucide="upload"></i><span data-i18n="admin.postManga">Đăng truyện</span></button>
                           </div>
                         </section>
                       </div>
@@ -269,11 +269,11 @@
                     <form id="admin-manga-form">
                       <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px;">
                         <div class="form-group">
-                          <label class="form-label">T&#234;n truy&#7879;n *</label>
+                          <label class="form-label" data-i18n="admin.mangaTitleRequired">T&#234;n truy&#7879;n *</label>
                           <input type="text" id="manga-form-title" class="form-control" required />
                         </div>
                         <div class="form-group">
-                          <label class="form-label">T&#234;n thay th&#7871;</label>
+                          <label class="form-label" data-i18n="admin.alternativeTitles">T&#234;n thay th&#7871;</label>
                           <input type="text" id="manga-form-alt-title" class="form-control" />
                         </div>
                       </div>
@@ -282,32 +282,32 @@
                         <textarea id="manga-form-description" class="form-control" style="min-height: 100px; resize: vertical;" required></textarea>
                       </div>
                       <div class="mangadex-taxonomy-section" style="margin-top:20px;padding:16px;background:#0F1218;border:1px solid rgba(255,255,255,.08);border-radius:8px;">
-                        <h4 style="color:white;font-size:1rem;margin:0 0 12px;">Content Warning</h4>
+                        <h4 style="color:white;font-size:1rem;margin:0 0 12px;" data-i18n="admin.contentWarning">Content Warning</h4>
                         <div style="display:flex;gap:18px;flex-wrap:wrap;">
                           <label class="taxonomy-chip warning-chip"><input type="checkbox" name="manga-content-warning" value="Gore" /><span>Gore</span></label>
                           <label class="taxonomy-chip warning-chip"><input type="checkbox" name="manga-content-warning" value="Sexual Violence" /><span>Sexual Violence</span></label>
                         </div>
                       </div>
                       <div class="mangadex-taxonomy-section" style="margin-top:20px;padding:16px;background:#0F1218;border:1px solid rgba(255,255,255,.08);border-radius:8px;">
-                        <h4 style="color:white;font-size:1rem;margin:0 0 12px;">Demographic &amp; Format</h4>
+                        <h4 style="color:white;font-size:1rem;margin:0 0 12px;" data-i18n="admin.demographicAndFormat">Demographic &amp; Format</h4>
                       <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 20px;">
                         <div class="form-group">
-                          <label class="form-label">Lo&#7841;i truy&#7879;n *</label>
+                          <label class="form-label" data-i18n="admin.mangaType">Lo&#7841;i truy&#7879;n *</label>
                           <select id="manga-form-type" class="form-control" required>
-                            <option value="0">Manga (Nh&#7853;t B&#7843;n)</option>
-                            <option value="1">Manhwa (H&#224;n Qu&#7889;c)</option>
-                            <option value="2">Manhua (Trung Qu&#7889;c)</option>
+                            <option value="0" data-i18n="admin.mangaJapan">Manga (Nh&#7853;t B&#7843;n)</option>
+                            <option value="1" data-i18n="admin.manhwaKorea">Manhwa (H&#224;n Qu&#7889;c)</option>
+                            <option value="2" data-i18n="admin.manhuaChina">Manhua (Trung Qu&#7889;c)</option>
                             <option value="3">Webtoon</option>
                             <option value="4">Comic</option>
                           </select>
                         </div>
                         <div class="form-group">
-                          <label class="form-label">T&#236;nh tr&#7841;ng *</label>
+                          <label class="form-label" data-i18n="admin.mangaStatus">T&#236;nh tr&#7841;ng *</label>
                           <select id="manga-form-status" class="form-control" required>
-                            <option value="0">&#272;ang ti&#7871;n h&#224;nh</option>
-                            <option value="1">&#272;&#227; ho&#224;n th&#224;nh</option>
-                            <option value="2">T&#7841;m ng&#432;ng</option>
-                            <option value="3">&#272;&#227; h&#7911;y</option>
+                            <option value="0" data-i18n="admin.ongoing">&#272;ang ti&#7871;n h&#224;nh</option>
+                            <option value="1" data-i18n="admin.completed">&#272;&#227; ho&#224;n th&#224;nh</option>
+                            <option value="2" data-i18n="admin.hiatus">T&#7841;m ng&#432;ng</option>
+                            <option value="3" data-i18n="admin.cancelled">&#272;&#227; h&#7911;y</option>
                           </select>
                         </div>
                         <div class="form-group">
@@ -319,62 +319,62 @@
                         <div class="form-group">
                           <label class="form-label" data-i18n="admin.demographic">Đối tượng</label>
                           <select id="manga-form-demographic" class="form-control taxonomy-source-select">
-                            <option value="0">Kh&#244;ng c&#243;</option>
-                            <option value="1">Shounen</option>
-                            <option value="2">Shoujo</option>
-                            <option value="3">Seinen</option>
-                            <option value="4">Josei</option>
+                            <option value="0" data-i18n="admin.none">Kh&#244;ng c&#243;</option>
+                            <option value="1" data-i18n="admin.shounen">Shounen</option>
+                            <option value="2" data-i18n="admin.shojo">Shoujo</option>
+                            <option value="3" data-i18n="admin.seinen">Seinen</option>
+                            <option value="4" data-i18n="admin.josei">Josei</option>
                           </select>
                           <div id="manga-demographic-chips" class="taxonomy-chip-list"></div>
                         </div>
                         <div class="form-group">
                           <label class="form-label" data-i18n="admin.format">Định dạng</label>
                           <select id="manga-form-format" class="form-control taxonomy-source-select">
-                            <option value="0">Kh&#244;ng c&#243;</option>
-                            <option value="1">Adaptation</option>
+                            <option value="0" data-i18n="admin.none">Kh&#244;ng c&#243;</option>
+                            <option value="1" data-i18n="admin.adaptation">Adaptation</option>
                             <option value="2">WebComic</option>
-                            <option value="3">OneShot</option>
+                            <option value="3" data-i18n="admin.oneshot">OneShot</option>
                             <option value="4">Comic</option>
-                            <option value="5">Book</option>
+                            <option value="5" data-i18n="admin.book">Book</option>
                           </select>
                           <div id="manga-format-chips" class="taxonomy-chip-list"></div>
                         </div>
                       </div>
                       </div>
                       <div class="form-group" style="margin-top: 15px;">
-                        <label class="form-label">&#7842;nh b&#236;a (URL) *</label>
+                        <label class="form-label" data-i18n="admin.coverUrl">&#7842;nh b&#236;a (URL) *</label>
                         <input type="url" id="manga-form-cover" class="form-control" placeholder="https://..." required />
                       </div>
                       <div class="form-group mangadex-taxonomy-section" style="margin-top:20px;padding:16px;background:#0F1218;border:1px solid rgba(255,255,255,.08);border-radius:8px;">
-                        <h4 style="color:white;font-size:1rem;margin:0 0 12px;">Genre</h4>
+                        <h4 style="color:white;font-size:1rem;margin:0 0 12px;" data-i18n="admin.genresLabel">Genre</h4>
                         <div id="manga-form-genres-checkbox-container" class="taxonomy-chip-grid"></div>
                       </div>
                       <div class="form-group mangadex-taxonomy-section" style="margin-top:20px;padding:16px;background:#0F1218;border:1px solid rgba(255,255,255,.08);border-radius:8px;">
-                        <h4 style="color:white;font-size:1rem;margin:0 0 12px;">Theme</h4>
+                        <h4 style="color:white;font-size:1rem;margin:0 0 12px;" data-i18n="admin.themesLabel">Theme</h4>
                         <div id="manga-form-themes-checkbox-container" class="taxonomy-chip-grid"></div>
                       </div>
                       <div class="form-group" style="margin-top: 20px;">
-                        <label class="form-label">T&#225;c gi&#7843; v&#224; vai tr&#242; *</label>
+                        <label class="form-label" data-i18n="admin.authorAndRole">T&#225;c gi&#7843; v&#224; vai tr&#242; *</label>
                         <div style="display: flex; gap: 10px; margin-bottom: 12px;">
                           <select id="manga-form-author-select" class="form-control" style="flex: 2;">
-                            <option value="">-- Ch&#7885;n t&#225;c gi&#7843; --</option>
+                            <option value="" data-i18n="admin.selectAuthor">-- Ch&#7885;n t&#225;c gi&#7843; --</option>
                           </select>
                           <select id="manga-form-author-role" class="form-control" style="flex: 1;">
-                            <option value="Story & Art">Story & Art</option>
-                            <option value="Story">Story</option>
-                            <option value="Art">Art</option>
-                            <option value="Original Creator">Original Creator</option>
+                            <option value="Story & Art" data-i18n="admin.roleStoryArt">Story & Art</option>
+                            <option value="Story" data-i18n="admin.roleStory">Story</option>
+                            <option value="Art" data-i18n="admin.roleArt">Art</option>
+                            <option value="Original Creator" data-i18n="admin.roleOriginalCreator">Original Creator</option>
                           </select>
-                          <button type="button" id="btn-add-form-author" class="btn btn-secondary" style="border-radius: 4px; padding: 0 16px;">Th&#234;m</button>
+                          <button type="button" id="btn-add-form-author" class="btn btn-secondary" style="border-radius: 4px; padding: 0 16px;" data-i18n="admin.add">Th&#234;m</button>
                         </div>
                         <div id="manga-form-added-authors-list" class="manga-form-added-authors-list">
-                          <p style="color: var(--text-muted); font-size: 0.8rem; text-align: center; margin: 6px 0;">Ch&#432;a g&#225;n t&#225;c gi&#7843; cho truy&#7879;n.</p>
+                          <p style="color: var(--text-muted); font-size: 0.8rem; text-align: center; margin: 6px 0;" data-i18n="admin.noAssignedAuthors">Ch&#432;a g&#225;n t&#225;c gi&#7843; cho truy&#7879;n.</p>
                         </div>
                       </div>
                       <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 30px;">
-                        <button type="button" id="btn-cancel-manga-form" class="btn btn-secondary" style="display: none;">H&#7911;y ch&#7881;nh s&#7917;a</button>
+                        <button type="button" id="btn-cancel-manga-form" class="btn btn-secondary" style="display: none;" data-i18n="admin.cancelEditing">H&#7911;y ch&#7881;nh s&#7917;a</button>
                         <button type="submit" class="btn btn-primary" style="border-radius: 20px; font-weight: 700; padding: 10px 30px;">
-                          <i data-lucide="check" style="width: 18px; height: 18px;"></i> L&#432;u truy&#7879;n
+                          <i data-lucide="check" style="width: 18px; height: 18px;"></i><span data-i18n="admin.saveManga">L&#432;u truy&#7879;n</span>
                         </button>
                       </div>
                     </form>
@@ -384,16 +384,16 @@
                     <h3 id="chapter-form-heading" style="font-size: 1.25rem; font-weight: 800; color: white; margin-bottom: 20px;" data-i18n="admin.addChapter">Thêm chương mới</h3>
                     <form id="admin-chapter-form">
                       <div class="form-group">
-                        <label class="form-label">Truy&#7879;n tranh *</label>
-                        <input id="chapter-form-manga-search" class="form-control" type="search" placeholder="T&#236;m truy&#7879;n theo t&#234;n..." autocomplete="off" style="margin-bottom:8px;" />
+                        <label class="form-label" data-i18n="admin.selectManga">Truy&#7879;n tranh *</label>
+                        <input id="chapter-form-manga-search" class="form-control" type="search" placeholder="T&#236;m truy&#7879;n theo t&#234;n..." data-i18n="admin.searchManga" data-i18n-attr="placeholder" autocomplete="off" style="margin-bottom:8px;" />
                         <div id="chapter-form-manga-results" style="display:flex;flex-direction:column;gap:4px;max-height:180px;overflow-y:auto;margin-bottom:8px;"></div>
                         <select id="chapter-form-manga-select" class="form-control" required>
-                          <option value="">-- Ch&#7885;n truy&#7879;n tranh --</option>
+                          <option value="" data-i18n="admin.selectManga">-- Ch&#7885;n truy&#7879;n tranh --</option>
                         </select>
                       </div>
                       <div id="chapter-list-panel" style="display:none;margin-top:14px;padding:12px;border:1px solid rgba(255,255,255,.08);border-radius:6px;">
                         <div style="display:flex;gap:10px;align-items:center;margin-bottom:8px;">
-                          <input id="chapter-form-chapter-search" class="form-control" type="search" placeholder="T&#236;m theo s&#7889; ho&#7863;c t&#234;n chapter..." autocomplete="off" />
+                          <input id="chapter-form-chapter-search" class="form-control" type="search" placeholder="T&#236;m theo s&#7889; ho&#7863;c t&#234;n chapter..." data-i18n="admin.searchChapter" data-i18n-attr="placeholder" autocomplete="off" />
                           <span id="chapter-list-summary" style="color:var(--text-muted);white-space:nowrap;"></span>
                         </div>
                         <div id="chapter-list-items"></div>
@@ -414,15 +414,15 @@
                         <textarea id="chapter-form-pages" class="form-control" style="min-height: 200px; resize: vertical;" placeholder="https://example.com/page1.jpg&#10;https://example.com/page2.jpg" required></textarea>
                         <div style="display:flex;gap:10px;align-items:center;margin-top:10px;flex-wrap:wrap;">
                           <input id="chapter-pages-file-input" type="file" accept="image/*" multiple style="display:none;" />
-                          <button id="btn-upload-pages" type="button" class="btn btn-secondary">T&#7843;i th&#234;m &#7843;nh</button>
-                          <span id="chapter-source-note" style="display:none;color:var(--text-muted);font-size:.85rem;">&#7842;nh MangaDex &#273;&#432;&#7907;c l&#7845;y t&#7921; &#273;&#7897;ng v&#224; kh&#244;ng th&#7875; s&#7917;a.</span>
+                          <button id="btn-upload-pages" type="button" class="btn btn-secondary" data-i18n="admin.uploadMoreImages">T&#7843;i th&#234;m &#7843;nh</button>
+                          <span id="chapter-source-note" style="display:none;color:var(--text-muted);font-size:.85rem;" data-i18n="admin.mangaDexImagesReadonly">&#7842;nh MangaDex &#273;&#432;&#7907;c l&#7845;y t&#7921; &#273;&#7897;ng v&#224; kh&#244;ng th&#7875; s&#7917;a.</span>
                         </div>
                         <div id="chapter-pages-preview" style="display:flex;gap:10px;overflow-x:auto;padding:12px 0;"></div>
                       </div>
                       <div style="display: flex; justify-content: flex-end;gap:10px; margin-top: 30px;">
-                        <button id="btn-cancel-chapter-edit" type="button" class="btn btn-secondary" style="display:none;">H&#7911;y ch&#7881;nh s&#7917;a</button>
+                        <button id="btn-cancel-chapter-edit" type="button" class="btn btn-secondary" style="display:none;" data-i18n="admin.cancelEditing">H&#7911;y ch&#7881;nh s&#7917;a</button>
                         <button id="btn-save-chapter" type="submit" class="btn btn-primary" style="border-radius: 20px; font-weight: 700; padding: 10px 30px;">
-                          <i data-lucide="plus" style="width: 18px; height: 18px;"></i> <span>&#272;&#259;ng ch&#432;&#417;ng</span>
+                          <i data-lucide="plus" style="width: 18px; height: 18px;"></i> <span data-i18n="admin.publishChapter">&#272;&#259;ng ch&#432;&#417;ng</span>
                         </button>
                       </div>
                     </form>
@@ -461,7 +461,7 @@
                       </div>
                       <div style="display: flex; justify-content: flex-end; margin-top: 30px;">
                         <button type="submit" class="btn btn-primary" style="border-radius: 20px; font-weight: 700; padding: 10px 30px;">
-                          <i data-lucide="plus" style="width: 18px; height: 18px;"></i> Th&#234;m t&#225;c gi&#7843;
+                              <i data-lucide="plus" style="width: 18px; height: 18px;"></i> <span data-i18n="admin.addAuthor">Th&#234;m t&#225;c gi&#7843;</span>
                         </button>
                       </div>
                     </form>
@@ -483,7 +483,7 @@
                       </div>
                       <div style="display: flex; justify-content: flex-end; margin-top: 30px;">
                         <button type="submit" class="btn btn-primary" style="border-radius: 20px; font-weight: 700; padding: 10px 30px;">
-                          <i data-lucide="plus" style="width: 18px; height: 18px;"></i> Th&#234;m th&#7875; lo&#7841;i
+                              <i data-lucide="plus" style="width: 18px; height: 18px;"></i> <span data-i18n="admin.addGenre">Th&#234;m th&#7875; lo&#7841;i</span>
                         </button>
                       </div>
                     </form>
@@ -563,11 +563,11 @@
   <script src="/js/admin-chapter-edit.js?v=1.0"></script>
   <script src="/js/admin-mangadex.js?v=1.1"></script>
   <script src="/js/admin-upload.js?v=1.1"></script>
-  <script src="/js/admin-manga.js?v=1.1"></script>
+  <script src="/js/admin-manga.js?v=1.2"></script>
   <script src="/js/admin-reports.js?v=1.3"></script>
       <script src="/js/admin-users.js?v=1.4"></script>
-      <script src="/js/admin-title-drafts.js?v=1.2"></script>
-      <script src="/js/admin.js?v=4.0"></script>
+      <script src="/js/admin-title-drafts.js?v=1.3"></script>
+      <script src="/js/admin.js?v=4.2"></script>
     <style>
       .admin-tab-btn { background: transparent; color: var(--text-muted); border: none; cursor: pointer; }
       .admin-tab-btn:hover { background-color: rgba(255,255,255,0.04); color: white; }
@@ -587,7 +587,7 @@
       .draft-grid.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
       .draft-check-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 9px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; max-height: 180px; overflow: auto; padding: 12px; }
       .draft-check-grid label { display: flex; align-items: center; gap: 8px; color: var(--text-main); font-size: 0.82rem; cursor: pointer; }
-      .title-draft-actions { position: sticky; bottom: 0; z-index: 5; display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 12px; padding: 18px 0 0; margin-top: 20px; border-top: 1px solid var(--border-subtle); background: var(--bg-main); }
+      .title-draft-actions { position: sticky; bottom: 0; z-index: 5; display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 12px; padding: 18px 0 0; margin-top: 20px; border-top: 1px solid var(--border-subtle); background: transparent; }
       .title-draft-actions .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-width: 130px; border-radius: 20px; padding: 10px 24px; font-weight: 700; }
       .title-draft-actions .btn svg { width: 18px; height: 18px; }
       .manga-form-added-authors-list { display: flex; flex-direction: column; gap: 10px; min-height: 0; padding: 0; border: 0; background: transparent; }

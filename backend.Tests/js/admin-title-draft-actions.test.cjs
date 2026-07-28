@@ -26,6 +26,14 @@ test('title draft actions wrap consistently on small screens', () => {
   assert.match(view, /\.title-draft-actions \.btn\s*\{[^}]*min-width:\s*130px/s);
 });
 
+test('title draft action bar blends into the form surface', () => {
+  const rule = view.match(/\.title-draft-actions\s*\{([^}]*)\}/)?.[1] || '';
+  assert.match(rule, /background:\s*transparent/);
+  assert.doesNotMatch(rule, /background:\s*var\(--bg-main\)/);
+  assert.match(rule, /justify-content:\s*flex-end/);
+  assert.match(rule, /border-top:\s*1px solid var\(--border-subtle\)/);
+});
+
 test('title draft author roles decode legacy HTML entities before display and save', () => {
   assert.match(script, /function normalizeTitleAuthorRole/);
   assert.match(script, /replace\(\/&amp;\/gi,\s*'&'\)/);

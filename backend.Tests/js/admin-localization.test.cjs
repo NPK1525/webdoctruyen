@@ -10,6 +10,8 @@ const en = JSON.parse(read('backend/wwwroot/locales/en.json'));
 const indexView = read('backend/Views/AdminView/Index.cshtml');
 const css = read('backend/wwwroot/css/style.css');
 const adminCoordinator = read('backend/wwwroot/js/admin.js');
+const adminManga = read('backend/wwwroot/js/admin-manga.js');
+const adminTitleDrafts = read('backend/wwwroot/js/admin-title-drafts.js');
 const adminUsers = read('backend/wwwroot/js/admin-users.js');
 const dynamicModules = [
   'backend/wwwroot/js/admin-manga.js',
@@ -127,4 +129,68 @@ test('manga, draft, and chapter admin forms expose their main translation hooks'
   ]) {
     assert.match(indexView, new RegExp(`data-i18n="${key.replace('.', '\\.')}"`), key);
   }
+});
+
+test('manga filters and create-edit forms expose complete translation controls', () => {
+  for (const key of [
+    'admin.allTypes',
+    'admin.allStatuses',
+    'admin.allSources',
+    'admin.allChapterStates',
+    'admin.sortNewest',
+    'admin.itemsPerPage20',
+    'admin.originalTitle',
+    'admin.englishTitle',
+    'admin.alternativeTitles',
+    'admin.originalLanguage',
+    'admin.mangaType',
+    'admin.mangaStatus',
+    'admin.availableAuthor',
+    'admin.authorRole',
+    'admin.newAuthor',
+    'admin.coverUrl',
+    'admin.bannerUrl',
+    'admin.officialWebsite',
+    'admin.referenceUrl',
+    'admin.trackingUrl',
+    'admin.scanlationGroup',
+    'admin.notes',
+    'admin.reviewStatus',
+    'admin.createdBy',
+    'admin.createdAt',
+    'admin.rejectionReason',
+    'admin.saveDraft',
+    'admin.authorAndRole',
+    'admin.selectManga',
+    'admin.uploadMoreImages',
+    'admin.cancelEditing',
+    'admin.publishChapter'
+  ]) {
+    assert.match(indexView, new RegExp(`data-i18n="${key.replace('.', '\\.')}"`), key);
+  }
+});
+
+test('active manga and chapter edit forms refresh their dynamic labels after a locale change', () => {
+  assert.match(adminManga, /function refreshMangaFormLocale\(/);
+  assert.match(adminManga, /t\('admin\.editing'/);
+  assert.match(adminCoordinator, /function refreshChapterFormLocale\(/);
+  assert.match(adminCoordinator, /t\('admin\.saveChapter'/);
+  assert.match(adminCoordinator, /refreshMangaFormLocale\(\)/);
+  assert.match(adminCoordinator, /refreshChapterFormLocale\(\)/);
+});
+
+test('title draft list and review state stay in the selected locale', () => {
+  for (const key of ['admin.cover', 'admin.mangaTitle', 'admin.reviewStatus', 'admin.updatedAt', 'admin.actions']) {
+    assert.match(indexView, new RegExp(`<th[^>]*data-i18n="${key.replace('.', '\\.')}"`), key);
+  }
+  for (const key of ['admin.draftStatus', 'admin.pendingStatus', 'admin.approvedStatus', 'admin.rejectedStatus']) {
+    assert.match(adminCoordinator, new RegExp(`t\\('${key.replace('.', '\\.')}'`), key);
+  }
+  assert.match(adminTitleDrafts, /function refreshTitleDraftFormLocale\(/);
+  assert.match(adminCoordinator, /refreshTitleDraftFormLocale\(\)/);
+});
+
+test('author and genre submit buttons preserve icons while translating their labels', () => {
+  assert.match(indexView, /<i[^>]*data-lucide="plus"[^>]*><\/i>\s*<span data-i18n="admin\.addAuthor">/);
+  assert.match(indexView, /<i[^>]*data-lucide="plus"[^>]*><\/i>\s*<span data-i18n="admin\.addGenre">/);
 });

@@ -102,3 +102,29 @@ test('standalone admin pages use the shared locale system', () => {
   }
   assert.match(adminUserDetail, /\bt\(['"]admin\./);
 });
+
+test('manga, draft, and chapter admin forms expose their main translation hooks', () => {
+  for (const key of [
+    'admin.newManga',
+    'admin.basicInfo',
+    'admin.publishingInfo',
+    'admin.classification',
+    'admin.images',
+    'admin.links',
+    'admin.translation',
+    'admin.review',
+    'admin.description',
+    'admin.releaseYear',
+    'admin.publisher',
+    'admin.demographic',
+    'admin.ageRating',
+    'admin.format',
+    'admin.chapterNumber',
+    'admin.chapterTitle',
+    'admin.pageUrls',
+    'admin.preview',
+    'admin.synchronize'
+  ]) {
+    assert.match(indexView, new RegExp(`data-i18n="${key.replace('.', '\\.')}"`), key);
+  }
+});

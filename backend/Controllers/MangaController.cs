@@ -193,11 +193,13 @@ namespace MangaNPK.Controllers
             if (selectedAuthors.Count > 0)
                 query = query.Where(m => m.MangaAuthors.Any(link =>
                     selectedAuthors.Contains(link.AuthorId) &&
-                    (link.Role == "Story" || link.Role == "Story & Art")));
+                    (link.Role == ContributorRoleClassifier.StoryAndArt ||
+                     link.Role.StartsWith(ContributorRoleClassifier.Story))));
             if (selectedArtists.Count > 0)
                 query = query.Where(m => m.MangaAuthors.Any(link =>
                     selectedArtists.Contains(link.AuthorId) &&
-                    (link.Role == "Art" || link.Role == "Story & Art")));
+                    (link.Role == ContributorRoleClassifier.StoryAndArt ||
+                     link.Role.StartsWith(ContributorRoleClassifier.Art))));
 
             // Lấy tổng số truyện trước khi phân trang để frontend biết còn bao nhiêu trang.
             var totalCount = await query.CountAsync();

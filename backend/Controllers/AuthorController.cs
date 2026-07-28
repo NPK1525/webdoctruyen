@@ -1,4 +1,5 @@
 using MangaNPK.Data;
+using MangaNPK.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
@@ -15,7 +16,7 @@ namespace MangaNPK.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAuthors()
         {
-            var authors = await _context.Authors
+            var authorRows = await _context.Authors
                 .OrderBy(a => a.Name)
                 .Select(a => new
                 {
@@ -28,6 +29,16 @@ namespace MangaNPK.Controllers
                         .ToList()
                 })
                 .ToListAsync();
+            var authors = authorRows.Select(a => new
+            {
+                a.Id,
+                a.Name,
+                a.Biography,
+                Roles = a.Roles
+                    .Select(ContributorRoleClassifier.Normalize)
+                    .Distinct()
+                    .ToList()
+            }).ToList();
             return Ok(authors);
         }
     }

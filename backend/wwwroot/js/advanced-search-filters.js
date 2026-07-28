@@ -53,10 +53,13 @@
   }
 
   function peopleForRole(people, role) {
-    const accepted = role === 'artist' ? ['Art', 'Story & Art'] : ['Story', 'Story & Art'];
     return (Array.isArray(people) ? people : []).filter(person => {
       const roles = Array.isArray(person.roles) ? person.roles : [];
-      return roles.some(item => accepted.includes(item));
+      return roles.some(item => {
+        const normalized = String(item || '').trim().toLocaleLowerCase();
+        if (normalized === 'story & art') return true;
+        return role === 'artist' ? normalized.startsWith('art') : normalized.startsWith('story');
+      });
     });
   }
 

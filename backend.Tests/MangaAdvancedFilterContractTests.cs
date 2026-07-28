@@ -1,4 +1,5 @@
 using System.IO;
+using MangaNPK.Services;
 using Xunit;
 
 namespace MangaNPK.Tests;
@@ -41,5 +42,21 @@ public class MangaAdvancedFilterContractTests
         Assert.Contains("Roles =", source);
         Assert.Contains("MangaAuthors", source);
         Assert.Contains("Distinct()", source);
+    }
+
+    [Theory]
+    [InlineData("Story", true, false)]
+    [InlineData("Story (Nguyên tác)", true, false)]
+    [InlineData("Story (Kịch bản)", true, false)]
+    [InlineData("Art", false, true)]
+    [InlineData("Art (Họa sĩ vẽ)", false, true)]
+    [InlineData("Story & Art", true, true)]
+    public void ContributorRoleClassifierUnderstandsLegacyLocalRoleLabels(
+        string role,
+        bool isStory,
+        bool isArt)
+    {
+        Assert.Equal(isStory, ContributorRoleClassifier.IsStoryRole(role));
+        Assert.Equal(isArt, ContributorRoleClassifier.IsArtRole(role));
     }
 }

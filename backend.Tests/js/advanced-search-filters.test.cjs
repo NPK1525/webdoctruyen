@@ -54,10 +54,12 @@ test('Story & Art person data is eligible for both author and artist lists', () 
   const people = [
     { id: 1, name: 'Writer', roles: ['Story'] },
     { id: 2, name: 'Artist', roles: ['Art'] },
-    { id: 3, name: 'Creator', roles: ['Story & Art'] }
+    { id: 3, name: 'Creator', roles: ['Story & Art'] },
+    { id: 4, name: 'Legacy Writer', roles: ['Story (Nguyên tác)'] },
+    { id: 5, name: 'Legacy Artist', roles: ['Art (Họa sĩ vẽ)'] }
   ];
-  assert.deepEqual(utils.peopleForRole(people, 'author').map(person => person.id), [1, 3]);
-  assert.deepEqual(utils.peopleForRole(people, 'artist').map(person => person.id), [2, 3]);
+  assert.deepEqual(utils.peopleForRole(people, 'author').map(person => person.id), [1, 3, 4]);
+  assert.deepEqual(utils.peopleForRole(people, 'artist').map(person => person.id), [2, 3, 5]);
 });
 
 test('reset clears tags, authors, and artists', () => {

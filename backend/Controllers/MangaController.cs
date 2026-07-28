@@ -30,6 +30,16 @@ namespace MangaNPK.Controllers
             [FromQuery] bool fuzzy = false,
             [FromQuery] string? source = null,
             [FromQuery] string? chapterState = null,
+            [FromQuery] string? includeGenreIds = null,
+            [FromQuery] string? excludeGenreIds = null,
+            [FromQuery] string? includeThemeIds = null,
+            [FromQuery] string? excludeThemeIds = null,
+            [FromQuery] string? includeFormats = null,
+            [FromQuery] string? excludeFormats = null,
+            [FromQuery] string? includeContent = null,
+            [FromQuery] string? excludeContent = null,
+            [FromQuery] string? authorIds = null,
+            [FromQuery] string? artistIds = null,
             [FromQuery] int page = 1,
             [FromQuery] int pageSize = 12)
         {
@@ -153,6 +163,42 @@ namespace MangaNPK.Controllers
             else if (string.Equals(chapterState, "without-chapters", StringComparison.OrdinalIgnoreCase))
                 query = query.Where(m => !m.Chapters.Any());
 
+            var includeGenres = ParseIds(includeGenreIds);
+            var excludeGenres = ParseIds(excludeGenreIds);
+            var includeThemes = ParseIds(includeThemeIds);
+            var excludeThemes = ParseIds(excludeThemeIds);
+            var includeFormatValues = ParseFormats(includeFormats);
+            var excludeFormatValues = ParseFormats(excludeFormats);
+            var includeContentValues = ParseValues(includeContent);
+            var excludeContentValues = ParseValues(excludeContent);
+            var selectedAuthors = ParseIds(authorIds);
+            var selectedArtists = ParseIds(artistIds);
+
+            if (includeGenres.Count > 0)
+                query = query.Where(m => m.MangaGenres.Any(link => includeGenres.Contains(link.GenreId)));
+            if (excludeGenres.Count > 0)
+                query = query.Where(m => !m.MangaGenres.Any(link => excludeGenres.Contains(link.GenreId)));
+            if (includeThemes.Count > 0)
+                query = query.Where(m => m.MangaThemes.Any(link => includeThemes.Contains(link.ThemeId)));
+            if (excludeThemes.Count > 0)
+                query = query.Where(m => !m.MangaThemes.Any(link => excludeThemes.Contains(link.ThemeId)));
+            if (includeFormatValues.Count > 0)
+                query = query.Where(m => includeFormatValues.Contains(m.Format));
+            if (excludeFormatValues.Count > 0)
+                query = query.Where(m => !excludeFormatValues.Contains(m.Format));
+            if (includeContentValues.Count > 0)
+                query = query.Where(m => includeContentValues.Any(value => m.ContentWarnings.Contains(value)));
+            if (excludeContentValues.Count > 0)
+                query = query.Where(m => !excludeContentValues.Any(value => m.ContentWarnings.Contains(value)));
+            if (selectedAuthors.Count > 0)
+                query = query.Where(m => m.MangaAuthors.Any(link =>
+                    selectedAuthors.Contains(link.AuthorId) &&
+                    (link.Role == "Story" || link.Role == "Story & Art")));
+            if (selectedArtists.Count > 0)
+                query = query.Where(m => m.MangaAuthors.Any(link =>
+                    selectedArtists.Contains(link.AuthorId) &&
+                    (link.Role == "Art" || link.Role == "Story & Art")));
+
             // Lấy tổng số truyện trước khi phân trang để frontend biết còn bao nhiêu trang.
             var totalCount = await query.CountAsync();
 
@@ -200,6 +246,34 @@ namespace MangaNPK.Controllers
 
             return Ok(new { totalCount, totalItems = totalCount, totalPages = (int)Math.Ceiling(totalCount / (double)pageSize), items, page, pageSize });
         }
+
+        private static List<int> ParseIds(string? value) =>
+            (value ?? string.Empty)
+                .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                .Select(item => int.TryParse(item, out var id) ? id : 0)
+                .Where(id => id > 0)
+                .Distinct()
+                .ToList();
+
+        private static List<MangaFormat> ParseFormats(string? value) =>
+            (value ?? string.Empty)
+                .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                .Select(item => Enum.TryParse<MangaFormat>(item, true, out var format)
+                    ? format
+                    : int.TryParse(item, out var numeric) && Enum.IsDefined(typeof(MangaFormat), numeric)
+                        ? (MangaFormat)numeric
+                        : MangaFormat.None)
+                .Where(format => format != MangaFormat.None)
+                .Distinct()
+                .ToList();
+
+        private static List<string> ParseValues(string? value) =>
+            (value ?? string.Empty)
+                .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                .Select(item => item.Trim())
+                .Where(item => item.Length > 0)
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToList();
 
         private static IEnumerable<MangaPickerCandidate> SortPickerCandidates(
             IEnumerable<MangaPickerCandidate> candidates,

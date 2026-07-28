@@ -17,6 +17,16 @@ namespace MangaNPK.Controllers
         {
             var authors = await _context.Authors
                 .OrderBy(a => a.Name)
+                .Select(a => new
+                {
+                    a.Id,
+                    a.Name,
+                    a.Biography,
+                    Roles = a.MangaAuthors
+                        .Select(link => link.Role)
+                        .Distinct()
+                        .ToList()
+                })
                 .ToListAsync();
             return Ok(authors);
         }

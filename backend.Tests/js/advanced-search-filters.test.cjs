@@ -104,6 +104,10 @@ const styleSheet = fs.readFileSync(
   path.join(root, 'backend', 'wwwroot', 'css', 'style.css'),
   'utf8'
 );
+const advancedSearchScript = fs.readFileSync(
+  path.join(root, 'backend', 'wwwroot', 'js', 'advanced-search.js'),
+  'utf8'
+);
 
 test('advanced search exposes tag, author, and artist controls with ARIA markup', () => {
   for (const id of [
@@ -128,4 +132,17 @@ test('advanced search styles include responsive tag panel and selected states', 
   assert.match(styleSheet, /\.advanced-filter-tag\.include/);
   assert.match(styleSheet, /\.advanced-filter-tag\.exclude/);
   assert.match(styleSheet, /@media\s*\(max-width:\s*760px\)/);
+});
+
+test('advanced search serializes all new filter parameters', () => {
+  assert.match(advancedSearchScript, /advancedFiltersState\?\.getQueryState/);
+  assert.match(advancedSearchScript, /URLSearchParams/);
+  assert.match(advancedSearchScript, /AdvancedSearchFilters\??\.\s*create/);
+});
+
+test('advanced search restores URL state and resets the new filters', () => {
+  assert.match(advancedSearchScript, /setState\(/);
+  assert.match(advancedSearchScript, /advancedFiltersState\.reset\(\)/);
+  assert.match(advancedSearchScript, /advanced-filter-tags-dismiss/);
+  assert.match(advancedSearchScript, /advanced-filter-tags-reset/);
 });

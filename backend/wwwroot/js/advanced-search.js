@@ -3,19 +3,52 @@ let advancedPage = 1;
 let advancedTotalCount = 0;
 let advancedFiltersOpen = false;
 let advancedView = localStorage.getItem('manganpk_advanced_view') || 'list';
+let advancedFiltersState = null;
+let advancedFilterMetadata = { format: [], genre: [], theme: [], content: [], people: [] };
 const advancedPageSize = 20;
 
 document.addEventListener('DOMContentLoaded', async () => {
   await waitForSession();
-  initAdvancedSearchPage();
+  await loadAdvancedFilterMetadata();
+  initAdvancedSearchPage(new URLSearchParams(window.location.search));
   fetchAdvancedManga();
 });
 
-function initAdvancedSearchPage() {
-  const params = new URLSearchParams(window.location.search);
+async function loadAdvancedFilterMetadata() {
+  const [authors, genres, themes] = await Promise.all([
+    fetch(`${API_BASE}/author`).then(response => response.ok ? response.json() : []),
+    fetch(`${API_BASE}/genre`).then(response => response.ok ? response.json() : []),
+    fetch(`${API_BASE}/theme`).then(response => response.ok ? response.json() : [])
+  ]);
+  advancedFilterMetadata = {
+    format: [
+      { value: '1', name: 'Adaptation' },
+      { value: '2', name: 'Web Comic' },
+      { value: '3', name: 'One-shot' },
+      { value: '4', name: 'Comic' },
+      { value: '5', name: 'Book' }
+    ],
+    genre: genres.map(item => ({ id: item.id, name: item.name })),
+    theme: themes.map(item => ({ id: item.id, name: item.name })),
+    content: [
+      { value: 'Gore', name: 'Gore' },
+      { value: 'Sexual Violence', name: 'Sexual Violence' }
+    ],
+    people: authors
+  };
+}
+
+function initAdvancedSearchPage(params = new URLSearchParams(window.location.search)) {
   const search = params.get('search') || params.get('q') || '';
   const searchInput = document.getElementById('advanced-search-input');
   if (searchInput) searchInput.value = search;
+  advancedFiltersState = window.AdvancedSearchFilters?.create({
+    metadata: advancedFilterMetadata,
+    onChange: updateAdvancedResetState
+  }) || null;
+  if (advancedFiltersState && window.AdvancedSearchFilterUtils) {
+    advancedFiltersState.setState(window.AdvancedSearchFilterUtils.parseQueryState(params));
+  }
 
   document.getElementById('advanced-toggle-filters')?.addEventListener('click', toggleAdvancedFilters);
   document.getElementById('advanced-search-btn')?.addEventListener('click', () => {
@@ -24,6 +57,17 @@ function initAdvancedSearchPage() {
   });
   document.getElementById('advanced-reset')?.addEventListener('click', resetAdvancedFilters);
   document.getElementById('advanced-lucky')?.addEventListener('click', goToRandomManga);
+  document.getElementById('advanced-filter-tags-trigger')?.addEventListener('click', toggleAdvancedTagPanel);
+  document.getElementById('advanced-filter-tags-dismiss')?.addEventListener('click', closeAdvancedTagPanel);
+  document.getElementById('advanced-filter-tags-reset')?.addEventListener('click', () => {
+    if (advancedFiltersState) advancedFiltersState.reset();
+    updateAdvancedResetState();
+  });
+  document.addEventListener('click', event => {
+    const panel = document.getElementById('advanced-filter-tags-panel');
+    const trigger = document.getElementById('advanced-filter-tags-trigger');
+    if (panel && trigger && !panel.contains(event.target) && !trigger.contains(event.target)) closeAdvancedTagPanel();
+  });
   searchInput?.addEventListener('keydown', event => {
     if (event.key === 'Enter') {
       advancedPage = 1;
@@ -76,6 +120,9 @@ function buildAdvancedQuery(includePage = true) {
   if (demographic) params.set('demographic', demographic);
   if (status) params.set('status', status);
   if (year) params.set('releaseYear', year);
+  Object.entries(advancedFiltersState?.getQueryState?.() || {}).forEach(([key, value]) => {
+    if (value) params.set(key, value);
+  });
   return params;
 }
 
@@ -241,6 +288,28 @@ function toggleAdvancedFilters() {
   updateAdvancedFiltersVisibility();
 }
 
+function toggleAdvancedTagPanel() {
+  const panel = document.getElementById('advanced-filter-tags-panel');
+  const trigger = document.getElementById('advanced-filter-tags-trigger');
+  if (!panel || !trigger) return;
+  panel.hidden = !panel.hidden;
+  trigger.setAttribute('aria-expanded', String(!panel.hidden));
+  const icon = trigger.querySelector('i');
+  if (icon) icon.setAttribute('data-lucide', panel.hidden ? 'chevron-down' : 'chevron-up');
+  if (typeof lucide !== 'undefined') lucide.createIcons();
+}
+
+function closeAdvancedTagPanel() {
+  const panel = document.getElementById('advanced-filter-tags-panel');
+  const trigger = document.getElementById('advanced-filter-tags-trigger');
+  if (!panel || !trigger) return;
+  panel.hidden = true;
+  trigger.setAttribute('aria-expanded', 'false');
+  const icon = trigger.querySelector('i');
+  if (icon) icon.setAttribute('data-lucide', 'chevron-down');
+  if (typeof lucide !== 'undefined') lucide.createIcons();
+}
+
 function updateAdvancedFiltersVisibility() {
   const filters = document.getElementById('advanced-filters');
   const button = document.getElementById('advanced-toggle-filters');
@@ -259,6 +328,7 @@ function resetAdvancedFilters() {
     const el = document.getElementById(id);
     if (el) el.value = '';
   });
+  advancedFiltersState?.reset();
   updateAdvancedResetState();
   advancedPage = 1;
   fetchAdvancedManga();
@@ -266,7 +336,10 @@ function resetAdvancedFilters() {
 
 function updateAdvancedResetState() {
   const hasFilters = ['advanced-search-input', 'advanced-sort', 'advanced-type', 'advanced-demographic', 'advanced-status', 'advanced-year', 'advanced-rating']
-    .some(id => (document.getElementById(id)?.value || '').trim() !== '');
+    .some(id => (document.getElementById(id)?.value || '').trim() !== '')
+    || Object.values(advancedFiltersState?.getState?.()?.tags || {}).some(group => group.include.length || group.exclude.length)
+    || (advancedFiltersState?.getState?.()?.authors?.length || 0) > 0
+    || (advancedFiltersState?.getState?.()?.artists?.length || 0) > 0;
   document.getElementById('advanced-reset')?.classList.toggle('has-filters', hasFilters);
 }
 
@@ -304,5 +377,8 @@ function escapeAdvancedHtml(text) {
 }
 
 function onLocaleChanged() {
+  advancedFiltersState?.render();
   renderAdvancedResults();
 }
+
+window.addEventListener('manganpk:localechanged', onLocaleChanged);

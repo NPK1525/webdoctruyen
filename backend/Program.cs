@@ -3,6 +3,7 @@ using MangaNPK.Data;
 using MangaNPK.Services;
 using MangaNPK.Services.Email;
 using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
 
@@ -23,7 +24,10 @@ builder.Services.AddDbContext<MangaDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // ── MVC + JSON ────────────────────────────────────────────────────────────────
-builder.Services.AddControllersWithViews()
+builder.Services.AddControllersWithViews(options =>
+{
+    options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute());
+})
     .AddJsonOptions(options =>
     {
         options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
@@ -58,20 +62,17 @@ builder.Services.AddScoped<IEmailSender, SmtpEmailSender>();
 builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddScoped<PasswordResetService>();
 
-// ── CORS ──────────────────────────────────────────────────────────────────────
-// In development allow localhost origins; in production set AllowedOrigins in config.
-var allowedOrigins = builder.Configuration.GetSection("AllowedOrigins").Get<string[]>()
-    ?? ["http://localhost:3000", "http://localhost:5274"];
-
-builder.Services.AddCors(options =>
+// ── Same-origin request protection ────────────────────────────────────────────
+builder.Services.AddAntiforgery(options =>
 {
-    options.AddPolicy("AllowFrontend", policy =>
-    {
-        policy.WithOrigins(allowedOrigins)
-              .AllowAnyMethod()
-              .AllowAnyHeader()
-              .AllowCredentials(); // required for session cookies
-    });
+    options.HeaderName = "X-CSRF-TOKEN";
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+    options.Cookie.SameSite = SameSiteMode.Strict;
+    options.Cookie.SecurePolicy =
+        builder.Environment.IsDevelopment() || builder.Environment.IsEnvironment("Testing")
+            ? CookieSecurePolicy.None
+            : CookieSecurePolicy.Always;
 });
 
 // ── Rate Limiting ─────────────────────────────────────────────────────────────
@@ -89,8 +90,9 @@ builder.Services.AddOpenApi();
 var app = builder.Build();
 
 // ── Database Seed ─────────────────────────────────────────────────────────────
-using (var scope = app.Services.CreateScope())
+if (!app.Environment.IsEnvironment("Testing"))
 {
+    using var scope = app.Services.CreateScope();
     try
     {
         var context = scope.ServiceProvider.GetRequiredService<MangaDbContext>();
@@ -109,7 +111,6 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseIpRateLimiting();
-app.UseCors("AllowFrontend");
 app.Use(async (context, next) =>
 {
     var destination = LegacyRouteRedirect.Resolve(
@@ -138,3 +139,5 @@ app.MapControllerRoute(
 app.MapControllers();
 
 app.Run();
+
+public partial class Program;

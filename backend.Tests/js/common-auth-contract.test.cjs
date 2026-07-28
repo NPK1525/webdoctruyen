@@ -123,7 +123,7 @@ test('home recommendations and profile back link use live routes', () => {
 test('all shared navigation consumers use the avatar-aware common.js cache version', () => {
   for (const relativePath of viewPaths) {
     const view = fs.readFileSync(path.join(root, relativePath), 'utf8');
-    assert.match(view, /(?:\/|\b)js\/common\.js\?v=5\.7/, relativePath);
+    assert.match(view, /(?:\/|\b)js\/common\.js\?v=5\.8/, relativePath);
   }
 });
 

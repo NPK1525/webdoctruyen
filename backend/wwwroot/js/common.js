@@ -15,12 +15,43 @@ let currentUser = null;
 let isSidebarOpen = false;
 let isUserMenuOpen = false;
 
-function apiFetch(url, options = {}) {
-  const headers = { ...(options.headers || {}) };
-  if (options.body && !headers['Content-Type']) {
-    headers['Content-Type'] = 'application/json';
+const UNSAFE_HTTP_METHODS = new Set(['POST', 'PUT', 'PATCH', 'DELETE']);
+let csrfTokenPromise = null;
+
+async function getCsrfToken() {
+  if (!csrfTokenPromise) {
+    csrfTokenPromise = fetch('/api/security/csrf', {
+      credentials: 'same-origin',
+      cache: 'no-store'
+    })
+      .then(response => {
+        if (!response.ok) throw new Error('Unable to initialize request security.');
+        return response.json();
+      })
+      .then(payload => payload.requestToken);
   }
-  return fetch(url, { ...options, credentials: 'same-origin', headers });
+
+  try {
+    return await csrfTokenPromise;
+  } catch (error) {
+    csrfTokenPromise = null;
+    throw error;
+  }
+}
+
+async function apiFetch(url, options = {}) {
+  const method = String(options.method || 'GET').toUpperCase();
+  const headers = new Headers(options.headers || {});
+  const bodyIsFormData = typeof FormData !== 'undefined' && options.body instanceof FormData;
+
+  if (options.body && !bodyIsFormData && !headers.has('Content-Type')) {
+    headers.set('Content-Type', 'application/json');
+  }
+  if (UNSAFE_HTTP_METHODS.has(method)) {
+    headers.set('X-CSRF-TOKEN', await getCsrfToken());
+  }
+
+  return fetch(url, { ...options, method, credentials: 'same-origin', headers });
 }
 
 function waitForSession() {

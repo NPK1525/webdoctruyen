@@ -1,4 +1,4 @@
-﻿@model MangaNPK.Models.Manga
+@model MangaNPK.Models.Manga
 @{
     Layout = null;
     var chaptersJson = System.Text.Json.JsonSerializer.Serialize(Model.Chapters?.OrderByDescending(c => c.ChapterNumber).Select(c => new {
@@ -248,7 +248,7 @@
     <script src="/js/common-library.js?v=1.0"></script>
     <script src="/js/common-auth.js?v=1.0"></script>
     @await Html.PartialAsync("_ReportModal")
-    <script src="/js/common.js?v=5.7"></script>
+    <script src="/js/common.js?v=5.8"></script>
     <script src="/js/report-modal.js?v=1.0"></script>
     <script src="/js/detail-taxonomy.js?v=1.0"></script>
     <script src="/js/detail-lists.js?v=1.0"></script>

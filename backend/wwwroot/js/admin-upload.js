@@ -3,7 +3,7 @@
 async function uploadFile(file) {
   const formData = new FormData();
   formData.append('file', file);
-  const res = await fetch(`${API_BASE}/upload`, {
+  const res = await apiFetch(`${API_BASE}/upload`, {
     method: 'POST',
     body: formData,
     credentials: 'same-origin'
@@ -15,7 +15,7 @@ async function uploadFile(file) {
 async function uploadMultipleFiles(files) {
   const formData = new FormData();
   for (const f of files) formData.append('files', f);
-  const res = await fetch(`${API_BASE}/upload/multiple`, {
+  const res = await apiFetch(`${API_BASE}/upload/multiple`, {
     method: 'POST',
     body: formData,
     credentials: 'same-origin'

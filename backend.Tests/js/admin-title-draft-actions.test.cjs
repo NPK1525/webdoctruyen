@@ -5,6 +5,7 @@ const test = require('node:test');
 
 const root = path.resolve(__dirname, '..', '..');
 const view = fs.readFileSync(path.join(root, 'backend', 'Views', 'AdminView', 'Index.cshtml'), 'utf8');
+const script = fs.readFileSync(path.join(root, 'backend', 'wwwroot', 'js', 'admin-title-drafts.js'), 'utf8');
 
 test('title draft actions use Vietnamese copy and shared rounded button treatment', () => {
   const cancelAction = view.match(/<button type="button" id="btn-cancel-title-draft"[\s\S]*?<\/button>/)?.[0] ?? '';
@@ -23,4 +24,10 @@ test('title draft primary action includes an upload icon', () => {
 test('title draft actions wrap consistently on small screens', () => {
   assert.match(view, /\.title-draft-actions\s*\{[^}]*flex-wrap:\s*wrap/s);
   assert.match(view, /\.title-draft-actions \.btn\s*\{[^}]*min-width:\s*130px/s);
+});
+
+test('title draft author roles decode legacy HTML entities before display and save', () => {
+  assert.match(script, /function normalizeTitleAuthorRole/);
+  assert.match(script, /replace\(\/&amp;\/gi,\s*'&'\)/);
+  assert.match(script, /role:\s*normalizeTitleAuthorRole\(a\.role\)/);
 });

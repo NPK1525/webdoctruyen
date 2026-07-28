@@ -55,12 +55,16 @@ namespace MangaNPK.Controllers
         {
             var userId = HttpContext.Session.GetInt32("UserId")!.Value;
 
+            if (dto.Email is not null)
+                return BadRequest(new { message = "Email chỉ có thể được thay đổi bởi quản trị viên." });
+
+            var avatarError = AvatarUrlValidator.GetValidationError(dto.AvatarUrl);
+            if (avatarError is not null)
+                return BadRequest(new { message = avatarError });
+
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
             if (user == null)
                 return NotFound(new { message = "Không tìm thấy người dùng." });
-
-            if (!string.IsNullOrWhiteSpace(dto.Email))
-                user.Email = dto.Email.Trim();
 
             if (dto.Bio != null)
                 user.Bio = dto.Bio.Trim();

@@ -490,14 +490,12 @@ function renderMangaGrid() {
   if (!swiperWrapper) return;
 
   const cardHTML = (m) => `
-    <div class="glass-card manga-card" style="display:flex;flex-direction:column;overflow:hidden;border-radius:var(--radius-md);cursor:pointer;" data-manga-id="${m.id}">
-      <div style="position:relative;aspect-ratio:2/3;overflow:hidden;border-radius:var(--radius-md);">
-        <img src="${m.coverUrl || ''}" alt="${m.title}" style="width:100%;height:100%;object-fit:cover;" loading="lazy" />
+    <div class="home-manga-item manga-card" data-manga-id="${m.id}">
+      <div class="home-manga-cover-frame">
+        <img src="${m.coverUrl || ''}" alt="${m.title}" loading="lazy" />
         <span class="${getTypeBadgeClass(m.type)}" style="position:absolute;top:8px;left:8px;font-size:0.65rem;">${getTypeLabel(m.type)}</span>
       </div>
-      <div style="padding:8px 6px 6px;">
-        <h4 style="font-size:0.85rem;font-weight:700;color:var(--text-main);margin:0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;line-height:1.3;">${m.title}</h4>
-      </div>
+      <h4 class="home-manga-card-title">${m.title}</h4>
     </div>`;
 
   if (mangas.length === 0) {

@@ -43,4 +43,21 @@ public class TitleSubmissionServiceTests
 
         Assert.Null(TitleSubmissionValidation.Validate(payload, requireCover: true));
     }
+
+    [Fact]
+    public void ValidateAcceptsHtmlEncodedCombinedAuthorRole()
+    {
+        var payload = new TitleSubmissionPayload
+        {
+            Title = "Test title",
+            Description = "A description",
+            CoverUrl = "https://cdn.test/cover.jpg",
+            Authors =
+            [
+                new TitleAuthorInput { Name = "NPK", Role = "Story &amp; Art" }
+            ]
+        };
+
+        Assert.Null(TitleSubmissionValidation.Validate(payload, requireCover: true));
+    }
 }

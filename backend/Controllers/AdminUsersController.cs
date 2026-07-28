@@ -45,6 +45,30 @@ public sealed class AdminUsersController(MangaDbContext context) : ControllerBas
         return Ok(new AdminUserListResponse(items, page, pageSize, totalItems, totalPages));
     }
 
+    [HttpGet("users/{id:int}")]
+    public async Task<IActionResult> Get(int id)
+    {
+        var currentUserId = HttpContext.Session.GetInt32("UserId")!.Value;
+        var user = await context.Users.AsNoTracking()
+            .Where(candidate => candidate.Id == id)
+            .Select(candidate => new AdminUserListItemDto(
+                candidate.Id,
+                candidate.Username,
+                candidate.Email,
+                candidate.Role,
+                candidate.AvatarUrl,
+                candidate.Bio,
+                candidate.Badge,
+                candidate.IsLocked,
+                candidate.CreatedAt,
+                candidate.Id == currentUserId))
+            .SingleOrDefaultAsync(HttpContext.RequestAborted);
+
+        return user is null
+            ? NotFound(new { message = "Không tìm thấy người dùng." })
+            : Ok(user);
+    }
+
     [HttpPut("users/{id:int}/role")]
     public async Task<IActionResult> UpdateRole(int id, [FromBody] UpdateUserRoleDto dto)
     {
@@ -74,7 +98,8 @@ public sealed class AdminUsersController(MangaDbContext context) : ControllerBas
         if (!AuthService.IsValidEmail(email)) return BadRequest(new { message = "Email không hợp lệ." });
         if (dto.Bio?.Length > 500) return BadRequest(new { message = "Tiểu sử không được vượt quá 500 ký tự." });
         if (dto.Badge?.Length > 50) return BadRequest(new { message = "Huy hiệu không được vượt quá 50 ký tự." });
-        if (dto.AvatarUrl?.Length > 500) return BadRequest(new { message = "URL ảnh đại diện không được vượt quá 500 ký tự." });
+        var avatarError = AvatarUrlValidator.GetValidationError(dto.AvatarUrl);
+        if (avatarError is not null) return BadRequest(new { message = avatarError });
 
         var currentUserId = HttpContext.Session.GetInt32("UserId")!.Value;
         var requestedRole = string.IsNullOrWhiteSpace(dto.Role) ? null : dto.Role.Trim();
@@ -112,6 +137,22 @@ public sealed class AdminUsersController(MangaDbContext context) : ControllerBas
             HttpContext.Session.SetString("Username", user.Username);
         }
         return Ok(ToDto(user, currentUserId));
+    }
+
+    [HttpPut("users/{id:int}/password")]
+    public async Task<IActionResult> ResetPassword(int id, [FromBody] ResetUserPasswordDto dto)
+    {
+        if (!string.Equals(dto.NewPassword, dto.ConfirmPassword, StringComparison.Ordinal))
+            return BadRequest(new { message = "Mật khẩu xác nhận không khớp." });
+        if (!AuthService.IsValidPassword(dto.NewPassword))
+            return BadRequest(new { message = "Mật khẩu mới phải có ít nhất 8 ký tự, gồm chữ và số." });
+
+        var user = await context.Users.FindAsync([id], HttpContext.RequestAborted);
+        if (user is null) return NotFound(new { message = "Không tìm thấy người dùng." });
+
+        user.PasswordHash = AuthService.HashPassword(dto.NewPassword);
+        await context.SaveChangesAsync(HttpContext.RequestAborted);
+        return Ok(new { message = "Đã đặt lại mật khẩu người dùng." });
     }
 
     [HttpPut("users/{id:int}/lock")]

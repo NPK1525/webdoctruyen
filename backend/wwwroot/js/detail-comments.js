@@ -83,6 +83,7 @@ function renderComments() {
 
   list.innerHTML = comments.map(comment => renderCommentItem(comment)).join('');
   bindCommentEvents();
+  activateAvatarFallbacks(list);
 
   if (typeof lucide !== 'undefined') lucide.createIcons();
 }
@@ -105,8 +106,8 @@ function renderCommentItem(comment) {
     <div class="glass-card comment-item" data-comment-id="${comment.id}" style="padding: 16px; border-radius: var(--radius-md);">
       <div style="display: flex; gap: 12px;">
         <!-- Avatar -->
-        <div style="width: 40px; height: 40px; border-radius: 50%; background-color: var(--bg-input); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-          <i data-lucide="user" style="width: 20px; height: 20px; color: var(--text-muted);"></i>
+        <div style="width: 40px; height: 40px; border-radius: 50%; background-color: var(--bg-input); display: flex; align-items: center; justify-content: center; flex-shrink: 0; overflow: hidden;">
+          ${renderUserAvatarContent(comment.avatarUrl, 20)}
         </div>
 
         <!-- Content -->
@@ -307,6 +308,12 @@ function updateCommentUI() {
   if (currentUser) {
     formContainer.style.display = 'block';
     loginPrompt.style.display = 'none';
+    const formAvatar = document.getElementById('comment-current-user-avatar');
+    if (formAvatar) {
+      formAvatar.innerHTML = renderUserAvatarContent(currentUser.avatarUrl, 20);
+      activateAvatarFallbacks(formAvatar);
+      if (typeof lucide !== 'undefined') lucide.createIcons();
+    }
   } else {
     formContainer.style.display = 'none';
     loginPrompt.style.display = 'block';

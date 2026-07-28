@@ -33,6 +33,51 @@ function waitForSession() {
   });
 }
 
+function sanitizeAvatarUrl(value) {
+  const url = typeof value === 'string' ? value.trim() : '';
+  const isWebUrl = /^(https?:\/\/|\/(?!\/))/i.test(url);
+  const isSafeDataImage = /^data:image\/(?:png|jpe?g|gif|webp);base64,[a-z0-9+/=\s]+$/i.test(url);
+  return isWebUrl || isSafeDataImage ? url : '';
+}
+
+function escapeAvatarAttribute(value) {
+  return String(value)
+    .replaceAll('&', '&amp;')
+    .replaceAll('"', '&quot;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;');
+}
+
+function renderUserAvatarContent(avatarUrl, iconSize) {
+  const safeUrl = sanitizeAvatarUrl(avatarUrl);
+  const image = safeUrl
+    ? `<img class="user-avatar-image" src="${escapeAvatarAttribute(safeUrl)}" alt="" style="width: 100%; height: 100%; object-fit: cover; display: block;">`
+    : '';
+  const fallbackDisplay = safeUrl ? 'none' : 'block';
+  return `${image}<i class="user-avatar-fallback" data-lucide="user" style="width: ${iconSize}px; height: ${iconSize}px; color: var(--text-bright); display: ${fallbackDisplay};"></i>`;
+}
+
+function activateAvatarFallbacks(root) {
+  root.querySelectorAll('.user-avatar-image').forEach(image => {
+    image.addEventListener('error', () => {
+      image.style.display = 'none';
+      const fallback = image.nextElementSibling;
+      if (fallback) fallback.style.display = 'block';
+    }, { once: true });
+  });
+}
+
+function synchronizeCurrentUserAvatar(avatarUrl) {
+  if (!currentUser) return;
+  currentUser = { ...currentUser, avatarUrl: avatarUrl || null };
+  try {
+    localStorage.setItem('user', JSON.stringify(currentUser));
+  } catch (error) {
+    console.warn('Unable to persist avatar in the local session.', error);
+  }
+  renderHeaderUserArea();
+}
+
 
 // Initialize common page controls
 document.addEventListener('DOMContentLoaded', async () => {
@@ -332,15 +377,15 @@ function renderHeaderUserArea() {
     area.innerHTML = `
       <div style="display: flex; align-items: center; gap: 12px; position: relative;">
         <!-- Clickable Avatar -->
-        <div id="header-avatar" style="width: 36px; height: 36px; border-radius: 50%; background-color: #2F333B; display: flex; align-items: center; justify-content: center; cursor: pointer; border: 2px solid #FF8C00; color: white; transition: all 0.2s;" title="${t('user.profile', 'T\u00e0i kho\u1ea3n')}">
-          <i data-lucide="user" style="width: 18px; height: 18px;"></i>
+        <div id="header-avatar" style="width: 36px; height: 36px; border-radius: 50%; background-color: #2F333B; display: flex; align-items: center; justify-content: center; cursor: pointer; border: 2px solid #FF8C00; color: white; transition: all 0.2s; overflow: hidden;" title="${t('user.profile', 'T\u00e0i kho\u1ea3n')}">
+          ${renderUserAvatarContent(currentUser.avatarUrl, 18)}
         </div>
 
         <!-- Dropdown Menu -->
         <div id="header-user-dropdown" style="display: none; position: absolute; top: 48px; right: 0; width: 220px; background-color: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 8px; box-shadow: var(--shadow-lg); z-index: 1000; padding: 12px; overflow: hidden; flex-direction: column; gap: 10px;">
           <div style="display: flex; flex-direction: column; align-items: center; gap: 4px;">
             <div style="width: 48px; height: 48px; border-radius: 50%; background-color: var(--bg-input); display: flex; align-items: center; justify-content: center; border: 2px solid #FF8C00; overflow: hidden;">
-              <i data-lucide="user" style="width: 24px; height: 24px; color: var(--text-bright);"></i>
+              ${renderUserAvatarContent(currentUser.avatarUrl, 24)}
             </div>
             <span style="font-size: 0.95rem; font-weight: 700; color: var(--text-bright);">${currentUser.username}</span>
             <span style="font-size: 0.65rem; font-weight: 600; padding: 1px 8px; border-radius: 12px; background-color: var(--bg-input); color: var(--text-muted); border: 1px solid var(--border-subtle); text-transform: uppercase;">${currentUser.role || 'User'}</span>
@@ -406,6 +451,7 @@ function renderHeaderUserArea() {
     });
   }
 
+  activateAvatarFallbacks(area);
   if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 

@@ -36,6 +36,7 @@ namespace MangaNPK.Controllers
                     Id = c.Id,
                     UserId = c.UserId,
                     Username = c.User.Username,
+                    AvatarUrl = c.User.AvatarUrl,
                     Content = c.Content,
                     CreatedAt = c.CreatedAt,
                     UpdatedAt = c.UpdatedAt
@@ -57,6 +58,7 @@ namespace MangaNPK.Controllers
                     Id = c.Id,
                     UserId = c.UserId,
                     Username = c.User.Username,
+                    AvatarUrl = c.User.AvatarUrl,
                     Content = c.Content,
                     CreatedAt = c.CreatedAt,
                     UpdatedAt = c.UpdatedAt
@@ -107,6 +109,7 @@ namespace MangaNPK.Controllers
                 Id = comment.Id,
                 UserId = comment.UserId,
                 Username = user?.Username ?? "Unknown",
+                AvatarUrl = user?.AvatarUrl,
                 Content = comment.Content,
                 CreatedAt = comment.CreatedAt,
                 UpdatedAt = comment.UpdatedAt
@@ -140,6 +143,7 @@ namespace MangaNPK.Controllers
                 Id = comment.Id,
                 UserId = comment.UserId,
                 Username = user?.Username ?? "Unknown",
+                AvatarUrl = user?.AvatarUrl,
                 Content = comment.Content,
                 CreatedAt = comment.CreatedAt,
                 UpdatedAt = comment.UpdatedAt
@@ -172,6 +176,7 @@ namespace MangaNPK.Controllers
         public int Id { get; set; }
         public int UserId { get; set; }
         public string Username { get; set; } = string.Empty;
+        public string? AvatarUrl { get; set; }
         public string Content { get; set; } = string.Empty;
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }

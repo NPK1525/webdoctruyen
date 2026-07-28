@@ -125,9 +125,9 @@ function renderMangaFormAuthorsList() {
     return;
   }
   container.innerHTML = selectedAdminMangaAuthors.map((a, idx) => `
-    <div style="display:flex;align-items:center;justify-content:space-between;font-size:0.85rem;background-color:rgba(255,255,255,0.03);padding:6px 12px;border-radius:4px;">
-      <span style="color:white;font-weight:600;">${a.name} <span style="color:#FF8C00;font-size:0.75rem;">(${a.role})</span></span>
-      <button type="button" class="btn-remove-form-author" data-idx="${idx}" style="color:#FF4552;display:flex;align-items:center;background:none;border:none;cursor:pointer;">
+    <div class="manga-form-author-chip">
+      <span class="author-name">${escapeAdminHtml(a.name)} <span class="author-role">(${escapeAdminHtml(a.role)})</span></span>
+      <button type="button" class="btn-remove-form-author" data-idx="${idx}" aria-label="${t('admin.removeAuthor', 'Xóa tác giả')}" title="${t('admin.removeAuthor', 'Xóa tác giả')}">
         <i data-lucide="x" style="width:16px;height:16px;"></i>
       </button>
     </div>

@@ -1,5 +1,10 @@
 // Admin title-draft state and actions.
 
+function normalizeTitleAuthorRole(value) {
+  const decoded = String(value || '').replace(/&amp;/gi, '&').trim();
+  return ['Story', 'Art', 'Story & Art'].includes(decoded) ? decoded : 'Story & Art';
+}
+
 function populateTitleAuthorDropdown() {
   const select = document.getElementById('draft-author-select');
   if (!select) return;
@@ -23,7 +28,7 @@ function renderTitleAuthors() {
 
 function addTitleAuthor() {
   const select = document.getElementById('draft-author-select');
-  const role = document.getElementById('draft-author-role')?.value || 'Story & Art';
+  const role = normalizeTitleAuthorRole(document.getElementById('draft-author-role')?.value);
   const newNameInput = document.getElementById('draft-new-author-name');
   const authorId = Number(select?.value || 0) || null;
   const newName = newNameInput?.value.trim() || '';
@@ -183,7 +188,11 @@ async function loadTitleDraftForEditing(id) {
     document.getElementById('draft-status').value = normalizeEnumValue(d.status, { Ongoing: 0, Completed: 1, Hiatus: 2, Cancelled: 3 });
     document.getElementById('draft-release-year').value = d.releaseYear || '';
     document.getElementById('draft-publisher').value = d.publisher || '';
-    selectedTitleAuthors = (d.authors || []).map(a => ({ authorId: a.authorId || null, name: a.proposedName || a.name || '', role: a.role || 'Story & Art' }));
+    selectedTitleAuthors = (d.authors || []).map(a => ({
+      authorId: a.authorId || null,
+      name: a.proposedName || a.name || '',
+      role: normalizeTitleAuthorRole(a.role)
+    }));
     renderTitleAuthors();
     document.getElementById('draft-demographic').value = normalizeEnumValue(d.demographic, { None: 0, Shounen: 1, Shoujo: 2, Seinen: 3, Josei: 4 });
     document.getElementById('draft-format').value = normalizeEnumValue(d.format, { None: 0, Adaptation: 1, WebComic: 2, OneShot: 3, Comic: 4, Book: 5 });
@@ -236,7 +245,11 @@ function collectTitleDraftPayload(submitForReview) {
     format: Number(document.getElementById('draft-format').value),
     releaseYear: document.getElementById('draft-release-year').value ? Number(document.getElementById('draft-release-year').value) : null,
     publisher: document.getElementById('draft-publisher').value.trim(),
-    authors: selectedTitleAuthors.map(a => ({ authorId: a.authorId, name: a.authorId ? '' : a.name, role: a.role })),
+    authors: selectedTitleAuthors.map(a => ({
+      authorId: a.authorId,
+      name: a.authorId ? '' : a.name,
+      role: normalizeTitleAuthorRole(a.role)
+    })),
     genreIds,
     themeIds,
     demographic: Number(document.getElementById('draft-demographic').value),

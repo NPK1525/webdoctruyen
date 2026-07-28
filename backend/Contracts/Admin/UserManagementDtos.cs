@@ -38,3 +38,9 @@ public sealed class UpdateUserProfileDto
     public string? Bio { get; set; }
     public string? Badge { get; set; }
 }
+
+public sealed class ResetUserPasswordDto
+{
+    public string NewPassword { get; set; } = string.Empty;
+    public string ConfirmPassword { get; set; } = string.Empty;
+}

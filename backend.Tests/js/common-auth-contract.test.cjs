@@ -12,8 +12,7 @@ const viewPaths = [
   'Views/LibraryView/Index.cshtml', 'Views/MangaView/Detail.cshtml',
   'Views/MangaView/Index.cshtml', 'Views/RecentlyAddedView/Index.cshtml',
   'Views/UpdatesView/Index.cshtml',
-  'wwwroot/detail.html', 'wwwroot/index.html',
-  'wwwroot/profile.html', 'wwwroot/reader.html'
+  'wwwroot/profile.html'
 ];
 const modulePath = path.join(root, 'wwwroot/js/common-auth.js');
 const coordinator = fs.readFileSync(path.join(root, 'wwwroot/js/common.js'), 'utf8');
@@ -105,11 +104,9 @@ test('followed updates and latest updates use distinct MVC routes', () => {
   assert.match(coordinator, /path\.startsWith\('\/follow-updates'\)\) activeId = 'nav-updates-btn'/);
 });
 
-test('all static pages opt into the MVC sidebar renderer', () => {
-  for (const relativePath of ['wwwroot/index.html', 'wwwroot/detail.html', 'wwwroot/profile.html', 'wwwroot/reader.html']) {
-    const page = fs.readFileSync(path.join(root, relativePath), 'utf8');
-    assert.match(page, /id="sidebar-drawer"[^>]*data-use-unified-sidebar="true"/, relativePath);
-  }
+test('remaining static profile page opts into the MVC sidebar renderer', () => {
+  const page = fs.readFileSync(path.join(root, 'wwwroot/profile.html'), 'utf8');
+  assert.match(page, /id="sidebar-drawer"[^>]*data-use-unified-sidebar="true"/);
   assert.match(coordinator, /drawer\.children\.length > 0 && !useUnifiedSidebar/);
 });
 
@@ -123,10 +120,10 @@ test('home recommendations and profile back link use live routes', () => {
   assert.match(profile, /href="\/"[^>]*>[\s\S]*?Quay l[aạ]i trang ch[uủ]/);
 });
 
-test('all shared navigation consumers use the same common.js cache version', () => {
+test('all shared navigation consumers use the avatar-aware common.js cache version', () => {
   for (const relativePath of viewPaths) {
     const view = fs.readFileSync(path.join(root, relativePath), 'utf8');
-    assert.match(view, /(?:\/|\b)js\/common\.js\?v=5\.5/, relativePath);
+    assert.match(view, /(?:\/|\b)js\/common\.js\?v=5\.7/, relativePath);
   }
 });
 

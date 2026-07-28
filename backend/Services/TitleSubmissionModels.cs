@@ -1,4 +1,5 @@
 using MangaNPK.Models;
+using System.Net;
 
 namespace MangaNPK.Services;
 
@@ -65,8 +66,9 @@ public static class TitleSubmissionValidation
             if (author.AuthorId is null && string.IsNullOrWhiteSpace(name))
                 return "Mỗi tác giả phải được chọn hoặc có tên mới.";
             if (name.Length > 200) return "Tên tác giả không được dài quá 200 ký tự.";
-            if (!SupportedRoles.Contains(author.Role.Trim())) return "Vai trò tác giả không hợp lệ.";
-            var key = $"{author.AuthorId?.ToString() ?? name.ToUpperInvariant()}|{author.Role.Trim().ToUpperInvariant()}";
+            var role = WebUtility.HtmlDecode(author.Role).Trim();
+            if (!SupportedRoles.Contains(role)) return "Vai trò tác giả không hợp lệ.";
+            var key = $"{author.AuthorId?.ToString() ?? name.ToUpperInvariant()}|{role.ToUpperInvariant()}";
             if (!seen.Add(key)) return "Không được thêm tác giả trùng vai trò.";
         }
 

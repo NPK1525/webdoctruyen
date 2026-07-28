@@ -19,3 +19,11 @@ test('manga and title-draft globals stay available by name', () => {
   for (const name of ['loadTitleDraftForEditing', 'saveTitleDraft', 'approveTitleDraft', 'rejectTitleDraft'])
     assert.match(drafts, new RegExp(`function ${name}\\(`));
 });
+
+test('admin manga authors use the shared themed chip classes', () => {
+  assert.match(view, /id="manga-form-added-authors-list" class="manga-form-added-authors-list"/);
+  assert.match(view, /\.manga-form-author-chip\s*\{/);
+  assert.match(manga, /class="manga-form-author-chip"/);
+  assert.match(manga, /class="author-role"/);
+  assert.match(manga, /escapeAdminHtml\(a\.name\)/);
+});

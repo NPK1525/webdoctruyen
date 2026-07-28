@@ -69,7 +69,14 @@ namespace MangaNPK.Controllers
             return Ok(new
             {
                 message = "Đăng ký tài khoản thành công!",
-                user = new { id = user.Id, username = user.Username, email = user.Email, role = user.Role }
+                user = new
+                {
+                    id = user.Id,
+                    username = user.Username,
+                    email = user.Email,
+                    role = user.Role,
+                    avatarUrl = user.AvatarUrl
+                }
             });
         }
 
@@ -105,7 +112,14 @@ namespace MangaNPK.Controllers
             return Ok(new
             {
                 message = "Đăng nhập thành công!",
-                user = new { id = user.Id, username = user.Username, email = user.Email, role = user.Role }
+                user = new
+                {
+                    id = user.Id,
+                    username = user.Username,
+                    email = user.Email,
+                    role = user.Role,
+                    avatarUrl = user.AvatarUrl
+                }
             });
         }
 
@@ -176,7 +190,17 @@ namespace MangaNPK.Controllers
                 return StatusCode(StatusCodes.Status403Forbidden, new { message = "Tài khoản đã bị khóa." });
             }
 
-            return Ok(new { user = new { id = user.Id, username = user.Username, email = user.Email, role = user.Role } });
+            return Ok(new
+            {
+                user = new
+                {
+                    id = user.Id,
+                    username = user.Username,
+                    email = user.Email,
+                    role = user.Role,
+                    avatarUrl = user.AvatarUrl
+                }
+            });
         }
 
         [HttpPost("logout")]

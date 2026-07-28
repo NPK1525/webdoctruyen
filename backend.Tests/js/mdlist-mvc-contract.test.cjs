@@ -74,13 +74,11 @@ test('MN List CSS consumes shared theme variables instead of fixed dark surfaces
   assert.match(css, /body\.light-mode/);
 });
 
-test('legacy MDList URL redirects to the MVC route', () => {
+test('legacy MDList URL redirects to MVC without a duplicate static page', () => {
   const source = fs.readFileSync(path.join(root, 'Services/LegacyRouteRedirect.cs'), 'utf8');
-  const legacyPage = fs.readFileSync(path.join(root, 'wwwroot/lists.html'), 'utf8');
   assert.match(source, /lists\.html/);
   assert.match(source, /\/lists/);
-  assert.match(legacyPage, /5274\/lists/);
-  assert.doesNotMatch(legacyPage, /list-modal|btn-create-list|lists-grid/);
+  assert.equal(fs.existsSync(path.join(root, 'wwwroot/lists.html')), false);
 });
 
 test('signed-out visitors still see the MangaDex-style MDList shell', () => {

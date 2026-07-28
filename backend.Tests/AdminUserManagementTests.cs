@@ -3,6 +3,7 @@ using MangaNPK.Contracts.Admin;
 using MangaNPK.Controllers;
 using MangaNPK.Data;
 using MangaNPK.Models;
+using MangaNPK.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -42,6 +43,25 @@ public class AdminUserManagementTests
         var payload = Assert.IsType<AdminUserListResponse>(result.Value);
 
         Assert.Equal(100, payload.PageSize);
+    }
+
+    [Fact]
+    public async Task Get_ReturnsRequestedUserWithoutPasswordHash()
+    {
+        await using var context = CreateContext();
+        var admin = new User { Username = "admin", Email = "admin@test.local", PasswordHash = "admin-secret", Role = "Admin" };
+        var user = new User { Username = "reader", Email = "reader@test.local", PasswordHash = "reader-secret", Role = "User" };
+        context.Users.AddRange(admin, user);
+        await context.SaveChangesAsync();
+        var controller = CreateController(context, admin.Id);
+
+        var result = Assert.IsType<OkObjectResult>(await controller.Get(user.Id));
+        var payload = Assert.IsType<AdminUserListItemDto>(result.Value);
+
+        Assert.Equal(user.Id, payload.Id);
+        Assert.Equal("reader", payload.Username);
+        Assert.DoesNotContain("PasswordHash", JsonSerializer.Serialize(payload), StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("reader-secret", JsonSerializer.Serialize(payload), StringComparison.Ordinal);
     }
 
     [Fact]
@@ -156,6 +176,146 @@ public class AdminUserManagementTests
         });
 
         Assert.IsType<ConflictObjectResult>(result);
+    }
+
+    [Fact]
+    public async Task UpdateProfile_AcceptsHttpsAvatarLongerThanFiveHundredCharacters()
+    {
+        await using var context = CreateContext();
+        var admin = new User { Username = "admin", Email = "admin@test.local", Role = "Admin" };
+        var user = new User { Username = "reader", Email = "reader@test.local", Role = "User" };
+        context.Users.AddRange(admin, user);
+        await context.SaveChangesAsync();
+        var controller = CreateController(context, admin.Id);
+        var avatarUrl = $"https://cdn.test/{new string('a', 600)}.png";
+
+        var result = await controller.UpdateProfile(user.Id, new UpdateUserProfileDto
+        {
+            Username = user.Username,
+            Email = user.Email,
+            AvatarUrl = avatarUrl
+        });
+
+        Assert.IsType<OkObjectResult>(result);
+        Assert.Equal(avatarUrl, (await context.Users.FindAsync(user.Id))!.AvatarUrl);
+    }
+
+    [Theory]
+    [InlineData("http://cdn.test/avatar.png")]
+    [InlineData("data:image/png;base64,iVBORw0KGgo=")]
+    [InlineData("/uploads/avatar.png")]
+    public async Task UpdateProfile_RejectsNonHttpsAvatar(string avatarUrl)
+    {
+        await using var context = CreateContext();
+        var admin = new User { Username = "admin", Email = "admin@test.local", Role = "Admin" };
+        var user = new User { Username = "reader", Email = "reader@test.local", Role = "User" };
+        context.Users.AddRange(admin, user);
+        await context.SaveChangesAsync();
+        var controller = CreateController(context, admin.Id);
+
+        var result = await controller.UpdateProfile(user.Id, new UpdateUserProfileDto
+        {
+            Username = user.Username,
+            Email = user.Email,
+            AvatarUrl = avatarUrl
+        });
+
+        Assert.IsType<BadRequestObjectResult>(result);
+        Assert.Null((await context.Users.FindAsync(user.Id))!.AvatarUrl);
+    }
+
+    [Fact]
+    public async Task UpdateProfile_RejectsAvatarLongerThanTwoThousandFortyEightCharacters()
+    {
+        await using var context = CreateContext();
+        var admin = new User { Username = "admin", Email = "admin@test.local", Role = "Admin" };
+        var user = new User { Username = "reader", Email = "reader@test.local", Role = "User" };
+        context.Users.AddRange(admin, user);
+        await context.SaveChangesAsync();
+        var controller = CreateController(context, admin.Id);
+
+        var result = await controller.UpdateProfile(user.Id, new UpdateUserProfileDto
+        {
+            Username = user.Username,
+            Email = user.Email,
+            AvatarUrl = $"https://cdn.test/{new string('a', 2049)}"
+        });
+
+        Assert.IsType<BadRequestObjectResult>(result);
+    }
+
+    [Fact]
+    public async Task ResetPassword_ReplacesHashWithoutCurrentPassword()
+    {
+        await using var context = CreateContext();
+        var admin = new User { Username = "admin", Email = "admin@test.local", Role = "Admin" };
+        var user = new User
+        {
+            Username = "reader",
+            Email = "reader@test.local",
+            Role = "User",
+            PasswordHash = AuthService.HashPassword("OldPassword1")
+        };
+        context.Users.AddRange(admin, user);
+        await context.SaveChangesAsync();
+        var controller = CreateController(context, admin.Id);
+
+        var result = await InvokeResetPassword(controller, user.Id, "NewPassword2", "NewPassword2");
+
+        Assert.IsType<OkObjectResult>(result);
+        var saved = await context.Users.FindAsync(user.Id);
+        Assert.True(AuthService.VerifyPassword("NewPassword2", saved!.PasswordHash));
+        Assert.False(AuthService.VerifyPassword("OldPassword1", saved.PasswordHash));
+        Assert.DoesNotContain("PasswordHash", JsonSerializer.Serialize(((OkObjectResult)result).Value), StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Theory]
+    [InlineData("NewPassword2", "DifferentPassword3")]
+    [InlineData("weak", "weak")]
+    public async Task ResetPassword_RejectsInvalidPasswordRequest(string password, string confirmation)
+    {
+        await using var context = CreateContext();
+        var admin = new User { Username = "admin", Email = "admin@test.local", Role = "Admin" };
+        var user = new User { Username = "reader", Email = "reader@test.local", Role = "User", PasswordHash = "original" };
+        context.Users.AddRange(admin, user);
+        await context.SaveChangesAsync();
+        var controller = CreateController(context, admin.Id);
+
+        var result = await InvokeResetPassword(controller, user.Id, password, confirmation);
+
+        Assert.IsType<BadRequestObjectResult>(result);
+        Assert.Equal("original", (await context.Users.FindAsync(user.Id))!.PasswordHash);
+    }
+
+    [Fact]
+    public async Task ResetPassword_ReturnsNotFoundForMissingUser()
+    {
+        await using var context = CreateContext();
+        var admin = new User { Username = "admin", Email = "admin@test.local", Role = "Admin" };
+        context.Users.Add(admin);
+        await context.SaveChangesAsync();
+        var controller = CreateController(context, admin.Id);
+
+        var result = await InvokeResetPassword(controller, 999, "NewPassword2", "NewPassword2");
+
+        Assert.IsType<NotFoundObjectResult>(result);
+    }
+
+    private static async Task<IActionResult> InvokeResetPassword(
+        AdminUsersController controller,
+        int userId,
+        string newPassword,
+        string confirmPassword)
+    {
+        var method = typeof(AdminUsersController).GetMethod("ResetPassword");
+        Assert.NotNull(method);
+        var dtoType = method.GetParameters()[1].ParameterType;
+        var dto = JsonSerializer.Deserialize(
+            JsonSerializer.Serialize(new { newPassword, confirmPassword }),
+            dtoType,
+            new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+        var task = Assert.IsAssignableFrom<Task<IActionResult>>(method.Invoke(controller, [userId, dto]));
+        return await task;
     }
 
     private static MangaDbContext CreateContext()

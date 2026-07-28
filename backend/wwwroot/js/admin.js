@@ -419,6 +419,10 @@ function initAdminTabs() {
       switchTab(tabName);
     });
   });
+  const requestedTab = new URLSearchParams(window.location.search).get('tab');
+  const requestedButton = [...document.querySelectorAll('.admin-tab-btn')]
+    .find(button => button.dataset.tab === requestedTab);
+  if (requestedButton) switchTab(requestedTab);
   document.getElementById('btn-cancel-manga-form')?.addEventListener('click', () => {
     resetMangaForm(); switchTab('manga-list');
   });

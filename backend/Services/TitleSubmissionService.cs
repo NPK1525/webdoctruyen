@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Net;
 using MangaNPK.Data;
 using MangaNPK.Models;
 using Microsoft.EntityFrameworkCore;
@@ -207,7 +208,7 @@ public sealed class TitleSubmissionService(MangaDbContext context)
         string.Join(" | ", new[] { payload.OriginalTitle, payload.EnglishTitle }.Concat(payload.AlternativeTitles)
             .Where(x => !string.IsNullOrWhiteSpace(x)).Select(x => x.Trim()).Distinct());
 
-    private static string NormalizeRole(string role) => role.Trim() switch
+    private static string NormalizeRole(string role) => WebUtility.HtmlDecode(role).Trim() switch
     {
         "Story" => "Story",
         "Art" => "Art",

@@ -103,7 +103,6 @@ async function handleEditProfile(e) {
     return;
   }
 
-  const email = document.getElementById('profile-email').value.trim();
   const avatarUrl = document.getElementById('profile-avatar-url').value.trim();
   const badge = document.getElementById('profile-badge-input').value.trim();
   const bio = document.getElementById('profile-bio-input').value.trim();
@@ -115,7 +114,6 @@ async function handleEditProfile(e) {
     const res = await apiFetch(`${API_BASE}/userprofile/me`, {
       method: 'PUT',
       body: JSON.stringify({
-        email: email || null,
         avatarUrl: avatarUrl || null,
         badge: badge || null,
         bio: bio || null
@@ -125,6 +123,7 @@ async function handleEditProfile(e) {
     if (res.ok) {
       const updated = await res.json();
       userProfile = updated;
+      synchronizeCurrentUserAvatar(updated.avatarUrl);
       renderProfile();
       showToast(t('profile.saveSuccess', 'Đã lưu thay đổi thành công!'), 'success');
     } else {

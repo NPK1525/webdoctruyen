@@ -1,0 +1,126 @@
+@model int
+@{ Layout = null; }
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chi tiết người dùng - MangaNPK Admin</title>
+  <link rel="stylesheet" href="/css/style.css?v=4.9" />
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="admin-page reports-page" data-admin-user-id="@Model">
+  <div id="root">
+    <header id="global-header" class="glass admin-global-header">
+      <div class="container admin-header-inner">
+        <div class="admin-brand-group">
+          <button id="sidebar-toggle-btn" class="admin-menu-btn" title="Menu"><i data-lucide="menu"></i></button>
+          <a href="/admin" class="admin-brand"><i data-lucide="book-open"></i><span>Manga<span>NPK</span></span></a>
+          <span class="admin-panel-label">ADMIN CONTROL PANEL</span>
+        </div>
+        <div id="header-user-area" class="admin-user-area"></div>
+      </div>
+    </header>
+
+    @await Html.PartialAsync("_Sidebar")
+    @await Html.PartialAsync("_AuthModal")
+
+    <main class="admin-user-detail-shell">
+      <div class="admin-user-detail-heading">
+        <div>
+          <a class="reports-back" href="/admin?tab=users">← Quản lý người dùng</a>
+          <h1>Chi tiết người dùng</h1>
+          <p>Xem thông tin, chỉnh sửa hồ sơ và kiểm soát trạng thái tài khoản.</p>
+        </div>
+        <span id="admin-user-detail-status" class="admin-user-badge">Đang tải...</span>
+      </div>
+
+      <div id="admin-user-detail-message" class="admin-user-detail-message" hidden></div>
+
+      <section class="admin-user-detail-card">
+        <div class="admin-user-detail-profile">
+          <img id="admin-user-detail-avatar-preview" src="/img/dragon_ball.png" alt="" />
+          <div>
+            <strong id="admin-user-detail-name">Đang tải...</strong>
+            <span id="admin-user-detail-email-preview"></span>
+          </div>
+        </div>
+
+        <form id="admin-user-detail-form">
+          <div class="admin-user-detail-grid">
+            <label class="form-group">
+              <span class="form-label">Tên đăng nhập</span>
+              <input id="admin-user-detail-username" class="form-control" required minlength="3" maxlength="24" />
+            </label>
+            <label class="form-group">
+              <span class="form-label">Email</span>
+              <input id="admin-user-detail-email" class="form-control" type="email" required maxlength="254" />
+            </label>
+            <label class="form-group">
+              <span class="form-label">Vai trò</span>
+              <select id="admin-user-detail-role" class="form-control">
+                <option value="User">User</option>
+                <option value="Admin">Admin</option>
+              </select>
+            </label>
+            <label class="form-group">
+              <span class="form-label">Huy hiệu</span>
+              <input id="admin-user-detail-badge" class="form-control" maxlength="50" />
+            </label>
+            <label class="form-group admin-user-detail-wide">
+              <span class="form-label">Ảnh đại diện (URL)</span>
+              <input id="admin-user-detail-avatar" class="form-control" type="url" maxlength="2048"
+                     pattern="https://.*" placeholder="https://example.com/avatar.jpg" />
+            </label>
+            <label class="form-group admin-user-detail-wide">
+              <span class="form-label">Tiểu sử</span>
+              <textarea id="admin-user-detail-bio" class="form-control" maxlength="500" rows="5"></textarea>
+            </label>
+          </div>
+
+          <div class="admin-user-detail-actions">
+            <button id="admin-user-detail-lock" type="button" class="btn btn-secondary">Khóa tài khoản</button>
+            <button id="admin-user-detail-save" type="submit" class="btn btn-primary">
+              <i data-lucide="save"></i> Lưu thông tin
+            </button>
+          </div>
+        </form>
+
+        <hr style="border: none; border-top: 1px solid var(--border-subtle); margin: 32px 0;" />
+
+        <form id="admin-user-password-form">
+          <div class="admin-user-detail-heading" style="margin-bottom: 20px;">
+            <div>
+              <h2 style="font-size: 1.15rem; margin: 0 0 6px;">Đặt lại mật khẩu</h2>
+              <p style="margin: 0;">Quản trị viên có thể đặt mật khẩu mới mà không cần mật khẩu hiện tại.</p>
+            </div>
+          </div>
+          <div class="admin-user-detail-grid">
+            <label class="form-group">
+              <span class="form-label">Mật khẩu mới</span>
+              <input id="admin-user-new-password" class="form-control" type="password"
+                     required minlength="8" autocomplete="new-password" />
+            </label>
+            <label class="form-group">
+              <span class="form-label">Xác nhận mật khẩu mới</span>
+              <input id="admin-user-confirm-password" class="form-control" type="password"
+                     required minlength="8" autocomplete="new-password" />
+            </label>
+          </div>
+          <div class="admin-user-detail-actions">
+            <button id="admin-user-password-save" type="submit" class="btn btn-primary">
+              <i data-lucide="key-round"></i> Đặt lại mật khẩu
+            </button>
+          </div>
+        </form>
+      </section>
+    </main>
+  </div>
+
+  <script src="/js/i18n.js?v=3.2"></script>
+  <script src="/js/common-library.js?v=1.0"></script>
+  <script src="/js/common-auth.js?v=1.2"></script>
+  <script src="/js/common.js?v=5.7"></script>
+  <script src="/js/admin-user-detail.js?v=1.1"></script>
+</body>
+</html>

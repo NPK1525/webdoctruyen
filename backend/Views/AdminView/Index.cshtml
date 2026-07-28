@@ -40,38 +40,38 @@
         <div class="container">
           <div id="admin-access-denied" class="glass-card" style="padding: 40px; text-align: center; border-radius: var(--radius-lg); margin-top: 30px; display: none;">
             <i data-lucide="alert-circle" style="width: 48px; height: 48px; color: #FF4552; margin-bottom: 16px;"></i>
-            <h2 style="font-size: 1.5rem; font-weight: 800; color: white; margin-bottom: 10px;">Truy c&#7853;p b&#7883; t&#7915; ch&#7889;i</h2>
-            <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 24px;">B&#7841;n c&#7847;n &#273;&#259;ng nh&#7853;p b&#7857;ng t&#224;i kho&#7843;n Admin &#273;&#7875; truy c&#7853;p.</p>
-            <a href="/" class="btn btn-primary" style="border-radius: 20px;">V&#7873; trang ch&#7911;</a>
+            <h2 style="font-size: 1.5rem; font-weight: 800; color: white; margin-bottom: 10px;" data-i18n="admin.accessDenied">Truy c&#7853;p b&#7883; t&#7915; ch&#7889;i</h2>
+            <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 24px;" data-i18n="admin.accessDeniedBody">B&#7841;n c&#7847;n &#273;&#259;ng nh&#7853;p b&#7857;ng t&#224;i kho&#7843;n Admin &#273;&#7875; truy c&#7853;p.</p>
+            <a href="/" class="btn btn-primary" style="border-radius: 20px;" data-i18n="admin.backHome">V&#7873; trang ch&#7911;</a>
           </div>
 
           <div id="admin-panel-wrapper" style="display: none;">
             <div style="display: flex; gap: 30px; flex-wrap: wrap;">
               <div style="width: 250px; flex-shrink: 0; display: flex; flex-direction: column; gap: 6px;">
-                <h4 style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; padding: 10px 16px; margin: 0;">Qu&#7843;n l&#253;</h4>
+                <h4 style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; padding: 10px 16px; margin: 0;" data-i18n="admin.management">Qu&#7843;n l&#253;</h4>
                 <button class="admin-tab-btn active" data-tab="manga-list" style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 6px; font-size: 0.9rem; font-weight: 600; text-align: left; width: 100%; transition: all 0.2s;">
-                  <i data-lucide="book-open" style="width: 18px; height: 18px;"></i><span>Danh s&#225;ch truy&#7879;n</span>
+                  <i data-lucide="book-open" style="width: 18px; height: 18px;"></i><span data-i18n="admin.mangaList">Danh s&#225;ch truy&#7879;n</span>
                 </button>
                 <button class="admin-tab-btn" data-tab="title-draft" style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 6px; font-size: 0.9rem; font-weight: 600; text-align: left; width: 100%; transition: all 0.2s;">
-                  <i data-lucide="file-plus-2" style="width: 18px; height: 18px;"></i><span>Đăng truyện</span>
+                  <i data-lucide="file-plus-2" style="width: 18px; height: 18px;"></i><span data-i18n="admin.postManga">Đăng truyện</span>
                 </button>
                 <button class="admin-tab-btn" data-tab="manga" style="display: none; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 6px; font-size: 0.9rem; font-weight: 600; text-align: left; width: 100%; transition: all 0.2s;">
-                  <i data-lucide="plus" style="width: 18px; height: 18px;"></i><span id="tab-label-manga-form">&#272;&#259;ng truy&#7879;n m&#7899;i</span>
+                  <i data-lucide="plus" style="width: 18px; height: 18px;"></i><span id="tab-label-manga-form" data-i18n="admin.postManga">&#272;&#259;ng truy&#7879;n m&#7899;i</span>
                 </button>
                 <button class="admin-tab-btn" data-tab="chapter" style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 6px; font-size: 0.9rem; font-weight: 600; text-align: left; width: 100%; transition: all 0.2s;">
-                  <i data-lucide="layers" style="width: 18px; height: 18px;"></i><span>Th&#234;m ch&#432;&#417;ng m&#7899;i</span>
+                  <i data-lucide="layers" style="width: 18px; height: 18px;"></i><span data-i18n="admin.addChapter">Th&#234;m ch&#432;&#417;ng m&#7899;i</span>
                 </button>
                 <button class="admin-tab-btn" data-tab="mangadex" style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 6px; font-size: 0.9rem; font-weight: 600; text-align: left; width: 100%; transition: all 0.2s;">
-                  <i data-lucide="download-cloud" style="width: 18px; height: 18px;"></i><span>Nh&#7853;p MangaDex</span>
+                  <i data-lucide="download-cloud" style="width: 18px; height: 18px;"></i><span data-i18n="admin.importMangaDex">Nh&#7853;p MangaDex</span>
                 </button>
                 <button class="admin-tab-btn" data-tab="author" style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 6px; font-size: 0.9rem; font-weight: 600; text-align: left; width: 100%; transition: all 0.2s;">
-                  <i data-lucide="users" style="width: 18px; height: 18px;"></i><span>Qu&#7843;n l&#253; t&#225;c gi&#7843;</span>
+                  <i data-lucide="users" style="width: 18px; height: 18px;"></i><span data-i18n="admin.authors">Qu&#7843;n l&#253; t&#225;c gi&#7843;</span>
                 </button>
                 <button class="admin-tab-btn" data-tab="genre" style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 6px; font-size: 0.9rem; font-weight: 600; text-align: left; width: 100%; transition: all 0.2s;">
-                  <i data-lucide="tag" style="width: 18px; height: 18px;"></i><span>Qu&#7843;n l&#253; th&#7875; lo&#7841;i</span>
+                  <i data-lucide="tag" style="width: 18px; height: 18px;"></i><span data-i18n="admin.genres">Qu&#7843;n l&#253; th&#7875; lo&#7841;i</span>
                 </button>
-                <button class="admin-tab-btn" data-tab="reports" style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 6px; font-size: 0.9rem; font-weight: 600; text-align:left; width:100%;"><i data-lucide="flag" style="width: 18px; height: 18px;"></i><span>Báo cáo</span></button>
-                <button class="admin-tab-btn" data-tab="users" style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 6px; font-size: 0.9rem; font-weight: 600; text-align:left; width:100%;"><i data-lucide="user-cog" style="width: 18px; height: 18px;"></i><span>Quản lý người dùng</span></button>
+                <button class="admin-tab-btn" data-tab="reports" style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 6px; font-size: 0.9rem; font-weight: 600; text-align:left; width:100%;"><i data-lucide="flag" style="width: 18px; height: 18px;"></i><span data-i18n="admin.reports">Báo cáo</span></button>
+                <button class="admin-tab-btn" data-tab="users" style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 6px; font-size: 0.9rem; font-weight: 600; text-align:left; width:100%;"><i data-lucide="user-cog" style="width: 18px; height: 18px;"></i><span data-i18n="admin.users">Quản lý người dùng</span></button>
               </div>
 
               <div style="flex: 1; min-width: 320px;">
@@ -83,11 +83,11 @@
                   </div>
 
                   <div id="adm-content-manga-list" class="admin-tab-pane">
-                    <h3 style="font-size: 1.25rem; font-weight: 800; color: white; margin-bottom: 20px;">Danh s&#225;ch truy&#7879;n tranh</h3>
+                    <h3 style="font-size: 1.25rem; font-weight: 800; color: white; margin-bottom: 20px;" data-i18n="admin.mangaList">Danh s&#225;ch truy&#7879;n tranh</h3>
                     <div class="admin-manga-filters" id="admin-manga-filters">
                       <div class="admin-manga-search-row">
-                        <div class="admin-manga-search-wrap"><i data-lucide="search"></i><input id="admin-manga-search" class="form-control" type="search" placeholder="Tìm theo tên truyện hoặc tác giả..." /></div>
-                        <button type="button" id="admin-manga-reset" class="btn btn-secondary">Đặt lại</button>
+                        <div class="admin-manga-search-wrap"><i data-lucide="search"></i><input id="admin-manga-search" class="form-control" type="search" placeholder="Tìm theo tên truyện hoặc tác giả..." data-i18n="admin.searchManga" data-i18n-attr="placeholder" /></div>
+                        <button type="button" id="admin-manga-reset" class="btn btn-secondary" data-i18n="admin.reset">Đặt lại</button>
                       </div>
                       <div class="admin-manga-filter-grid">
                         <select id="admin-manga-type" class="form-control"><option value="">Tất cả loại</option><option value="0">Manga</option><option value="1">Manhwa</option><option value="2">Manhua</option><option value="3">Webtoon</option><option value="4">Comic</option></select>
@@ -103,11 +103,11 @@
                       <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.85rem;">
                         <thead>
                           <tr style="border-bottom: 2px solid rgba(255,255,255,0.08); color: var(--text-muted);">
-                            <th style="padding: 12px 8px; font-weight: 700;">&#7842;nh b&#236;a</th>
-                            <th style="padding: 12px 8px; font-weight: 700;">T&#234;n truy&#7879;n</th>
-                            <th style="padding: 12px 8px; font-weight: 700;">Lo&#7841;i</th>
-                            <th style="padding: 12px 8px; font-weight: 700;">Tr&#7841;ng th&#225;i</th>
-                            <th style="padding: 12px 8px; font-weight: 700; text-align: right;">H&#224;nh &#273;&#7897;ng</th>
+                            <th style="padding: 12px 8px; font-weight: 700;" data-i18n="admin.cover">Ảnh bìa</th>
+                            <th style="padding: 12px 8px; font-weight: 700;" data-i18n="admin.mangaTitle">Tên truyện</th>
+                            <th style="padding: 12px 8px; font-weight: 700;" data-i18n="admin.type">Loại</th>
+                            <th style="padding: 12px 8px; font-weight: 700;" data-i18n="admin.status">Trạng thái</th>
+                            <th style="padding: 12px 8px; font-weight: 700; text-align: right;" data-i18n="admin.actions">Hành động</th>
                           </tr>
                         </thead>
                         <tbody id="admin-mangas-table-body"></tbody>
@@ -429,11 +429,11 @@
                   </div>
 
                   <div id="adm-content-mangadex" class="admin-tab-pane" style="display: none;">
-                    <h3 style="font-size: 1.25rem; font-weight: 800; color: white; margin-bottom: 10px;">Nh&#7853;p truy&#7879;n t&#7915; MangaDex</h3>
-                    <p style="color: var(--text-muted); font-size: 0.9rem; margin: 0 0 20px;">Ch&#7881; &#273;&#7891;ng b&#7897; ch&#432;&#417;ng ti&#7871;ng Vi&#7879;t. &#7842;nh ch&#432;&#417;ng s&#7869; &#273;&#432;&#7907;c l&#7845;y qua MangaDex@Home khi &#273;&#7897;c gi&#7843; m&#7903; ch&#432;&#417;ng.</p>
+                    <h3 style="font-size: 1.25rem; font-weight: 800; color: white; margin-bottom: 10px;" data-i18n="admin.importMangaDex">Nh&#7853;p truy&#7879;n t&#7915; MangaDex</h3>
+                    <p style="color: var(--text-muted); font-size: 0.9rem; margin: 0 0 20px;" data-i18n="admin.mangaDexHelp">Ch&#7881; &#273;&#7891;ng b&#7897; ch&#432;&#417;ng ti&#7871;ng Vi&#7879;t. &#7842;nh ch&#432;&#417;ng s&#7869; &#273;&#432;&#7907;c l&#7845;y qua MangaDex@Home khi &#273;&#7897;c gi&#7843; m&#7903; ch&#432;&#417;ng.</p>
                     <form id="admin-mangadex-form">
                       <div class="form-group">
-                        <label class="form-label">URL ho&#7863;c UUID MangaDex</label>
+                        <label class="form-label" data-i18n="admin.mangaDexUrl">URL ho&#7863;c UUID MangaDex</label>
                         <input type="text" id="mangadex-import-input" class="form-control" placeholder="https://mangadex.org/title/..." required />
                       </div>
                       <div style="display: flex; gap: 12px; justify-content: flex-end; margin-top: 16px; flex-wrap: wrap;">
@@ -449,14 +449,14 @@
                   </div>
 
                   <div id="adm-content-author" class="admin-tab-pane" style="display: none;">
-                    <h3 style="font-size: 1.25rem; font-weight: 800; color: white; margin-bottom: 20px;">T&#7841;o t&#225;c gi&#7843;</h3>
+                    <h3 style="font-size: 1.25rem; font-weight: 800; color: white; margin-bottom: 20px;" data-i18n="admin.createAuthor">T&#7841;o t&#225;c gi&#7843;</h3>
                     <form id="admin-author-form">
                       <div class="form-group">
-                        <label class="form-label">T&#234;n t&#225;c gi&#7843; *</label>
+                        <label class="form-label" data-i18n="admin.authorName">T&#234;n t&#225;c gi&#7843; *</label>
                         <input type="text" id="author-form-name" class="form-control" required />
                       </div>
                       <div class="form-group" style="margin-top: 15px;">
-                        <label class="form-label">Ti&#7875;u s&#7917;</label>
+                        <label class="form-label" data-i18n="admin.biography">Ti&#7875;u s&#7917;</label>
                         <textarea id="author-form-biography" class="form-control" style="min-height: 100px; resize: vertical;"></textarea>
                       </div>
                       <div style="display: flex; justify-content: flex-end; margin-top: 30px;">
@@ -465,15 +465,15 @@
                         </button>
                       </div>
                     </form>
-                    <div class="admin-catalog-list-wrap"><input id="admin-author-search" class="form-control" placeholder="Tìm tác giả..."><div id="admin-author-management-list" class="management-list"></div><div id="admin-author-pagination" class="admin-catalog-pagination"></div></div>
+                    <div class="admin-catalog-list-wrap"><input id="admin-author-search" class="form-control" placeholder="Tìm tác giả..." data-i18n="admin.searchAuthors" data-i18n-attr="placeholder"><div id="admin-author-management-list" class="management-list"></div><div id="admin-author-pagination" class="admin-catalog-pagination"></div></div>
                   </div>
 
                   <div id="adm-content-genre" class="admin-tab-pane" style="display: none;">
-                    <h3 style="font-size: 1.25rem; font-weight: 800; color: white; margin-bottom: 20px;">T&#7841;o th&#7875; lo&#7841;i</h3>
+                    <h3 style="font-size: 1.25rem; font-weight: 800; color: white; margin-bottom: 20px;" data-i18n="admin.createGenre">T&#7841;o th&#7875; lo&#7841;i</h3>
                     <form id="admin-genre-form">
                       <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
                         <div class="form-group">
-                          <label class="form-label">T&#234;n th&#7875; lo&#7841;i *</label>
+                          <label class="form-label" data-i18n="admin.genreName">T&#234;n th&#7875; lo&#7841;i *</label>
                           <input type="text" id="genre-form-name" class="form-control" required />
                         </div>
                         <div class="form-group">
@@ -487,61 +487,61 @@
                         </button>
                       </div>
                     </form>
-                    <div class="admin-catalog-list-wrap"><input id="admin-genre-search" class="form-control" placeholder="Tìm thể loại..."><div id="admin-genre-management-list" class="management-list"></div><div id="admin-genre-pagination" class="admin-catalog-pagination"></div></div>
+                    <div class="admin-catalog-list-wrap"><input id="admin-genre-search" class="form-control" placeholder="Tìm thể loại..." data-i18n="admin.searchGenres" data-i18n-attr="placeholder"><div id="admin-genre-management-list" class="management-list"></div><div id="admin-genre-pagination" class="admin-catalog-pagination"></div></div>
                   </div>
-                  <div id="adm-content-reports" class="admin-tab-pane" style="display:none;"><h3 style="font-size:1.25rem;font-weight:800;color:var(--text-bright);margin-bottom:20px;">Quản lý báo cáo</h3><div class="reports-toolbar"><label>Trạng thái<select id="report-status-filter"><option value="">Tất cả</option><option>Pending</option><option>Resolved</option><option>Dismissed</option></select></label><label>Đối tượng<select id="report-target-filter"><option value="">Truyện và chương</option><option>Manga</option><option>Chapter</option></select></label></div><div id="admin-reports-list" class="reports-list">Đang tải...</div></div>
+                  <div id="adm-content-reports" class="admin-tab-pane" style="display:none;"><h3 style="font-size:1.25rem;font-weight:800;color:var(--text-bright);margin-bottom:20px;" data-i18n="admin.reports">Quản lý báo cáo</h3><div class="reports-toolbar"><label><span data-i18n="admin.status">Trạng thái</span><select id="report-status-filter"><option value="" data-i18n="admin.all">Tất cả</option><option>Pending</option><option>Resolved</option><option>Dismissed</option></select></label><label><span data-i18n="admin.target">Đối tượng</span><select id="report-target-filter"><option value="" data-i18n="admin.mangaAndChapters">Truyện và chương</option><option>Manga</option><option>Chapter</option></select></label></div><div id="admin-reports-list" class="reports-list" data-i18n="admin.loading">Đang tải...</div></div>
                   <div id="adm-content-users" class="admin-tab-pane" style="display:none;">
-                    <div class="admin-section-heading"><div><h3>Quản lý người dùng</h3><p>Tìm kiếm, phân quyền và kiểm soát trạng thái tài khoản.</p></div></div>
+                    <div class="admin-section-heading"><div><h3 data-i18n="admin.users">Quản lý người dùng</h3><p data-i18n="admin.usersDescription">Tìm kiếm, phân quyền và kiểm soát trạng thái tài khoản.</p></div></div>
                     <div class="admin-user-toolbar">
-                      <label class="admin-user-search"><i data-lucide="search"></i><input id="admin-user-search" class="form-control" type="search" placeholder="Tìm theo tên đăng nhập hoặc email..." /></label>
-                      <select id="admin-user-role" class="form-control"><option value="">Tất cả vai trò</option><option value="User">User</option><option value="Admin">Admin</option></select>
-                      <select id="admin-user-status" class="form-control"><option value="">Tất cả trạng thái</option><option value="active">Hoạt động</option><option value="locked">Đã khóa</option></select>
-                      <button id="admin-user-reset" type="button" class="btn btn-secondary">Đặt lại</button>
+                      <label class="admin-user-search"><i data-lucide="search"></i><input id="admin-user-search" class="form-control" type="search" placeholder="Tìm theo tên đăng nhập hoặc email..." data-i18n="admin.searchUsers" data-i18n-attr="placeholder" /></label>
+                      <select id="admin-user-role" class="form-control"><option value="" data-i18n="admin.allRoles">Tất cả vai trò</option><option value="User">User</option><option value="Admin">Admin</option></select>
+                      <select id="admin-user-status" class="form-control"><option value="" data-i18n="admin.allStatuses">Tất cả trạng thái</option><option value="active" data-i18n="admin.active">Hoạt động</option><option value="locked" data-i18n="admin.locked">Đã khóa</option></select>
+                      <button id="admin-user-reset" type="button" class="btn btn-secondary" data-i18n="admin.reset">Đặt lại</button>
                     </div>
                     <div id="admin-user-summary" class="admin-user-summary"></div>
-                    <div id="admin-user-list" class="admin-user-list"><div class="management-empty">Chọn tab để tải danh sách người dùng.</div></div>
+                    <div id="admin-user-list" class="admin-user-list"><div class="management-empty" data-i18n="admin.selectUsersTab">Chọn tab để tải danh sách người dùng.</div></div>
                     <div id="admin-user-pagination" class="catalog-pagination"></div>
                   </div>
                   <div id="adm-content-user-edit" class="admin-tab-pane" style="display:none;">
                     <button type="button" id="admin-user-editor-back" class="admin-user-editor-back">
                       <i data-lucide="arrow-left"></i>
-                      Quay lại danh sách người dùng
+                      <span data-i18n="admin.backToUsers">Quay lại danh sách người dùng</span>
                     </button>
                     <div class="admin-user-editor-shell">
                       <div class="admin-user-detail-profile admin-user-editor-header">
                         <img id="admin-user-editor-avatar-preview" src="/img/dragon_ball.png" alt="" />
                         <div>
-                          <strong id="admin-user-editor-name">Chỉnh sửa người dùng</strong>
+                          <strong id="admin-user-editor-name" data-i18n="admin.editUser">Chỉnh sửa người dùng</strong>
                           <span id="admin-user-editor-email-preview"></span>
                         </div>
                         <span id="admin-user-editor-status" class="admin-user-badge"></span>
                       </div>
                       <div id="admin-user-editor-message" class="admin-user-detail-message" hidden></div>
-                      <div id="admin-user-editor-loading" class="management-empty" hidden>Đang tải người dùng...</div>
+                      <div id="admin-user-editor-loading" class="management-empty" hidden data-i18n="admin.loadingUser">Đang tải người dùng...</div>
                       <div id="admin-user-editor-content" class="admin-user-editor-sections" hidden>
                         <form id="admin-user-editor-form" class="admin-user-editor-card">
-                          <h3>Thông tin người dùng</h3>
+                          <h3 data-i18n="admin.userInfo">Thông tin người dùng</h3>
                           <div class="admin-user-detail-grid">
-                            <label class="form-group"><span class="form-label">Tên đăng nhập</span><input id="admin-user-editor-username" class="form-control" required minlength="3" maxlength="24" /></label>
-                            <label class="form-group"><span class="form-label">Email</span><input id="admin-user-editor-email" class="form-control" type="email" required maxlength="254" /></label>
-                            <label class="form-group"><span class="form-label">Vai trò</span><select id="admin-user-editor-role" class="form-control"><option value="User">User</option><option value="Admin">Admin</option></select></label>
-                            <label class="form-group"><span class="form-label">Huy hiệu</span><input id="admin-user-editor-badge" class="form-control" maxlength="50" /></label>
-                            <label class="form-group admin-user-detail-wide"><span class="form-label">Ảnh đại diện (URL)</span><input id="admin-user-editor-avatar" class="form-control" type="url" maxlength="2048" pattern="https://.*" /></label>
-                            <label class="form-group admin-user-detail-wide"><span class="form-label">Tiểu sử</span><textarea id="admin-user-editor-bio" class="form-control" maxlength="500" rows="4"></textarea></label>
+                            <label class="form-group"><span class="form-label" data-i18n="admin.username">Tên đăng nhập</span><input id="admin-user-editor-username" class="form-control" required minlength="3" maxlength="24" /></label>
+                            <label class="form-group"><span class="form-label" data-i18n="admin.email">Email</span><input id="admin-user-editor-email" class="form-control" type="email" required maxlength="254" /></label>
+                            <label class="form-group"><span class="form-label" data-i18n="admin.role">Vai trò</span><select id="admin-user-editor-role" class="form-control"><option value="User">User</option><option value="Admin">Admin</option></select></label>
+                            <label class="form-group"><span class="form-label" data-i18n="admin.badge">Huy hiệu</span><input id="admin-user-editor-badge" class="form-control" maxlength="50" /></label>
+                            <label class="form-group admin-user-detail-wide"><span class="form-label" data-i18n="admin.avatarUrl">Ảnh đại diện (URL)</span><input id="admin-user-editor-avatar" class="form-control" type="url" maxlength="2048" pattern="https://.*" /></label>
+                            <label class="form-group admin-user-detail-wide"><span class="form-label" data-i18n="admin.biography">Tiểu sử</span><textarea id="admin-user-editor-bio" class="form-control" maxlength="500" rows="4"></textarea></label>
                           </div>
                           <div class="admin-user-detail-actions">
                             <button id="admin-user-editor-lock" type="button" class="btn btn-secondary"></button>
-                            <button id="admin-user-editor-save" type="submit" class="btn btn-primary"><i data-lucide="save"></i> Lưu thông tin</button>
+                            <button id="admin-user-editor-save" type="submit" class="btn btn-primary"><i data-lucide="save"></i> <span data-i18n="admin.saveInfo">Lưu thông tin</span></button>
                           </div>
                         </form>
                         <form id="admin-user-editor-password-form" class="admin-user-editor-card admin-user-editor-password">
-                          <h3>Đặt lại mật khẩu</h3>
+                          <h3 data-i18n="admin.resetPassword">Đặt lại mật khẩu</h3>
                           <div class="admin-user-detail-grid">
-                            <label class="form-group admin-user-detail-wide"><span class="form-label">Mật khẩu mới</span><input id="admin-user-editor-new-password" class="form-control" type="password" required minlength="8" maxlength="128" autocomplete="new-password" /></label>
-                            <label class="form-group admin-user-detail-wide"><span class="form-label">Xác nhận mật khẩu</span><input id="admin-user-editor-confirm-password" class="form-control" type="password" required minlength="8" maxlength="128" autocomplete="new-password" /></label>
+                            <label class="form-group admin-user-detail-wide"><span class="form-label" data-i18n="admin.newPassword">Mật khẩu mới</span><input id="admin-user-editor-new-password" class="form-control" type="password" required minlength="8" maxlength="128" autocomplete="new-password" /></label>
+                            <label class="form-group admin-user-detail-wide"><span class="form-label" data-i18n="admin.confirmPassword">Xác nhận mật khẩu</span><input id="admin-user-editor-confirm-password" class="form-control" type="password" required minlength="8" maxlength="128" autocomplete="new-password" /></label>
                           </div>
                           <div class="admin-user-detail-actions">
-                            <button id="admin-user-editor-password-save" type="submit" class="btn btn-primary"><i data-lucide="key-round"></i> Đặt lại mật khẩu</button>
+                            <button id="admin-user-editor-password-save" type="submit" class="btn btn-primary"><i data-lucide="key-round"></i> <span data-i18n="admin.resetPassword">Đặt lại mật khẩu</span></button>
                           </div>
                         </form>
                       </div>

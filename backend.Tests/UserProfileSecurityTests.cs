@@ -46,6 +46,37 @@ public class UserProfileSecurityTests
         Assert.Null((await context.Users.FindAsync(user.Id))!.AvatarUrl);
     }
 
+    [Fact]
+    public void UpdateProfileDto_DoesNotExposeBadge()
+    {
+        Assert.Null(typeof(UpdateProfileDto).GetProperty("Badge"));
+    }
+
+    [Fact]
+    public async Task UpdateMyProfile_PreservesAdministratorAssignedBadge()
+    {
+        await using var context = CreateContext();
+        var user = new User
+        {
+            Username = "reader",
+            Email = "reader@test.local",
+            Badge = "VIP"
+        };
+        context.Users.Add(user);
+        await context.SaveChangesAsync();
+        var controller = CreateController(context, user.Id);
+
+        var result = await controller.UpdateMyProfile(new UpdateProfileDto
+        {
+            Bio = "Updated bio"
+        });
+
+        Assert.IsType<OkObjectResult>(result);
+        var savedUser = (await context.Users.FindAsync(user.Id))!;
+        Assert.Equal("Updated bio", savedUser.Bio);
+        Assert.Equal("VIP", savedUser.Badge);
+    }
+
     private static MangaDbContext CreateContext()
     {
         var options = new DbContextOptionsBuilder<MangaDbContext>()

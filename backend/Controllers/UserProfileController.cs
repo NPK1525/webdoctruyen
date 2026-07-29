@@ -72,9 +72,6 @@ namespace MangaNPK.Controllers
             if (!string.IsNullOrWhiteSpace(dto.AvatarUrl))
                 user.AvatarUrl = dto.AvatarUrl.Trim();
 
-            if (!string.IsNullOrWhiteSpace(dto.Badge))
-                user.Badge = dto.Badge.Trim();
-
             await _context.SaveChangesAsync();
 
             var libraryCount = await _context.UserMangaLibraries.CountAsync(uml => uml.UserId == userId);
@@ -141,7 +138,6 @@ namespace MangaNPK.Controllers
         public string? Email { get; set; }
         public string? Bio { get; set; }
         public string? AvatarUrl { get; set; }
-        public string? Badge { get; set; }
     }
 
     public class ChangePasswordDto

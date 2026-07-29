@@ -59,4 +59,15 @@ public class MangaAdvancedFilterContractTests
         Assert.Equal(isStory, ContributorRoleClassifier.IsStoryRole(role));
         Assert.Equal(isArt, ContributorRoleClassifier.IsArtRole(role));
     }
+
+    [Fact]
+    public void MangaDetailAggregatesRatingCountAndAverageInOneQuery()
+    {
+        var source = Read(Path.Combine("Controllers", "MangaController.cs"));
+
+        Assert.Contains(".GroupBy(_ => 1)", source);
+        Assert.Contains("Average = group.Average", source);
+        Assert.Contains("Count = group.Count()", source);
+        Assert.DoesNotContain("CountAsync(r => r.MangaId == id)", source);
+    }
 }

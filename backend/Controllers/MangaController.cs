@@ -13,6 +13,7 @@ namespace MangaNPK.Controllers
     [Route("api/[controller]")]
     public class MangaController(MangaDbContext context) : ControllerBase
     {
+        private const int FuzzyCandidateLimit = 500;
         private readonly MangaDbContext _context = context;
 
         // GET: api/manga
@@ -87,72 +88,6 @@ namespace MangaNPK.Controllers
                 query = query.Where(m => m.ReleaseYear == releaseYear.Value);
             }
 
-            if (fuzzy)
-            {
-                var candidates = await query.AsNoTracking()
-                    .Select(m => new MangaPickerCandidate
-                    {
-                        Id = m.Id,
-                        Title = m.Title,
-                        AlternativeTitle = m.AlternativeTitle,
-                        CoverUrl = m.CoverUrl,
-                        Type = m.Type,
-                        ReleaseYear = m.ReleaseYear,
-                        CreatedAt = m.CreatedAt,
-                        LatestUpload = m.Chapters.Max(c => (DateTime?)c.UploadedAt),
-                        RatingAverage = _context.Ratings.Where(r => r.MangaId == m.Id)
-                            .Select(r => (double?)r.Score).Average() ?? 0,
-                        FollowCount = _context.UserMangaLibraries.Count(item => item.MangaId == m.Id),
-                        AuthorNames = m.MangaAuthors.Select(item => item.Author.Name).ToList()
-                    })
-                    .ToListAsync();
-
-                var normalizedSearch = MangaSearchRanking.Normalize(search);
-                foreach (var candidate in candidates)
-                    candidate.SearchScore = MangaSearchRanking.Score(
-                        normalizedSearch, candidate.Title, candidate.AlternativeTitle,
-                        string.Join(' ', candidate.AuthorNames));
-
-                IEnumerable<MangaPickerCandidate> ranked = candidates;
-                if (normalizedSearch.Length > 0)
-                    ranked = ranked.Where(candidate => candidate.SearchScore > 0);
-                ranked = SortPickerCandidates(ranked, sort, normalizedSearch.Length > 0);
-                var rankedList = ranked.ToList();
-                var total = rankedList.Count;
-                var pageItems = rankedList.Skip((page - 1) * pageSize).Take(pageSize)
-                    .Select(candidate => new
-                    {
-                        candidate.Id,
-                        candidate.Title,
-                        candidate.AlternativeTitle,
-                        candidate.CoverUrl,
-                        candidate.Type,
-                        candidate.ReleaseYear,
-                        candidate.CreatedAt,
-                        candidate.LatestUpload,
-                        candidate.RatingAverage,
-                        candidate.FollowCount
-                    }).ToList();
-                return Ok(new
-                {
-                    totalCount = total,
-                    totalItems = total,
-                    totalPages = (int)Math.Ceiling(total / (double)pageSize),
-                    items = pageItems,
-                    page,
-                    pageSize
-                });
-            }
-
-            if (!string.IsNullOrWhiteSpace(search))
-            {
-                var cleanSearch = search.Trim();
-                var likeSearch = $"%{cleanSearch}%";
-                query = query.Where(m => EF.Functions.Like(m.Title, likeSearch) ||
-                                         EF.Functions.Like(m.AlternativeTitle ?? "", likeSearch) ||
-                                         m.MangaAuthors.Any(ma => EF.Functions.Like(ma.Author.Name, likeSearch)));
-            }
-
             if (string.Equals(source, "Local", StringComparison.OrdinalIgnoreCase))
                 query = query.Where(m => m.Source == "Local");
             else if (string.Equals(source, "MangaDex", StringComparison.OrdinalIgnoreCase))
@@ -200,6 +135,89 @@ namespace MangaNPK.Controllers
                     selectedArtists.Contains(link.AuthorId) &&
                     (link.Role == ContributorRoleClassifier.StoryAndArt ||
                      link.Role.StartsWith(ContributorRoleClassifier.Art))));
+
+            var normalizedSearch = MangaSearchRanking.Normalize(search);
+
+            if (fuzzy && normalizedSearch.Length > 0)
+            {
+                var cleanSearch = search!.Trim();
+                var likeSearch = $"%{cleanSearch}%";
+
+                var candidatesQuery = query.Where(m =>
+                    EF.Functions.Like(m.Title, likeSearch) ||
+                    EF.Functions.Like(m.AlternativeTitle ?? "", likeSearch) ||
+                    m.MangaAuthors.Any(ma => EF.Functions.Like(ma.Author.Name, likeSearch)));
+
+                var directCandidates = await SelectPickerCandidates(
+                        candidatesQuery
+                            .OrderByDescending(m => m.CreatedAt)
+                            .ThenByDescending(m => m.Id)
+                            .Take(FuzzyCandidateLimit))
+                    .ToListAsync();
+
+                var candidates = directCandidates;
+                var remainingCandidateSlots = FuzzyCandidateLimit - candidates.Count;
+                if (remainingCandidateSlots > 0)
+                {
+                    var directCandidateIds = directCandidates.Select(candidate => candidate.Id).ToList();
+                    var fallbackQuery = query;
+                    if (directCandidateIds.Count > 0)
+                        fallbackQuery = fallbackQuery.Where(manga => !directCandidateIds.Contains(manga.Id));
+
+                    var fallbackCandidates = await SelectPickerCandidates(
+                            fallbackQuery
+                                .OrderByDescending(manga => manga.CreatedAt)
+                                .ThenByDescending(manga => manga.Id)
+                                .Take(remainingCandidateSlots))
+                        .ToListAsync();
+
+                    candidates.AddRange(fallbackCandidates);
+                }
+
+                foreach (var candidate in candidates)
+                    candidate.SearchScore = MangaSearchRanking.Score(
+                        normalizedSearch, candidate.Title, candidate.AlternativeTitle,
+                        string.Join(' ', candidate.AuthorNames));
+
+                IEnumerable<MangaPickerCandidate> ranked = candidates;
+                if (normalizedSearch.Length > 0)
+                    ranked = ranked.Where(candidate => candidate.SearchScore > 0);
+                ranked = SortPickerCandidates(ranked, sort, normalizedSearch.Length > 0);
+                var rankedList = ranked.ToList();
+                var total = rankedList.Count;
+                var pageItems = rankedList.Skip((page - 1) * pageSize).Take(pageSize)
+                    .Select(candidate => new
+                    {
+                        candidate.Id,
+                        candidate.Title,
+                        candidate.AlternativeTitle,
+                        candidate.CoverUrl,
+                        candidate.Type,
+                        candidate.ReleaseYear,
+                        candidate.CreatedAt,
+                        candidate.LatestUpload,
+                        candidate.RatingAverage,
+                        candidate.FollowCount
+                    }).ToList();
+                return Ok(new
+                {
+                    totalCount = total,
+                    totalItems = total,
+                    totalPages = (int)Math.Ceiling(total / (double)pageSize),
+                    items = pageItems,
+                    page,
+                    pageSize
+                });
+            }
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                var cleanSearch = search.Trim();
+                var likeSearch = $"%{cleanSearch}%";
+                query = query.Where(m => EF.Functions.Like(m.Title, likeSearch) ||
+                                         EF.Functions.Like(m.AlternativeTitle ?? "", likeSearch) ||
+                                         m.MangaAuthors.Any(ma => EF.Functions.Like(ma.Author.Name, likeSearch)));
+            }
 
             // Lấy tổng số truyện trước khi phân trang để frontend biết còn bao nhiêu trang.
             var totalCount = await query.CountAsync();
@@ -250,15 +268,14 @@ namespace MangaNPK.Controllers
         }
 
         private static List<int> ParseIds(string? value) =>
-            (value ?? string.Empty)
+            [.. (value ?? string.Empty)
                 .Split(',', StringSplitOptions.RemoveEmptyEntries)
                 .Select(item => int.TryParse(item, out var id) ? id : 0)
                 .Where(id => id > 0)
-                .Distinct()
-                .ToList();
+                .Distinct()];
 
         private static List<MangaFormat> ParseFormats(string? value) =>
-            (value ?? string.Empty)
+            [.. (value ?? string.Empty)
                 .Split(',', StringSplitOptions.RemoveEmptyEntries)
                 .Select(item => Enum.TryParse<MangaFormat>(item, true, out var format)
                     ? format
@@ -266,16 +283,32 @@ namespace MangaNPK.Controllers
                         ? (MangaFormat)numeric
                         : MangaFormat.None)
                 .Where(format => format != MangaFormat.None)
-                .Distinct()
-                .ToList();
+                .Distinct()];
 
         private static List<string> ParseValues(string? value) =>
-            (value ?? string.Empty)
+            [.. (value ?? string.Empty)
                 .Split(',', StringSplitOptions.RemoveEmptyEntries)
                 .Select(item => item.Trim())
                 .Where(item => item.Length > 0)
-                .Distinct(StringComparer.OrdinalIgnoreCase)
-                .ToList();
+                .Distinct(StringComparer.OrdinalIgnoreCase)];
+
+        private IQueryable<MangaPickerCandidate> SelectPickerCandidates(IQueryable<Manga> source) =>
+            source.AsNoTracking()
+                .Select(m => new MangaPickerCandidate
+                {
+                    Id = m.Id,
+                    Title = m.Title,
+                    AlternativeTitle = m.AlternativeTitle,
+                    CoverUrl = m.CoverUrl,
+                    Type = m.Type,
+                    ReleaseYear = m.ReleaseYear,
+                    CreatedAt = m.CreatedAt,
+                    LatestUpload = m.Chapters.Max(c => (DateTime?)c.UploadedAt),
+                    RatingAverage = _context.Ratings.Where(r => r.MangaId == m.Id)
+                        .Select(r => (double?)r.Score).Average() ?? 0,
+                    FollowCount = _context.UserMangaLibraries.Count(item => item.MangaId == m.Id),
+                    AuthorNames = m.MangaAuthors.Select(item => item.Author.Name).ToList()
+                });
 
         private static IEnumerable<MangaPickerCandidate> SortPickerCandidates(
             IEnumerable<MangaPickerCandidate> candidates,
@@ -387,11 +420,11 @@ namespace MangaNPK.Controllers
             var ratingStats = await _context.Ratings
                 .AsNoTracking()
                 .Where(r => r.MangaId == id)
-                .GroupBy(r => r.MangaId)
-                .Select(g => new
+                .GroupBy(_ => 1)
+                .Select(group => new
                 {
-                    Average = g.Average(r => r.Score),
-                    Count = g.Count()
+                    Average = group.Average(r => r.Score),
+                    Count = group.Count()
                 })
                 .FirstOrDefaultAsync();
 

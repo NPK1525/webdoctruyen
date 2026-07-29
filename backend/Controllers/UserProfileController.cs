@@ -69,8 +69,10 @@ namespace MangaNPK.Controllers
             if (dto.Bio != null)
                 user.Bio = dto.Bio.Trim();
 
-            if (!string.IsNullOrWhiteSpace(dto.AvatarUrl))
-                user.AvatarUrl = dto.AvatarUrl.Trim();
+            if (dto.AvatarUrl is not null)
+                user.AvatarUrl = string.IsNullOrWhiteSpace(dto.AvatarUrl)
+                    ? null
+                    : dto.AvatarUrl.Trim();
 
             await _context.SaveChangesAsync();
 

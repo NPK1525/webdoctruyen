@@ -64,6 +64,11 @@ test('saving a profile synchronizes the shared session avatar immediately', () =
   assert.match(sync, /renderHeaderUserArea\(\)/);
 });
 
+test('profile sends an empty avatar string as an explicit clear command', () => {
+  assert.match(profile, /\bavatarUrl,\s*\n\s*badge:/);
+  assert.doesNotMatch(profile, /avatarUrl:\s*avatarUrl\s*\|\|\s*null/);
+});
+
 test('avatar consumers request fresh script versions', () => {
   const detailView = fs.readFileSync(path.resolve(root, '../../Views/MangaView/Detail.cshtml'), 'utf8');
   const profilePage = fs.readFileSync(path.resolve(root, '../../Views/ProfileView/Index.cshtml'), 'utf8');
@@ -71,5 +76,5 @@ test('avatar consumers request fresh script versions', () => {
   assert.match(detailView, /common\.js\?v=5\.8/);
   assert.match(detailView, /detail-comments\.js\?v=3\.2/);
   assert.match(profilePage, /common\.js\?v=5\.8/);
-  assert.match(profilePage, /profile\.js\?v=1\.3/);
+  assert.match(profilePage, /profile\.js\?v=1\.4/);
 });

@@ -50,5 +50,5 @@ test('profile avatar editor documents the HTTPS and 2048-character rule', () => 
 
 test('changed admin and profile scripts use fresh cache versions', () => {
   assert.match(adminView, /admin-user-detail\.js\?v=1\.2/);
-  assert.match(profileView, /profile\.js\?v=1\.3/);
+  assert.match(profileView, /profile\.js\?v=1\.4/);
 });

@@ -114,7 +114,7 @@ async function handleEditProfile(e) {
     const res = await apiFetch(`${API_BASE}/userprofile/me`, {
       method: 'PUT',
       body: JSON.stringify({
-        avatarUrl: avatarUrl || null,
+        avatarUrl,
         badge: badge || null,
         bio: bio || null
       })

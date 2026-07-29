@@ -77,6 +77,52 @@ public class UserProfileSecurityTests
         Assert.Equal("VIP", savedUser.Badge);
     }
 
+    [Fact]
+    public async Task UpdateMyProfile_BlankAvatarClearsExistingAvatar()
+    {
+        await using var context = CreateContext();
+        var user = new User
+        {
+            Username = "reader",
+            Email = "reader@test.local",
+            AvatarUrl = "https://cdn.test/avatar.png"
+        };
+        context.Users.Add(user);
+        await context.SaveChangesAsync();
+        var controller = CreateController(context, user.Id);
+
+        var result = await controller.UpdateMyProfile(new UpdateProfileDto { AvatarUrl = "   " });
+
+        Assert.IsType<OkObjectResult>(result);
+        Assert.Null((await context.Users.FindAsync(user.Id))!.AvatarUrl);
+    }
+
+    [Fact]
+    public async Task UpdateMyProfile_NullAvatarPreservesExistingAvatar()
+    {
+        await using var context = CreateContext();
+        var user = new User
+        {
+            Username = "reader",
+            Email = "reader@test.local",
+            AvatarUrl = "https://cdn.test/avatar.png"
+        };
+        context.Users.Add(user);
+        await context.SaveChangesAsync();
+        var controller = CreateController(context, user.Id);
+
+        var result = await controller.UpdateMyProfile(new UpdateProfileDto
+        {
+            AvatarUrl = null,
+            Bio = "Updated bio"
+        });
+
+        Assert.IsType<OkObjectResult>(result);
+        var savedUser = (await context.Users.FindAsync(user.Id))!;
+        Assert.Equal("https://cdn.test/avatar.png", savedUser.AvatarUrl);
+        Assert.Equal("Updated bio", savedUser.Bio);
+    }
+
     private static MangaDbContext CreateContext()
     {
         var options = new DbContextOptionsBuilder<MangaDbContext>()

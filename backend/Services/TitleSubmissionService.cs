@@ -6,9 +6,12 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MangaNPK.Services;
 
-public sealed class TitleSubmissionService(MangaDbContext context)
+public sealed class TitleSubmissionService(
+    MangaDbContext context,
+    TitleSubmissionMangaCreator mangaCreator)
 {
     private readonly MangaDbContext _context = context;
+    private readonly TitleSubmissionMangaCreator _mangaCreator = mangaCreator;
 
     public async Task<TitleSubmissionResult> SubmitAsync(
         TitleSubmissionPayload payload,
@@ -81,23 +84,7 @@ public sealed class TitleSubmissionService(MangaDbContext context)
 
     private async Task<int> CreateMangaAsync(TitleSubmissionPayload payload, CancellationToken cancellationToken)
     {
-        var manga = new Manga
-        {
-            Title = payload.Title.Trim(),
-            AlternativeTitle = BuildAlternativeTitle(payload),
-            Description = payload.Description.Trim(),
-            CoverUrl = payload.CoverUrl.Trim(),
-            Type = payload.Type,
-            Status = payload.Status,
-            Demographic = payload.Demographic,
-            Format = payload.Format,
-            ContentWarnings = string.Join(',', MangaContentWarning.Normalize(payload.ContentWarnings)),
-            ReleaseYear = payload.ReleaseYear,
-            Source = string.IsNullOrWhiteSpace(payload.DataSource) ? "Local" : payload.DataSource.Trim(),
-            ExternalId = payload.DataSource == "MangaDex" ? payload.MangaDexId.Trim() : string.Empty,
-            CreatedAt = DateTime.UtcNow,
-            SyncedAt = payload.DataSource == "MangaDex" ? DateTime.UtcNow : null
-        };
+        var manga = _mangaCreator.Create(payload, DateTime.UtcNow);
         _context.Mangas.Add(manga);
         await _context.SaveChangesAsync(cancellationToken);
 
@@ -203,10 +190,6 @@ public sealed class TitleSubmissionService(MangaDbContext context)
             Authors = authors
         };
     }
-
-    private static string BuildAlternativeTitle(TitleSubmissionPayload payload) =>
-        string.Join(" | ", new[] { payload.OriginalTitle, payload.EnglishTitle }.Concat(payload.AlternativeTitles)
-            .Where(x => !string.IsNullOrWhiteSpace(x)).Select(x => x.Trim()).Distinct());
 
     private static string NormalizeRole(string role) => WebUtility.HtmlDecode(role).Trim() switch
     {

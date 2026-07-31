@@ -13,4 +13,17 @@ public class TitleDraftAdminServiceArchitectureTests
         Assert.Single(parameters);
         Assert.Equal(typeof(TitleDraftAdminService), parameters[0].ParameterType);
     }
+
+    [Fact]
+    public void TitleDraftAdminService_UsesTitleDraftMangaCreator()
+    {
+        var parameters = typeof(TitleDraftAdminService)
+            .GetConstructors()
+            .Single()
+            .GetParameters();
+
+        Assert.Contains(
+            parameters,
+            parameter => parameter.ParameterType == typeof(TitleDraftMangaCreator));
+    }
 }

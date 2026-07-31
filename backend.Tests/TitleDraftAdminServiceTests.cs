@@ -32,7 +32,9 @@ public class TitleDraftAdminServiceTests
         });
         await context.SaveChangesAsync();
 
-        var result = await new TitleDraftAdminService(context).RejectAsync(1, reason, 2);
+        var result = await new TitleDraftAdminService(
+            context,
+            new TitleDraftMangaCreator()).RejectAsync(1, reason, 2);
 
         Assert.Equal(TitleDraftAdminStatus.BadRequest, result.Status);
         Assert.Equal(TitleDraftReviewStatus.Pending, context.TitleDrafts.Single().ReviewStatus);
@@ -52,7 +54,9 @@ public class TitleDraftAdminServiceTests
         });
         await context.SaveChangesAsync();
 
-        var result = await new TitleDraftAdminService(context).RejectAsync(1, "  Missing cover  ", 2);
+        var result = await new TitleDraftAdminService(
+            context,
+            new TitleDraftMangaCreator()).RejectAsync(1, "  Missing cover  ", 2);
 
         Assert.Equal(TitleDraftAdminStatus.Success, result.Status);
         Assert.Equal("Missing cover", context.TitleDrafts.Single().RejectionReason);

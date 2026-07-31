@@ -9,9 +9,12 @@ namespace MangaNPK.Services;
 public enum TitleDraftAdminStatus { Success, NotFound, BadRequest, ServerError }
 public sealed record TitleDraftAdminResult(TitleDraftAdminStatus Status, string Message = "", int? EntityId = null, object? Data = null, string? Error = null);
 
-public sealed class TitleDraftAdminService(MangaDbContext context)
+public sealed class TitleDraftAdminService(
+    MangaDbContext context,
+    TitleDraftMangaCreator mangaCreator)
 {
     private readonly MangaDbContext _context = context;
+    private readonly TitleDraftMangaCreator _mangaCreator = mangaCreator;
 
     public async Task<object> GetAllAsync(CancellationToken cancellationToken = default) => await _context.TitleDrafts.AsNoTracking()
         .Include(draft => draft.CreatedByUser).Include(draft => draft.ReviewedByUser).OrderByDescending(draft => draft.UpdatedAt)
@@ -59,12 +62,7 @@ public sealed class TitleDraftAdminService(MangaDbContext context)
         try
         {
             var now = DateTime.UtcNow;
-            var manga = new Manga { Title = draft.Title.Trim(), AlternativeTitle = BuildAlternativeTitle(draft), Description = draft.Description.Trim(),
-                CoverUrl = draft.CoverUrl.Trim(), Type = draft.Type, Status = draft.Status, Demographic = draft.Demographic,
-                Format = draft.Format == MangaFormat.None && draft.Type == MangaType.Webtoon ? MangaFormat.WebComic : draft.Format,
-                ContentWarnings = draft.ContentWarnings, ReleaseYear = draft.ReleaseYear, Source = draft.DataSource,
-                ExternalId = draft.DataSource == "MangaDex" ? draft.MangaDexId : string.Empty, CreatedAt = now,
-                SyncedAt = draft.DataSource == "MangaDex" ? now : null };
+            var manga = _mangaCreator.Create(draft, now);
             _context.Mangas.Add(manga); await _context.SaveChangesAsync(cancellationToken);
             await AttachAuthorAsync(manga.Id, null, draft.StoryAuthor, "Story", cancellationToken);
             await AttachAuthorAsync(manga.Id, null, draft.Artist, "Art", cancellationToken);
@@ -155,6 +153,4 @@ public sealed class TitleDraftAdminService(MangaDbContext context)
 
     private static List<int> ReadInts(string json) { try { return JsonSerializer.Deserialize<List<int>>(json) ?? []; } catch { return []; } }
     private static List<string> ReadStrings(string json) { try { return JsonSerializer.Deserialize<List<string>>(json) ?? []; } catch { return []; } }
-    private static string BuildAlternativeTitle(TitleDraft draft) => string.Join(" | ", new[] { draft.OriginalTitle, draft.EnglishTitle }
-        .Concat(ReadStrings(draft.AlternativeTitlesJson)).Where(value => !string.IsNullOrWhiteSpace(value)).Select(value => value.Trim()).Distinct());
 }

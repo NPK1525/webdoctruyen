@@ -57,12 +57,14 @@ builder.Services.AddScoped<IMangaDexService>(provider =>
     new LoggingMangaDexProxy(
         provider.GetRequiredService<MangaDexService>(),
         provider.GetRequiredService<ILogger<LoggingMangaDexProxy>>()));
+builder.Services.AddScoped<TitleSubmissionMangaCreator>();
 builder.Services.AddScoped<TitleSubmissionService>();
 builder.Services.AddScoped<MangaContributorAuthorizationService>();
 builder.Services.AddScoped<ChapterAdminService>();
 builder.Services.AddScoped<CatalogMangaCreator>();
 builder.Services.AddScoped<CatalogAdminService>();
 builder.Services.AddScoped<MangaDexImportService>();
+builder.Services.AddScoped<TitleDraftMangaCreator>();
 builder.Services.AddScoped<TitleDraftAdminService>();
 builder.Services.AddScoped<IFollowedUpdatesService, FollowedUpdatesService>();
 builder.Services.AddScoped<MangaListService>();

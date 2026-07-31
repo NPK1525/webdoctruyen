@@ -50,6 +50,7 @@ window.addEventListener('manganpk:localechanged', () => {
 });
 
 document.addEventListener('DOMContentLoaded', async () => {
+  if (typeof I18N !== 'undefined') await I18N.init();
   await waitForSession();
   const savedMode = localStorage.getItem('reader_mode');
   if (savedMode) readingMode = savedMode;

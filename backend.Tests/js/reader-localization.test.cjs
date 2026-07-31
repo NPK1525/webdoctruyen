@@ -2,6 +2,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const test = require('node:test');
+const vm = require('node:vm');
 
 const root = path.resolve(__dirname, '../../backend');
 const read = relative => fs.readFileSync(path.join(root, relative), 'utf8');
@@ -52,4 +53,36 @@ test('report reasons preserve canonical values while translating labels', () => 
   assert.match(report, /reason\.key/);
   assert.match(report, /value=\"\$\{escapeHtml\(reason\.value\)\}/);
   assert.match(report, /const reason = document\.getElementById\('report-reason'\)\.value/);
+});
+
+test('every generated report reason key resolves in both locale dictionaries', () => {
+  const reasonKeySource = report.match(/const reasonKey = (.+);/);
+  assert.ok(reasonKeySource, 'reasonKey helper is missing');
+  const reasonKey = vm.runInNewContext(`(${reasonKeySource[1]})`);
+  const reasons = [
+    'Duplicate entry', 'Incorrect or missing volume numbers', 'Information to correct',
+    'Missing cover art', 'Other', 'Troll entry', 'Vandalism',
+    'Credit page in the middle of the chapter', 'Duplicate upload from same user/group',
+    'Extraneous political/race-baiting/offensive content', 'Fake/Spam chapter',
+    'Group lock evasion', 'Images not loading', 'Incorrect chapter number',
+    'Incorrect group', 'Incorrect or duplicate pages', 'Incorrect or missing chapter title',
+    'Incorrect or missing volume number', 'Missing pages', 'Naming rules broken',
+    'Official release/Raw', 'Pages out of order', 'Released before raws released',
+    'Uploaded on wrong manga', 'Watermarked images'
+  ];
+  for (const reason of reasons) {
+    const key = reasonKey(reason);
+    assert.equal(typeof vi[key], 'string', `Missing Vietnamese translation for ${reason}: ${key}`);
+    assert.equal(typeof en[key], 'string', `Missing English translation for ${reason}: ${key}`);
+  }
+});
+
+test('reader waits for the locale dictionary before rendering dynamic labels', () => {
+  assert.match(reader, /await I18N\.init\(\)/);
+});
+
+test('reader page requests fresh localized scripts', () => {
+  assert.match(readerView, /report-modal\.js\?v=1\.1/);
+  assert.match(readerView, /reader-settings\.js\?v=1\.2/);
+  assert.match(readerView, /reader\.js\?v=5\.1/);
 });

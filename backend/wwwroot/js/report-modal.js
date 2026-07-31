@@ -1,5 +1,5 @@
 (function () {
-  const reasonKey = value => `report.reason.${value.toLowerCase().replace(/[^a-z0-9]+(.)/g, (_, c) => c.toUpperCase()).replace(/[^a-z0-9]/g, '')}`;
+  const reasonKey = value => `report.reason.${value.toLowerCase().split(/[^a-z0-9]+/).filter(Boolean).map((part, index) => index === 0 ? part : part.charAt(0).toUpperCase() + part.slice(1)).join('')}`;
   const mangaReasons = ['Duplicate entry', 'Incorrect or missing volume numbers', 'Information to correct', 'Missing cover art', 'Other', 'Troll entry', 'Vandalism'].map(value => ({ value, key: reasonKey(value) }));
   const chapterReasons = ['Credit page in the middle of the chapter', 'Duplicate upload from same user/group', 'Extraneous political/race-baiting/offensive content', 'Fake/Spam chapter', 'Group lock evasion', 'Images not loading', 'Incorrect chapter number', 'Incorrect group', 'Incorrect or duplicate pages', 'Incorrect or missing chapter title', 'Incorrect or missing volume number', 'Missing pages', 'Naming rules broken', 'Official release/Raw', 'Other', 'Pages out of order', 'Released before raws released', 'Uploaded on wrong manga', 'Watermarked images'].map(value => ({ value, key: reasonKey(value) }));
   let state = null;

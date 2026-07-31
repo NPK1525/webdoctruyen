@@ -1,6 +1,7 @@
 using MangaNPK.Data;
 using MangaNPK.Filters;
 using MangaNPK.Models;
+using MangaNPK.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -8,7 +9,9 @@ namespace MangaNPK.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class ReportsController(MangaDbContext context) : ControllerBase
+    public class ReportsController(
+        MangaDbContext context,
+        IReportCommandHandler reportCommandHandler) : ControllerBase
     {
         private static readonly string[] MangaReasons =
         [
@@ -27,6 +30,8 @@ namespace MangaNPK.Controllers
         ];
 
         private readonly MangaDbContext _context = context;
+        private readonly IReportCommandHandler _reportCommandHandler =
+            reportCommandHandler;
 
         [HttpPost]
         [RequireAuth]
@@ -119,16 +124,27 @@ namespace MangaNPK.Controllers
         [RequireAdmin]
         public async Task<IActionResult> UpdateStatus(int id, [FromBody] UpdateReportDto dto)
         {
-            if (!Enum.TryParse<ReportStatus>(dto.Status, true, out var status) || status == ReportStatus.Pending)
-                return BadRequest(new { message = "Trạng thái xử lý không hợp lệ." });
-            var report = await _context.Reports.FindAsync(id);
-            if (report is null) return NotFound(new { message = "Không tìm thấy báo cáo." });
-            report.Status = status;
-            report.ResolvedAt = DateTime.UtcNow;
-            report.ResolvedByUserId = HttpContext.Session.GetInt32("UserId");
-            report.AdminNote = string.IsNullOrWhiteSpace(dto.AdminNote) ? null : dto.AdminNote.Trim();
-            await _context.SaveChangesAsync();
-            return Ok(new { id = report.Id, status = report.Status.ToString() });
+            var command = new UpdateReportStatusCommand(
+                id,
+                dto.Status,
+                dto.AdminNote,
+                HttpContext.Session.GetInt32("UserId"));
+            var result = await _reportCommandHandler.ExecuteAsync(
+                command,
+                HttpContext.RequestAborted);
+
+            return result.Status switch
+            {
+                ReportCommandStatus.BadRequest =>
+                    BadRequest(new { message = result.Message }),
+                ReportCommandStatus.NotFound =>
+                    NotFound(new { message = result.Message }),
+                _ => Ok(new
+                {
+                    id = result.ReportId,
+                    status = result.ReportStatus!.Value.ToString()
+                })
+            };
         }
     }
 

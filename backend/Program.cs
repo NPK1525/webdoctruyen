@@ -69,6 +69,7 @@ builder.Services.AddScoped<TitleDraftMangaCreator>();
 builder.Services.AddScoped<TitleDraftAdminService>();
 builder.Services.AddScoped<IFollowedUpdatesService, FollowedUpdatesService>();
 builder.Services.AddScoped<MangaListService>();
+builder.Services.AddScoped<IReportCommandHandler, UpdateReportStatusCommandHandler>();
 builder.Services.AddOptions<SmtpOptions>()
     .BindConfiguration(SmtpOptions.SectionName);
 builder.Services.AddScoped<IEmailSender, SmtpEmailSender>();

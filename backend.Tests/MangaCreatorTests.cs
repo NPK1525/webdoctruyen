@@ -143,4 +143,44 @@ public sealed class MangaCreatorTests
         Assert.Equal("external-id", manga.ExternalId);
         Assert.Equal(now, manga.SyncedAt);
     }
+
+    [Fact]
+    public void MangaDexCreator_PreservesImportedScalarMapping()
+    {
+        var now = new DateTime(2026, 7, 31, 5, 6, 7, DateTimeKind.Utc);
+        var preview = new MangaDexPreviewDto(
+            "external-id",
+            "Imported title",
+            "Imported alternative",
+            "Imported description",
+            "https://uploads.test/imported.jpg",
+            MangaType.Manhwa,
+            MangaStatus.Hiatus,
+            MangaDemographic.Seinen,
+            MangaFormat.Adaptation,
+            2023,
+            [],
+            [
+                new MangaDexTagDto("Gore", "content"),
+                new MangaDexTagDto("Sexual Violence", "CONTENT"),
+                new MangaDexTagDto("Action", "genre")
+            ]);
+
+        var manga = new MangaDexMangaCreator().Create(preview, now);
+
+        Assert.Equal(preview.Title, manga.Title);
+        Assert.Equal(preview.AlternativeTitle, manga.AlternativeTitle);
+        Assert.Equal(preview.Description, manga.Description);
+        Assert.Equal(preview.CoverUrl, manga.CoverUrl);
+        Assert.Equal(preview.Type, manga.Type);
+        Assert.Equal(preview.Status, manga.Status);
+        Assert.Equal(preview.Demographic, manga.Demographic);
+        Assert.Equal(preview.Format, manga.Format);
+        Assert.Equal("Gore,Sexual Violence", manga.ContentWarnings);
+        Assert.Equal(preview.ReleaseYear, manga.ReleaseYear);
+        Assert.Equal("MangaDex", manga.Source);
+        Assert.Equal(preview.Id, manga.ExternalId);
+        Assert.Equal(now, manga.CreatedAt);
+        Assert.Equal(now, manga.SyncedAt);
+    }
 }

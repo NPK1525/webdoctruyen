@@ -12,10 +12,12 @@ public sealed record MangaDexImportOutcome(MangaDexImportStatus Status, string M
 
 public sealed class MangaDexImportService(
     MangaDbContext context,
-    IMangaDexService mangaDexService)
+    IMangaDexService mangaDexService,
+    MangaDexMangaCreator mangaCreator)
 {
     private readonly MangaDbContext _context = context;
     private readonly IMangaDexService _mangaDexService = mangaDexService;
+    private readonly MangaDexMangaCreator _mangaCreator = mangaCreator;
 
     public async Task<MangaDexPreviewOutcome> PreviewAsync(string input, CancellationToken cancellationToken = default)
     {
@@ -44,7 +46,7 @@ public sealed class MangaDexImportService(
                 .FirstOrDefaultAsync(item => item.Source == "MangaDex" && item.ExternalId == preview.Id, cancellationToken);
             if (manga == null)
             {
-                manga = new Manga { Source = "MangaDex", ExternalId = preview.Id, CreatedAt = now };
+                manga = _mangaCreator.Create(preview, now);
                 _context.Mangas.Add(manga);
             }
             manga.Title = preview.Title; manga.AlternativeTitle = preview.AlternativeTitle; manga.Description = preview.Description;

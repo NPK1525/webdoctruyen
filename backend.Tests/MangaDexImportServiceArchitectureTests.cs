@@ -25,6 +25,9 @@ public class MangaDexImportServiceArchitectureTests
         Assert.Contains(
             parameters,
             parameter => parameter.ParameterType == typeof(IMangaDexService));
+        Assert.Contains(
+            parameters,
+            parameter => parameter.ParameterType == typeof(MangaDexMangaCreator));
         Assert.DoesNotContain(
             parameters,
             parameter => parameter.ParameterType == typeof(MangaDexService));

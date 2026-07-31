@@ -63,6 +63,7 @@ builder.Services.AddScoped<MangaContributorAuthorizationService>();
 builder.Services.AddScoped<ChapterAdminService>();
 builder.Services.AddScoped<CatalogMangaCreator>();
 builder.Services.AddScoped<CatalogAdminService>();
+builder.Services.AddScoped<MangaDexMangaCreator>();
 builder.Services.AddScoped<MangaDexImportService>();
 builder.Services.AddScoped<TitleDraftMangaCreator>();
 builder.Services.AddScoped<TitleDraftAdminService>();

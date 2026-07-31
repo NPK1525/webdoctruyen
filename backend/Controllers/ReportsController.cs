@@ -130,8 +130,7 @@ namespace MangaNPK.Controllers
                 dto.AdminNote,
                 HttpContext.Session.GetInt32("UserId"));
             var result = await _reportCommandHandler.ExecuteAsync(
-                command,
-                HttpContext.RequestAborted);
+                command);
 
             return result.Status switch
             {

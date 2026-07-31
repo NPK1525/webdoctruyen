@@ -7,6 +7,7 @@ const vm = require('node:vm');
 const root = path.resolve(__dirname, '../../backend');
 const read = relative => fs.readFileSync(path.join(root, relative), 'utf8');
 const readerView = read('Views/ChapterView/Read.cshtml');
+const detailView = read('Views/MangaView/Detail.cshtml');
 const reportView = read('Views/Shared/_ReportModal.cshtml');
 const reader = read('wwwroot/js/reader.js');
 const settings = read('wwwroot/js/reader-settings.js');
@@ -85,4 +86,10 @@ test('reader page requests fresh localized scripts', () => {
   assert.match(readerView, /report-modal\.js\?v=1\.1/);
   assert.match(readerView, /reader-settings\.js\?v=1\.2/);
   assert.match(readerView, /reader\.js\?v=5\.1/);
+});
+
+test('every shared report modal consumer requests the localized script version', () => {
+  for (const view of [readerView, detailView]) {
+    assert.match(view, /report-modal\.js\?v=1\.1/);
+  }
 });

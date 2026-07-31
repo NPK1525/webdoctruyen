@@ -7,10 +7,12 @@ using Microsoft.EntityFrameworkCore;
 namespace MangaNPK.Controllers
 {
     [Route("chapter")]
-    public class ChapterViewController(MangaDbContext context, MangaDexService mangaDexService) : Controller
+    public class ChapterViewController(
+        MangaDbContext context,
+        IMangaDexChapterPageService mangaDexService) : Controller
     {
         private readonly MangaDbContext _context = context;
-        private readonly MangaDexService _mangaDexService = mangaDexService;
+        private readonly IMangaDexChapterPageService _mangaDexService = mangaDexService;
 
         // GET /chapter/{id}
         [HttpGet("{id:int}")]

@@ -1,16 +1,14 @@
 using MangaNPK.Models;
-using Microsoft.Extensions.Caching.Memory;
 using System.Globalization;
 using System.Text.Json;
 
 namespace MangaNPK.Services;
 
-public class MangaDexService(HttpClient httpClient, IMemoryCache cache)
+public class MangaDexService(HttpClient httpClient) : IMangaDexChapterPageService
 {
     private const string ApiBase = "https://api.mangadex.org";
     private const string UploadsBase = "https://uploads.mangadex.org";
     private readonly HttpClient _httpClient = httpClient;
-    private readonly IMemoryCache _cache = cache;
 
     public async Task<MangaDexPreviewDto> GetMangaPreviewAsync(string input, CancellationToken cancellationToken = default)
     {
@@ -50,12 +48,6 @@ public class MangaDexService(HttpClient httpClient, IMemoryCache cache)
 
     public async Task<List<string>> GetChapterPageUrlsAsync(string chapterExternalId, bool dataSaver = false, CancellationToken cancellationToken = default)
     {
-        var cacheKey = $"mangadex-at-home:{chapterExternalId}:{dataSaver}";
-        if (_cache.TryGetValue(cacheKey, out List<string>? cached) && cached is not null)
-        {
-            return cached;
-        }
-
         using var doc = await GetJsonAsync($"/at-home/server/{chapterExternalId}", cancellationToken);
         var root = doc.RootElement;
         var baseUrl = root.GetProperty("baseUrl").GetString() ?? string.Empty;
@@ -70,7 +62,6 @@ public class MangaDexService(HttpClient httpClient, IMemoryCache cache)
             .Where(url => !string.IsNullOrWhiteSpace(url))
             .ToList();
 
-        _cache.Set(cacheKey, urls, TimeSpan.FromMinutes(5));
         return urls;
     }
 

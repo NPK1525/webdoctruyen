@@ -5,6 +5,7 @@ using MangaNPK.Services.Email;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -48,6 +49,10 @@ builder.Services.AddSession(options =>
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddHttpClient<MangaDexService>();
+builder.Services.AddScoped<IMangaDexChapterPageService>(provider =>
+    new CachedMangaDexChapterPageService(
+        provider.GetRequiredService<MangaDexService>(),
+        provider.GetRequiredService<IMemoryCache>()));
 builder.Services.AddScoped<TitleSubmissionService>();
 builder.Services.AddScoped<MangaContributorAuthorizationService>();
 builder.Services.AddScoped<ChapterAdminService>();

@@ -10,10 +10,12 @@ namespace MangaNPK.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class ChapterController(MangaDbContext context, MangaDexService mangaDexService) : ControllerBase
+    public class ChapterController(
+        MangaDbContext context,
+        IMangaDexChapterPageService mangaDexService) : ControllerBase
     {
         private readonly MangaDbContext _context = context;
-        private readonly MangaDexService _mangaDexService = mangaDexService;
+        private readonly IMangaDexChapterPageService _mangaDexService = mangaDexService;
 
         // GET: api/chapter/{id}
         [HttpGet("{id}")]

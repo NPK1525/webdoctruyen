@@ -8,9 +8,12 @@ namespace MangaNPK.Services;
 public enum CatalogOperationStatus { Success, NotFound, BadRequest, ServerError }
 public sealed record CatalogOperationResult(CatalogOperationStatus Status, string Message, int? EntityId = null, string? Error = null);
 
-public sealed class CatalogAdminService(MangaDbContext context)
+public sealed class CatalogAdminService(
+    MangaDbContext context,
+    CatalogMangaCreator mangaCreator)
 {
     private readonly MangaDbContext _context = context;
+    private readonly CatalogMangaCreator _mangaCreator = mangaCreator;
 
     public async Task<(Author? Entity, string? Error)> CreateAuthorAsync(CreateAuthorDto dto, CancellationToken cancellationToken = default)
     {
@@ -47,11 +50,7 @@ public sealed class CatalogAdminService(MangaDbContext context)
         await using var transaction = await _context.Database.BeginTransactionAsync(cancellationToken);
         try
         {
-            var manga = new Manga { Title = dto.Title.Trim(), AlternativeTitle = dto.AlternativeTitle?.Trim() ?? string.Empty,
-                Description = dto.Description?.Trim() ?? string.Empty, CoverUrl = dto.CoverUrl?.Trim() ?? string.Empty,
-                Type = dto.Type, Status = dto.Status, Demographic = dto.Demographic, Format = dto.Format,
-                ContentWarnings = string.Join(',', MangaContentWarning.Normalize(dto.ContentWarnings)), ReleaseYear = dto.ReleaseYear,
-                CreatedAt = DateTime.UtcNow };
+            var manga = _mangaCreator.Create(dto, DateTime.UtcNow);
             _context.Mangas.Add(manga);
             await _context.SaveChangesAsync(cancellationToken);
             AddRelations(manga.Id, dto);

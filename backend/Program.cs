@@ -60,6 +60,7 @@ builder.Services.AddScoped<IMangaDexService>(provider =>
 builder.Services.AddScoped<TitleSubmissionService>();
 builder.Services.AddScoped<MangaContributorAuthorizationService>();
 builder.Services.AddScoped<ChapterAdminService>();
+builder.Services.AddScoped<CatalogMangaCreator>();
 builder.Services.AddScoped<CatalogAdminService>();
 builder.Services.AddScoped<MangaDexImportService>();
 builder.Services.AddScoped<TitleDraftAdminService>();

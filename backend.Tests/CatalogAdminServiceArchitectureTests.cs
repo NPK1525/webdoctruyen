@@ -12,4 +12,17 @@ public class CatalogAdminServiceArchitectureTests
         var constructor = typeof(AdminCatalogController).GetConstructors().Single();
         Assert.Contains(constructor.GetParameters(), parameter => parameter.ParameterType == typeof(CatalogAdminService));
     }
+
+    [Fact]
+    public void CatalogAdminService_UsesCatalogMangaCreator()
+    {
+        var parameters = typeof(CatalogAdminService)
+            .GetConstructors()
+            .Single()
+            .GetParameters();
+
+        Assert.Contains(
+            parameters,
+            parameter => parameter.ParameterType == typeof(CatalogMangaCreator));
+    }
 }

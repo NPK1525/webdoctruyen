@@ -117,23 +117,28 @@ function renderReaderKeybinds() {
   const list = document.getElementById('reader-keybind-list');
   if (!list) return;
   const labels = {
-    toggleMenu: 'Toggle menu',
-    pageRight: 'Turn page right',
-    pageLeft: 'Turn page left',
-    scrollUp: 'Scroll up',
-    scrollDown: 'Scroll down',
-    chapterForward: 'Chapter forward',
-    chapterBackward: 'Chapter backward',
-    immersive: 'Toggle immersive mode',
-    cycleFit: 'Cycle image fit mode'
+    toggleMenu: ['reader.keybind.toggleMenu', 'Toggle menu'],
+    pageRight: ['reader.keybind.pageRight', 'Turn page right'],
+    pageLeft: ['reader.keybind.pageLeft', 'Turn page left'],
+    scrollUp: ['reader.keybind.scrollUp', 'Scroll up'],
+    scrollDown: ['reader.keybind.scrollDown', 'Scroll down'],
+    chapterForward: ['reader.keybind.chapterForward', 'Chapter forward'],
+    chapterBackward: ['reader.keybind.chapterBackward', 'Chapter backward'],
+    immersive: ['reader.keybind.immersive', 'Toggle immersive mode'],
+    cycleFit: ['reader.keybind.cycleFit', 'Cycle image fit mode']
   };
-  list.innerHTML = Object.entries(labels).map(([action, label]) => `
+  list.innerHTML = Object.entries(labels).map(([action, [key, fallback]]) => `
     <div class="reader-keybind-row">
-      <span>${label}</span>
+      <span>${t(key, fallback)}</span>
       <div>${(readerKeybinds[action] || []).map(code => `<kbd>${formatKeybind(code)}</kbd>`).join('')}</div>
     </div>
   `).join('');
 }
+
+window.addEventListener('manganpk:localechanged', () => {
+  renderReaderKeybinds();
+  syncReaderSettingsUI();
+});
 
 function loadReaderKeybinds() {
   try {

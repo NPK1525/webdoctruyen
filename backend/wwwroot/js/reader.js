@@ -41,6 +41,14 @@ const defaultReaderKeybinds = {
 };
 let readerKeybinds = loadReaderKeybinds();
 
+window.addEventListener('manganpk:localechanged', () => {
+  if (!chapterDetail) return;
+  updateHeaderLabels();
+  renderChaptersDropdown();
+  renderReaderDrawerPageOptions();
+  updateDrawerButtonStates();
+});
+
 document.addEventListener('DOMContentLoaded', async () => {
   await waitForSession();
   const savedMode = localStorage.getItem('reader_mode');
@@ -225,9 +233,9 @@ function updateHeaderLabels() {
   const drawerPageLabel = document.getElementById('reader-drawer-page-label');
   if (drawerPageLabel) drawerPageLabel.textContent = `${pagesCount > 0 ? (currentPageIdx + 1) : 0}`;
   const drawerChapterLabel = document.getElementById('reader-drawer-chapter-label');
-  if (drawerChapterLabel) drawerChapterLabel.textContent = `Chapter ${chapterDetail.chapterNumber}`;
+  if (drawerChapterLabel) drawerChapterLabel.textContent = `${t('reader.chapter', 'Chapter')} ${chapterDetail.chapterNumber}`;
   const drawerChapterTitle = document.getElementById('reader-drawer-chapter-title');
-  if (drawerChapterTitle) drawerChapterTitle.textContent = `Chapter ${chapterDetail.chapterNumber}`;
+  if (drawerChapterTitle) drawerChapterTitle.textContent = `${t('reader.chapter', 'Chapter')} ${chapterDetail.chapterNumber}`;
 
   const pageOptions = document.getElementById('page-select-options');
   if (pageOptions && chapterDetail.pages) {
@@ -712,18 +720,20 @@ function updateDrawerButtonStates() {
   const progressBtn = document.getElementById('reader-progress-mode');
   const progressText = progressBtn?.querySelector('span');
   if (progressText) {
-    progressText.textContent = progressMode === 'normal'
-      ? 'Normal Progress'
-      : progressMode === 'lightbar'
-        ? 'Progress Lightbar'
-        : 'Progress Hidden';
+    const progressKey = progressMode === 'normal' ? 'reader.progressNormal' : progressMode === 'lightbar' ? 'reader.progressLightbar' : 'reader.progressHidden';
+    progressText.dataset.i18n = progressKey;
+    progressText.textContent = t(progressKey, progressMode);
   }
   progressBtn?.classList.toggle('active', progressMode !== 'hidden');
 
   const directionBtn = document.getElementById('reader-direction-ltr');
   const directionText = directionBtn?.querySelector('span');
   const directionIcon = directionBtn?.querySelector('i');
-  if (directionText) directionText.textContent = readerDirection === 'ltr' ? 'Left To Right' : 'Right To Left';
+  if (directionText) {
+    const directionKey = readerDirection === 'ltr' ? 'reader.leftToRight' : 'reader.rightToLeft';
+    directionText.dataset.i18n = directionKey;
+    directionText.textContent = t(directionKey, readerDirection === 'ltr' ? 'Left To Right' : 'Right To Left');
+  }
   if (directionIcon) directionIcon.setAttribute('data-lucide', readerDirection === 'ltr' ? 'circle-arrow-right' : 'circle-arrow-left');
   directionBtn?.classList.add('active');
 

@@ -141,7 +141,7 @@
         <div class="reader-drawer-navrow">
           <button id="reader-drawer-page-prev" class="reader-drawer-step"><i data-lucide="chevron-left"></i></button>
           <button id="reader-drawer-page-select" class="reader-drawer-select">
-            <small>Page</small>
+                <small data-i18n="reader.page">Trang</small>
             <span id="reader-drawer-page-label">1</span>
             <i data-lucide="chevron-down"></i>
           </button>
@@ -151,44 +151,44 @@
         <div class="reader-drawer-navrow">
           <button id="reader-drawer-chapter-prev" class="reader-drawer-step"><i data-lucide="chevron-left"></i></button>
           <button id="reader-drawer-chapter-select" class="reader-drawer-select">
-            <small>Chapter</small>
+                <small data-i18n="reader.chapter">Chương</small>
             <span id="reader-drawer-chapter-label">Chapter @Model.ChapterNumber</span>
             <i data-lucide="chevron-down"></i>
           </button>
           <div id="reader-drawer-chapter-options" class="reader-drawer-options" style="display: none;"></div>
           <button id="reader-drawer-chapter-next" class="reader-drawer-step"><i data-lucide="chevron-right"></i></button>
         </div>
-        <button id="reader-report-chapter" class="reader-drawer-wide-btn">Report Chapter</button>
+        <button id="reader-report-chapter" class="reader-drawer-wide-btn" data-i18n="reader.reportChapter">Báo cáo chương</button>
         <div class="reader-drawer-divider"></div>
         <button id="reader-mode-long-strip" class="reader-drawer-wide-btn">
           <i data-lucide="panel-top"></i>
-          <span>Long Strip</span>
+          <span data-i18n="reader.longStrip">Cuộn dọc</span>
         </button>
         <div class="reader-drawer-split">
           <button id="reader-fit-both" class="reader-drawer-wide-btn">
             <i data-lucide="expand"></i>
-            <span>Fit Both</span>
+            <span data-i18n="reader.fitBoth">Vừa cả hai chiều</span>
           </button>
           <button class="reader-drawer-square-btn" title="Fit settings"><i data-lucide="settings"></i></button>
         </div>
         <button id="reader-direction-ltr" class="reader-drawer-wide-btn">
           <i data-lucide="circle-arrow-right"></i>
-          <span>Left To Right</span>
+          <span data-i18n="reader.leftToRight">Trái sang phải</span>
         </button>
         <button id="reader-toggle-header" class="reader-drawer-wide-btn">
           <i data-lucide="square"></i>
-          <span>Header Hidden</span>
+          <span data-i18n="reader.headerHidden">Ẩn thanh đầu trang</span>
         </button>
         <div class="reader-drawer-split">
           <button id="reader-progress-mode" class="reader-drawer-wide-btn">
             <i data-lucide="scan-line"></i>
-            <span>Normal Progress</span>
+            <span data-i18n="reader.progressNormal">Tiến trình bình thường</span>
           </button>
           <button class="reader-drawer-square-btn" title="Progress settings"><i data-lucide="settings"></i></button>
         </div>
         <button id="reader-settings-open" class="reader-drawer-wide-btn">
           <i data-lucide="settings"></i>
-          <span>Reader Settings</span>
+          <span data-i18n="reader.settings">Cài đặt đọc</span>
         </button>
       </aside>
       <button id="reader-drawer-rail" class="reader-drawer-rail" title="Menu &#273;&#7885;c truy&#7879;n" aria-label="Menu &#273;&#7885;c truy&#7879;n">
@@ -198,49 +198,49 @@
         <div class="reader-settings-backdrop"></div>
         <section class="reader-settings-dialog" role="dialog" aria-modal="true" aria-labelledby="reader-settings-title">
           <div class="reader-settings-head">
-            <h2 id="reader-settings-title">Reader Settings</h2>
+            <h2 id="reader-settings-title" data-i18n="reader.settings">Cài đặt đọc</h2>
             <button id="reader-settings-close" class="reader-icon-btn" title="Close">
               <i data-lucide="x"></i>
             </button>
           </div>
           <div class="reader-settings-body">
             <nav class="reader-settings-tabs" aria-label="Reader Settings">
-              <button class="reader-settings-tab active" data-reader-settings-tab="layout">Page Layout</button>
-              <button class="reader-settings-tab" data-reader-settings-tab="image">Image fit</button>
-              <button class="reader-settings-tab" data-reader-settings-tab="keybinds">Keybinds</button>
-              <button class="reader-settings-tab" data-reader-settings-tab="behaviors">Behaviors</button>
+              <button class="reader-settings-tab active" data-reader-settings-tab="layout" data-i18n="reader.settings.pageLayout">Bố cục trang</button>
+              <button class="reader-settings-tab" data-reader-settings-tab="image" data-i18n="reader.settings.imageFit">Căn chỉnh ảnh</button>
+              <button class="reader-settings-tab" data-reader-settings-tab="keybinds" data-i18n="reader.settings.keybinds">Phím tắt</button>
+              <button class="reader-settings-tab" data-reader-settings-tab="behaviors" data-i18n="reader.settings.behaviors">Hành vi</button>
             </nav>
             <div class="reader-settings-content">
               <div class="reader-settings-panel-page active" data-reader-settings-panel="layout">
                 <div class="reader-setting-group">
-                  <h3>Page Display Style</h3>
+                  <h3 data-i18n="reader.settings.pageDisplayStyle">Kiểu hiển thị trang</h3>
                   <div class="reader-segmented">
-                    <button data-reader-display="single"><i data-lucide="file"></i><span>Single Page</span></button>
-                    <button data-reader-display="double"><i data-lucide="book-open"></i><span>Double Page</span></button>
-                    <button data-reader-display="long"><i data-lucide="panel-top"></i><span>Long Strip</span></button>
-                    <button data-reader-display="wide"><i data-lucide="columns-2"></i><span>Wide Strip</span></button>
+                    <button data-reader-display="single"><i data-lucide="file"></i><span data-i18n="reader.settings.singlePage">Một trang</span></button>
+                    <button data-reader-display="double"><i data-lucide="book-open"></i><span data-i18n="reader.settings.doublePage">Hai trang</span></button>
+                    <button data-reader-display="long"><i data-lucide="panel-top"></i><span data-i18n="reader.longStrip">Cuộn dọc</span></button>
+                    <button data-reader-display="wide"><i data-lucide="columns-2"></i><span data-i18n="reader.settings.wideStrip">Dải rộng</span></button>
                   </div>
                 </div>
                 <div class="reader-setting-group">
-                  <h3>Reading Direction</h3>
+                  <h3 data-i18n="reader.settings.readingDirection">Hướng đọc</h3>
                   <div class="reader-segmented two">
-                    <button data-reader-direction="ltr"><i data-lucide="circle-arrow-right"></i><span>Left To Right</span></button>
-                    <button data-reader-direction="rtl"><i data-lucide="circle-arrow-left"></i><span>Right To Left</span></button>
+                    <button data-reader-direction="ltr"><i data-lucide="circle-arrow-right"></i><span data-i18n="reader.leftToRight">Trái sang phải</span></button>
+                    <button data-reader-direction="rtl"><i data-lucide="circle-arrow-left"></i><span data-i18n="reader.rightToLeft">Phải sang trái</span></button>
                   </div>
                 </div>
                 <div class="reader-setting-group">
-                  <h3>Header Visibility</h3>
+                  <h3 data-i18n="reader.settings.headerVisibility">Hiển thị thanh đầu trang</h3>
                   <div class="reader-segmented two">
-                    <button data-reader-header="hidden"><i data-lucide="square"></i><span>Header Hidden</span></button>
-                    <button data-reader-header="shown"><i data-lucide="panel-top"></i><span>Header Shown</span></button>
+                    <button data-reader-header="hidden"><i data-lucide="square"></i><span data-i18n="reader.headerHidden">Ẩn thanh đầu trang</span></button>
+                    <button data-reader-header="shown"><i data-lucide="panel-top"></i><span data-i18n="reader.headerShown">Hiện thanh đầu trang</span></button>
                   </div>
                 </div>
                 <div class="reader-setting-group">
-                  <h3>Progress Bar Style</h3>
+                  <h3 data-i18n="reader.settings.progressBarStyle">Kiểu thanh tiến trình</h3>
                   <div class="reader-segmented three">
-                    <button data-reader-progress="hidden"><i data-lucide="minus"></i><span>Progress Hidden</span></button>
-                    <button data-reader-progress="lightbar"><i data-lucide="scan-line"></i><span>Progress Lightbar</span></button>
-                    <button data-reader-progress="normal"><i data-lucide="scan-line"></i><span>Normal Progress</span></button>
+                    <button data-reader-progress="hidden"><i data-lucide="minus"></i><span data-i18n="reader.progressHidden">Ẩn tiến trình</span></button>
+                    <button data-reader-progress="lightbar"><i data-lucide="scan-line"></i><span data-i18n="reader.progressLightbar">Thanh tiến trình mảnh</span></button>
+                    <button data-reader-progress="normal"><i data-lucide="scan-line"></i><span data-i18n="reader.progressNormal">Tiến trình bình thường</span></button>
                   </div>
                 </div>
                 <div class="reader-setting-group">

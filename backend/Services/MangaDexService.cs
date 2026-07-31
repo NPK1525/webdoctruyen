@@ -4,7 +4,8 @@ using System.Text.Json;
 
 namespace MangaNPK.Services;
 
-public class MangaDexService(HttpClient httpClient) : IMangaDexChapterPageService
+public class MangaDexService(HttpClient httpClient)
+    : IMangaDexService, IMangaDexChapterPageService
 {
     private const string ApiBase = "https://api.mangadex.org";
     private const string UploadsBase = "https://uploads.mangadex.org";

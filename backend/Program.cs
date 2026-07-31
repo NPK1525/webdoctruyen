@@ -53,6 +53,10 @@ builder.Services.AddScoped<IMangaDexChapterPageService>(provider =>
     new CachedMangaDexChapterPageService(
         provider.GetRequiredService<MangaDexService>(),
         provider.GetRequiredService<IMemoryCache>()));
+builder.Services.AddScoped<IMangaDexService>(provider =>
+    new LoggingMangaDexProxy(
+        provider.GetRequiredService<MangaDexService>(),
+        provider.GetRequiredService<ILogger<LoggingMangaDexProxy>>()));
 builder.Services.AddScoped<TitleSubmissionService>();
 builder.Services.AddScoped<MangaContributorAuthorizationService>();
 builder.Services.AddScoped<ChapterAdminService>();

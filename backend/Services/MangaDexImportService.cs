@@ -10,10 +10,12 @@ public enum MangaDexImportStatus { Success, BadRequest, BadGateway, ServerError 
 public sealed record MangaDexPreviewOutcome(MangaDexImportStatus Status, string Message, MangaDexPreviewDto? Preview = null, int ChapterCount = 0, bool Exists = false, string? Error = null);
 public sealed record MangaDexImportOutcome(MangaDexImportStatus Status, string Message, int? MangaId = null, int ChapterCount = 0, string? Error = null);
 
-public sealed class MangaDexImportService(MangaDbContext context, MangaDexService mangaDexService)
+public sealed class MangaDexImportService(
+    MangaDbContext context,
+    IMangaDexService mangaDexService)
 {
     private readonly MangaDbContext _context = context;
-    private readonly MangaDexService _mangaDexService = mangaDexService;
+    private readonly IMangaDexService _mangaDexService = mangaDexService;
 
     public async Task<MangaDexPreviewOutcome> PreviewAsync(string input, CancellationToken cancellationToken = default)
     {

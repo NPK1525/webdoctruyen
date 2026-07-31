@@ -13,4 +13,20 @@ public class MangaDexImportServiceArchitectureTests
         Assert.Single(parameters);
         Assert.Equal(typeof(MangaDexImportService), parameters[0].ParameterType);
     }
+
+    [Fact]
+    public void MangaDexImportService_DependsOnSubjectInterface()
+    {
+        var parameters = typeof(MangaDexImportService)
+            .GetConstructors()
+            .Single()
+            .GetParameters();
+
+        Assert.Contains(
+            parameters,
+            parameter => parameter.ParameterType == typeof(IMangaDexService));
+        Assert.DoesNotContain(
+            parameters,
+            parameter => parameter.ParameterType == typeof(MangaDexService));
+    }
 }

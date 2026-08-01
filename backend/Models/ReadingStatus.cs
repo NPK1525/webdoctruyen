@@ -5,6 +5,8 @@ namespace MangaNPK.Models
         Reading = 0,
         Completed = 1,
         Paused = 2,
-        PlanToRead = 3
+        PlanToRead = 3,
+        ReReading = 4,
+        Dropped = 5
     }
 }

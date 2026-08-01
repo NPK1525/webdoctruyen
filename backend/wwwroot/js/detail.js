@@ -5,6 +5,7 @@ let recommendations = [];
 let chapterSort = 'desc';
 let activeTab = 'chapters';
 let libraryState = { isFollowing: false, readingStatus: null };
+let serverLibraryEntryExists = false;
 let chapterPage = 1;
 const chapterPageSize = 12;
 let pendingLibraryStatus = 'reading';
@@ -47,17 +48,40 @@ const demographicMap = { 0: t('common.na', 'Không có'), 1: 'Shounen', 2: 'Shou
 const formatMap = { 0: t('common.na', 'Không có'), 1: 'Adaptation', 2: 'WebComic', 3: 'OneShot', 4: 'Comic', 5: 'Book' };
 
 async function loadLibraryState() {
-  const item = currentUser && activeMangaId ? getLocalLibraryItem(activeMangaId) : null;
+  let item = currentUser && activeMangaId ? getLocalLibraryItem(activeMangaId) : null;
   const historyItem = activeMangaId && typeof readLocalReadingHistory === 'function'
     ? readLocalReadingHistory().find(entry => Number(entry.mangaId) === Number(activeMangaId))
     : null;
+
+  if (currentUser && activeMangaId) {
+    try {
+      await syncLocalLibraryToServer();
+      const response = await apiFetch(`/api/library/${activeMangaId}`);
+      if (response.ok) {
+        const serverEntry = await response.json();
+        serverLibraryEntryExists = Boolean(serverEntry.isFollowing);
+        if (serverLibraryEntryExists) {
+          const readingStatus = fromServerReadingStatus(serverEntry.readingStatus);
+          item = saveLocalLibraryItem(mangaDetail, readingStatus);
+          item.lastChapterId = serverEntry.lastChapterId || item.lastChapterId || null;
+          item.lastChapterNumber = serverEntry.lastChapterNumber || item.lastChapterNumber || null;
+        } else {
+          removeLocalLibraryItem(activeMangaId);
+          item = null;
+        }
+      }
+    } catch (error) {
+      console.error('Library state sync error:', error);
+      serverLibraryEntryExists = Boolean(item);
+    }
+  }
+
   libraryState = {
     isFollowing: Boolean(item),
     readingStatus: item?.readingStatus || null,
     lastChapterId: historyItem?.chapterId || item?.lastChapterId || null,
     lastChapterNumber: historyItem?.chapterNumber || item?.lastChapterNumber || null
   };
-  updateBookmarkButton();
   updateLibraryStatusButton();
   updateContinueReadingButton();
 }
@@ -72,27 +96,6 @@ function updateContinueReadingButton() {
   label.textContent = hasReadingHistory
     ? t(key, 'Tiếp tục đọc')
     : t(key, 'Bắt đầu đọc');
-}
-
-function updateBookmarkButton() {
-  const bookmarkBtn = document.getElementById('btn-bookmark-manga');
-  if (!bookmarkBtn) return;
-
-  if (!currentUser) {
-    bookmarkBtn.innerHTML = `<i data-lucide="bookmark" style="width: 16px; height: 16px;"></i> ${t('detail.addShelf', 'Thêm tủ sách')}`;
-    bookmarkBtn.onclick = () => openAuthModal('login');
-  } else if (libraryState.isFollowing) {
-    bookmarkBtn.innerHTML = `<i data-lucide="bookmark-minus" style="width: 16px; height: 16px;"></i> ${t('detail.unfollow', 'Bỏ theo dõi')}`;
-    bookmarkBtn.onclick = toggleFollow;
-  } else {
-    bookmarkBtn.innerHTML = `<i data-lucide="bookmark" style="width: 16px; height: 16px;"></i> ${t('detail.follow', 'Theo dõi')}`;
-    bookmarkBtn.onclick = toggleFollow;
-  }
-  if (typeof lucide !== 'undefined') lucide.createIcons();
-}
-
-async function toggleFollow() {
-  openAddToLibraryModal();
 }
 
 // Fetch manga detail data (legacy)
@@ -243,15 +246,19 @@ function renderMangaDetails() {
     openReportModal({ targetType: 'Manga', mangaId: activeMangaId, title: mangaDetail?.title, coverUrl: mangaDetail?.coverUrl, identifier: mangaDetail?.externalId });
   });
 
-  const bookmarkBtn = document.getElementById('btn-bookmark-manga');
-  if (bookmarkBtn && !bookmarkBtn.onclick) {
-    bookmarkBtn.onclick = () => openAuthModal('login');
-  }
-
   renderChaptersList();
 }
 
-window.addEventListener('manganpk:localechanged', updateContinueReadingButton);
+function refreshDetailLocalizedControls() {
+  updateContinueReadingButton();
+  updateLibraryStatusButton();
+  renderAddLibraryStatusMenu();
+  updateAddLibrarySelectedStatus();
+  updateAddLibrarySubmitLabel();
+  renderChaptersList();
+}
+
+window.addEventListener('manganpk:localechanged', refreshDetailLocalizedControls);
 
 async function incrementMangaViewCount() {
   if (!activeMangaId) return;
@@ -407,6 +414,7 @@ function openAddToLibraryModal() {
   if (title) title.textContent = mangaDetail.title || '';
   modal?.classList.add('open');
   modal?.setAttribute('aria-hidden', 'false');
+  renderAddLibraryStatusMenu();
   updateAddLibrarySelectedStatus();
   updateAddLibrarySubmitLabel();
   if (typeof lucide !== 'undefined') lucide.createIcons();
@@ -457,21 +465,58 @@ function updateAddLibrarySubmitLabel() {
   submitButton.textContent = libraryState.readingStatus ? t('common.update', 'Update') : t('common.add', 'Add');
 }
 
-function submitAddToLibrary() {
+async function submitAddToLibrary() {
   if (!currentUser) {
     openAuthModal('login');
     return;
   }
-  if (pendingLibraryStatus === 'none') {
-    removeLocalLibraryItem(activeMangaId);
-    libraryState = { isFollowing: false, readingStatus: null };
-  } else {
-    const saved = saveLocalLibraryItem(mangaDetail, pendingLibraryStatus);
-    libraryState = { isFollowing: true, readingStatus: saved.readingStatus };
+
+  const submitButton = document.getElementById('add-library-submit');
+  if (submitButton) submitButton.disabled = true;
+
+  try {
+    let response;
+    if (pendingLibraryStatus === 'none') {
+      response = serverLibraryEntryExists
+        ? await apiFetch(`/api/library/${activeMangaId}`, { method: 'DELETE' })
+        : null;
+    } else if (serverLibraryEntryExists) {
+      response = await apiFetch(`/api/library/${activeMangaId}/status`, {
+        method: 'PUT',
+        body: JSON.stringify({ status: toServerReadingStatus(pendingLibraryStatus) })
+      });
+    } else {
+      response = await apiFetch('/api/library/follow', {
+        method: 'POST',
+        body: JSON.stringify({
+          mangaId: activeMangaId,
+          status: toServerReadingStatus(pendingLibraryStatus)
+        })
+      });
+    }
+
+    if (response && !response.ok) {
+      throw new Error(`Library API returned ${response.status}`);
+    }
+
+    if (pendingLibraryStatus === 'none') {
+      removeLocalLibraryItem(activeMangaId);
+      serverLibraryEntryExists = false;
+      libraryState = { ...libraryState, isFollowing: false, readingStatus: null };
+    } else {
+      const saved = saveLocalLibraryItem(mangaDetail, pendingLibraryStatus);
+      serverLibraryEntryExists = true;
+      libraryState = { ...libraryState, isFollowing: true, readingStatus: saved.readingStatus };
+    }
+
+    updateLibraryStatusButton();
+    closeAddToLibraryModal();
+  } catch (error) {
+    console.error('Library update error:', error);
+    showToast(t('library.saveError', 'Could not update your library.'), 'error');
+  } finally {
+    if (submitButton) submitButton.disabled = false;
   }
-  updateBookmarkButton();
-  updateLibraryStatusButton();
-  closeAddToLibraryModal();
 }
 
 function updateLibraryStatusButton() {

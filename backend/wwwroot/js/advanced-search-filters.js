@@ -168,7 +168,8 @@
           return `<button type="button" class="advanced-filter-tag ${current}" data-filter-tag="${value}" data-filter-tag-group="${group}" aria-pressed="${current !== 'neutral'}">${label}</button>`;
         }).join('') || `<span class="advanced-person-empty" data-i18n="search.noTagMatches">${translate('search.noTagMatches', 'No matching tags.')}</span>`;
         container.querySelectorAll('[data-filter-tag]').forEach(button => {
-          button.addEventListener('click', () => {
+          button.addEventListener('click', (event) => {
+            event.stopPropagation();
             const current = tagState(group, button.dataset.filterTag);
             setTag(group, { id: button.dataset.filterTag }, cycleTagState(current));
             renderTags();

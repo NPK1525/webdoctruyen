@@ -83,13 +83,13 @@ test('reader waits for the locale dictionary before rendering dynamic labels', (
 });
 
 test('reader page requests fresh localized scripts', () => {
-  assert.match(readerView, /report-modal\.js\?v=1\.1/);
+  assert.match(readerView, /report-modal\.js\?v=1\.2/);
   assert.match(readerView, /reader-settings\.js\?v=1\.2/);
   assert.match(readerView, /reader\.js\?v=5\.1/);
 });
 
 test('every shared report modal consumer requests the localized script version', () => {
   for (const view of [readerView, detailView]) {
-    assert.match(view, /report-modal\.js\?v=1\.1/);
+    assert.match(view, /report-modal\.js\?v=1\.2/);
   }
 });

@@ -33,12 +33,14 @@ function initAddToListButton() {
   const btn = document.getElementById('btn-add-to-list');
   if (!btn) return;
 
-  if (!currentUser) {
-    btn.style.display = 'none';
-    return;
-  }
   btn.style.display = 'inline-flex';
-  btn.onclick = openAddToListModal;
+  btn.onclick = () => {
+    if (!currentUser) {
+      openAuthModal('login');
+      return;
+    }
+    openAddToListModal();
+  };
 
   document.getElementById('btn-close-list-modal')?.addEventListener('click', closeAddToListModal);
   document.getElementById('add-to-list-modal')?.addEventListener('click', (e) => {

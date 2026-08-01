@@ -83,6 +83,67 @@ function removeLocalLibraryItem(mangaId) {
   writeLocalLibrary(readLocalLibrary().filter(item => Number(item.mangaId) !== id));
 }
 
+function fromServerReadingStatus(status) {
+  const normalized = String(status || '').toLowerCase();
+  return {
+    reading: 'reading',
+    completed: 'completed',
+    paused: 'on_hold',
+    plantoread: 'plan',
+    rereading: 'rereading',
+    dropped: 'dropped'
+  }[normalized] || 'reading';
+}
+
+function toServerReadingStatus(status) {
+  return {
+    reading: 'Reading',
+    completed: 'Completed',
+    on_hold: 'Paused',
+    plan: 'PlanToRead',
+    rereading: 'ReReading',
+    dropped: 'Dropped'
+  }[status] || 'Reading';
+}
+
+async function syncLocalLibraryToServer() {
+  if (!currentUser || typeof apiFetch !== 'function') return false;
+
+  const localItems = readLocalLibrary();
+  if (localItems.length === 0) return false;
+
+  try {
+    const libraryResponse = await apiFetch('/api/library');
+    if (!libraryResponse.ok) return false;
+
+    const payload = await libraryResponse.json();
+    const serverIds = new Set((payload.items || []).map(item => Number(item.mangaId)));
+    let changed = false;
+
+    for (const item of localItems) {
+      const mangaId = Number(item.mangaId);
+      if (!Number.isFinite(mangaId) || serverIds.has(mangaId)) continue;
+
+      const response = await apiFetch('/api/library/follow', {
+        method: 'POST',
+        body: JSON.stringify({
+          mangaId,
+          status: toServerReadingStatus(item.readingStatus)
+        })
+      });
+      if (response.ok) {
+        serverIds.add(mangaId);
+        changed = true;
+      }
+    }
+
+    return changed;
+  } catch (error) {
+    console.error('Library migration error:', error);
+    return false;
+  }
+}
+
 function getReadingHistoryUserKey() {
   const id = currentUser?.id || currentUser?.username || 'guest';
   return `manganpk_reading_history_${id}`;

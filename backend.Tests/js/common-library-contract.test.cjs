@@ -10,6 +10,7 @@ const viewPaths = [
   'Views/HistoryView/Index.cshtml',
   'Views/Home/Index.cshtml',
   'Views/LibraryView/Index.cshtml',
+  'Views/FollowedUpdatesView/Index.cshtml',
   'Views/MangaView/Detail.cshtml',
   'Views/MangaView/Index.cshtml',
   'Views/RecentlyAddedView/Index.cshtml',
@@ -36,4 +37,13 @@ test('library and history functions belong to common-library', () => {
     assert.match(moduleSource, new RegExp(`function ${name}\\(`));
     assert.doesNotMatch(coordinator, new RegExp(`function ${name}\\(`));
   }
+});
+
+test('legacy local library can be synchronized to the authenticated server library', () => {
+  const moduleSource = fs.readFileSync(modulePath, 'utf8');
+  assert.match(moduleSource, /async function syncLocalLibraryToServer\(\)/);
+  assert.match(moduleSource, /apiFetch\('\/api\/library'/);
+  assert.match(moduleSource, /apiFetch\('\/api\/library\/follow'/);
+  assert.match(moduleSource, /function toServerReadingStatus\(/);
+  assert.match(moduleSource, /function fromServerReadingStatus\(/);
 });

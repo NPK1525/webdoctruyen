@@ -27,3 +27,13 @@ test('report modal exposes target-specific reasons and Other validation', () => 
   assert.match(source, /explanation.*required|Other.*explanation/i);
   assert.match(source, /apiFetch\(.*\/reports/);
 });
+
+test('chapter reports submit only chapterId while manga reports submit only mangaId', () => {
+  const source = fs.readFileSync(reportScriptPath, 'utf8');
+  assert.match(source, /state\.targetType\s*===\s*'Chapter'\s*\?\s*\{\s*targetType:\s*state\.targetType,\s*chapterId:/);
+  assert.match(source, /:\s*\{\s*targetType:\s*state\.targetType,\s*mangaId:/);
+  assert.doesNotMatch(
+    source,
+    /JSON\.stringify\(\{\s*targetType:\s*state\.targetType,\s*mangaId:[\s\S]*?chapterId:/
+  );
+});

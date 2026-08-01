@@ -2,6 +2,13 @@ const expandedUpdateManga = new Set();
 
 document.addEventListener('DOMContentLoaded', async () => {
   await waitForSession();
+  if (window.__SYNC_LIBRARY_FOR_UPDATES__ && typeof syncLocalLibraryToServer === 'function') {
+    const migrated = await syncLocalLibraryToServer();
+    if (migrated) {
+      window.location.reload();
+      return;
+    }
+  }
   renderUpdatesPage();
 });
 
@@ -13,13 +20,17 @@ function renderUpdatesPage() {
 
   // Nhóm các chương mới theo manga để một bộ có nhiều chương mới sẽ nằm chung một card.
   const groups = groupUpdatesByManga(Array.isArray(window.__LATEST_UPDATES__) ? window.__LATEST_UPDATES__ : []);
-  if (countLabel) countLabel.textContent = `${groups.length} ${groups.length === 1 ? 'Title' : 'Titles'}`;
+  if (countLabel) {
+    const countText = groups.length === 1
+      ? t('updates.titleCountOne', '{count} title')
+      : t('updates.titleCount', '{count} titles');
+    countLabel.textContent = countText.replace('{count}', String(groups.length));
+  }
 
   if (groups.length === 0) {
     container.innerHTML = '';
     empty.style.display = 'block';
-    empty.textContent = window.__UPDATES_EMPTY_MESSAGE__
-      || t('updates.empty', 'No updated titles yet.');
+    empty.textContent = t(window.__UPDATES_EMPTY_KEY__ || 'updates.empty', 'No updated titles yet.');
     return;
   }
 
@@ -64,15 +75,17 @@ function renderUpdateGroup(group) {
   const hiddenCount = Math.max(0, group.items.length - visibleItems.length);
   return `
     <article class="history-group updates-group" data-manga-id="${group.mangaId}">
-      <img class="history-cover" src="${group.coverUrl || MOCK_WHITE_IMAGE}" alt="${escapeUpdateHtml(group.title)}" />
+      <a class="history-cover-link" href="/manga/${group.mangaId}" style="display: block; text-decoration: none;">
+        <img class="history-cover" src="${group.coverUrl || MOCK_WHITE_IMAGE}" alt="${escapeUpdateHtml(group.title)}" />
+      </a>
       <div class="history-group-main">
-        <div class="history-group-title">${escapeUpdateHtml(group.title)}</div>
+        <a class="history-group-title" href="/manga/${group.mangaId}" style="display: block; text-decoration: none;">${escapeUpdateHtml(group.title)}</a>
         <div class="history-chapter-list">
           ${visibleItems.map(renderUpdateChapterRow).join('')}
         </div>
         ${hiddenCount > 0 || expanded ? `
           <button class="history-show-all" data-update-toggle="${group.mangaId}">
-            ${expanded ? 'Show Less' : 'Show All'}
+            ${expanded ? t('updates.showLess', 'Show Less') : t('updates.showAll', 'Show All')}
           </button>
         ` : ''}
       </div>
@@ -164,3 +177,5 @@ function escapeUpdateHtml(text) {
   div.textContent = text || '';
   return div.innerHTML;
 }
+
+window.addEventListener('manganpk:localechanged', renderUpdatesPage);

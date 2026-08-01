@@ -263,3 +263,10 @@ test('advanced search restores URL state and resets the new filters', () => {
   assert.match(advancedSearchScript, /advanced-filter-tags-dismiss/);
   assert.match(advancedSearchScript, /advanced-filter-tags-reset/);
 });
+
+test('selecting a tag does not bubble into the outside-click panel closer', () => {
+  assert.match(
+    filterModule,
+    /button\.addEventListener\('click',\s*\(event\)\s*=>\s*\{\s*event\.stopPropagation\(\);[\s\S]*?renderTags\(\);/
+  );
+});

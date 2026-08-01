@@ -47,7 +47,10 @@
       if (reason === 'Other' && !explanation) return setError(t('report.otherExplanationRequired', 'Explanation is required for Other.'));
       const button = document.getElementById('report-submit'); button.disabled = true; setError('');
       try {
-        const response = await apiFetch('/api/reports', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ targetType: state.targetType, mangaId: state.mangaId ?? null, chapterId: state.chapterId ?? null, reason, explanation: explanation || null }) });
+        const payload = state.targetType === 'Chapter'
+          ? { targetType: state.targetType, chapterId: state.chapterId ?? null, reason, explanation: explanation || null }
+          : { targetType: state.targetType, mangaId: state.mangaId ?? null, reason, explanation: explanation || null };
+        const response = await apiFetch('/api/reports', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
         const data = await response.json().catch(() => ({}));
         if (!response.ok) throw new Error(data.message || t('report.sendError', 'Unable to send report.'));
         closeReportModal(); if (typeof window.showToast === 'function') window.showToast(t('report.sent', 'Report sent.'), 'success');

@@ -65,16 +65,22 @@ test('saving a profile synchronizes the shared session avatar immediately', () =
 });
 
 test('profile sends an empty avatar string as an explicit clear command', () => {
-  assert.match(profile, /\bavatarUrl,\s*\n\s*badge:/);
+  assert.match(profile, /\bavatarUrl,\s*\n\s*bio:/);
   assert.doesNotMatch(profile, /avatarUrl:\s*avatarUrl\s*\|\|\s*null/);
+});
+
+test('profile script neither renders nor submits badge values', () => {
+  assert.doesNotMatch(profile, /profile-badge/);
+  assert.doesNotMatch(profile, /\bbadge\s*:/);
+  assert.match(profile, /JSON\.stringify\(\{[\s\S]*?avatarUrl,[\s\S]*?bio:\s*bio\s*\|\|\s*null[\s\S]*?\}\)/);
 });
 
 test('avatar consumers request fresh script versions', () => {
   const detailView = fs.readFileSync(path.resolve(root, '../../Views/MangaView/Detail.cshtml'), 'utf8');
   const profilePage = fs.readFileSync(path.resolve(root, '../../Views/ProfileView/Index.cshtml'), 'utf8');
 
-  assert.match(detailView, /common\.js\?v=5\.8/);
+  assert.match(detailView, /common\.js\?v=5\.9/);
   assert.match(detailView, /detail-comments\.js\?v=3\.2/);
-  assert.match(profilePage, /common\.js\?v=5\.8/);
-  assert.match(profilePage, /profile\.js\?v=1\.4/);
+  assert.match(profilePage, /common\.js\?v=5\.9/);
+  assert.match(profilePage, /profile\.js\?v=1\.5/);
 });

@@ -14,6 +14,11 @@ test('profile form omits redundant helper copy', () => {
   assert.doesNotMatch(profileHtml, /Badge hiển thị trên hồ sơ/);
 });
 
+test('regular profile hides administrator-managed badge controls', () => {
+  assert.doesNotMatch(profileHtml, /id="profile-badge(?:-container|-input)?"/);
+  assert.doesNotMatch(profileHtml, /data-i18n="profile\.badge"/);
+});
+
 test('profile home-return label follows the selected locale without replacing its icon', () => {
   const backLink = profileHtml.match(/<a href="\/" class="btn btn-secondary"[\s\S]*?<\/a>/)?.[0] || '';
 

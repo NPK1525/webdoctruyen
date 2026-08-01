@@ -89,12 +89,10 @@ test('pages do not load the removed notification feature', () => {
   }
 });
 
-test('settings opens profile and sidebar MDLists opens the lists page', () => {
-  const settingsLink = coordinator.match(
-    /<a href="([^"]+)"[^>]*>(?:(?!<\/a>)[\s\S])*?<span>\$\{t\('user\.settings'/
-  );
-  assert.ok(settingsLink, 'settings link');
-  assert.equal(settingsLink[1], '/profile');
+test('account menu omits redundant settings while preserving theme control', () => {
+  assert.doesNotMatch(coordinator, /t\('user\.settings'/);
+  assert.doesNotMatch(coordinator, /data-lucide="settings"/);
+  assert.match(coordinator, /id="dropdown-theme-toggle"[^>]*flex:\s*1/);
   assert.match(coordinator, /nav-lists-btn[\s\S]*?window\.location\.href = '\/lists'/);
 });
 
@@ -123,7 +121,7 @@ test('home recommendations and profile back link use live routes', () => {
 test('all shared navigation consumers use the avatar-aware common.js cache version', () => {
   for (const relativePath of viewPaths) {
     const view = fs.readFileSync(path.join(root, relativePath), 'utf8');
-    assert.match(view, /(?:\/|\b)js\/common\.js\?v=5\.8/, relativePath);
+    assert.match(view, /(?:\/|\b)js\/common\.js\?v=5\.9/, relativePath);
   }
 });
 

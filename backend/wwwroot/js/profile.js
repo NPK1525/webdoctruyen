@@ -68,14 +68,6 @@ function renderProfile() {
     avatarPlaceholder.style.display = 'flex';
   }
 
-  const badge = document.getElementById('profile-badge');
-  if (userProfile.badge) {
-    badge.textContent = userProfile.badge;
-    badge.style.display = 'inline-block';
-  } else {
-    badge.style.display = 'none';
-  }
-
   document.getElementById('stat-library-count').textContent = userProfile.libraryCount || 0;
   document.getElementById('stat-comment-count').textContent = userProfile.commentCount || 0;
 
@@ -89,7 +81,6 @@ function renderProfile() {
 
   document.getElementById('profile-email').value = userProfile.email || '';
   document.getElementById('profile-avatar-url').value = userProfile.avatarUrl || '';
-  document.getElementById('profile-badge-input').value = userProfile.badge || '';
   document.getElementById('profile-bio-input').value = userProfile.bio || '';
 
   if (typeof lucide !== 'undefined') lucide.createIcons();
@@ -104,7 +95,6 @@ async function handleEditProfile(e) {
   }
 
   const avatarUrl = document.getElementById('profile-avatar-url').value.trim();
-  const badge = document.getElementById('profile-badge-input').value.trim();
   const bio = document.getElementById('profile-bio-input').value.trim();
 
   const submitBtn = e.target.querySelector('button[type="submit"]');
@@ -115,7 +105,6 @@ async function handleEditProfile(e) {
       method: 'PUT',
       body: JSON.stringify({
         avatarUrl,
-        badge: badge || null,
         bio: bio || null
       })
     });

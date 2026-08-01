@@ -5,6 +5,7 @@ obj/
 # Node
 node_modules/
 .worktrees/
+/appthoitrang_ascii/
 
 # User secrets & local settings
 appsettings.Development.json

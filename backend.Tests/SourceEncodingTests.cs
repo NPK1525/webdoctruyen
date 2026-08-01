@@ -12,7 +12,7 @@ public class SourceEncodingTests
 
     private static readonly string[] IgnoredDirectoryNames =
     {
-        ".git", "bin", "obj", "node_modules", "App_Data", "uploads", "Migrations"
+        ".git", "bin", "obj", "node_modules", "App_Data", "uploads", "Migrations", "appthoitrang_ascii"
     };
 
     private static readonly (string Text, string Label)[] MojibakeMarkers =
@@ -84,17 +84,27 @@ public class SourceEncodingTests
 
     private static IEnumerable<string> EnumerateSourceFiles(string directory)
     {
-        return Directory.EnumerateFiles(directory, "*", SearchOption.AllDirectories)
-            .Where(path => SourceExtensions.Contains(Path.GetExtension(path)))
-            .Where(path => !ContainsIgnoredDirectory(path))
-            .OrderBy(path => path, StringComparer.OrdinalIgnoreCase);
-    }
+        var pendingDirectories = new Stack<string>();
+        pendingDirectories.Push(directory);
+        var files = new List<string>();
 
-    private static bool ContainsIgnoredDirectory(string path)
-    {
-        var segments = Path.GetRelativePath(FindRepositoryRoot(), path)
-            .Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
-        return segments.Any(segment => IgnoredDirectoryNames.Contains(segment, StringComparer.OrdinalIgnoreCase));
+        while (pendingDirectories.TryPop(out var currentDirectory))
+        {
+            files.AddRange(Directory.EnumerateFiles(currentDirectory)
+                .Where(path => SourceExtensions.Contains(Path.GetExtension(path))));
+
+            foreach (var childDirectory in Directory.EnumerateDirectories(currentDirectory))
+            {
+                if (!IgnoredDirectoryNames.Contains(
+                        Path.GetFileName(childDirectory),
+                        StringComparer.OrdinalIgnoreCase))
+                {
+                    pendingDirectories.Push(childDirectory);
+                }
+            }
+        }
+
+        return files.OrderBy(path => path, StringComparer.OrdinalIgnoreCase);
     }
 
     private static string ToRepositoryPath(string path)

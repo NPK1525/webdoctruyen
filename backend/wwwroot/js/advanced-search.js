@@ -157,7 +157,9 @@ function renderAdvancedResults() {
   if (!container || !empty) return;
 
   if (countLabel) {
-    countLabel.textContent = `${advancedTotalCount} ${advancedTotalCount === 1 ? 'Title' : 'Titles'}`;
+    const countKey = advancedTotalCount === 1 ? 'search.titleSingular' : 'search.titlePlural';
+    const countFallback = advancedTotalCount === 1 ? 'Title' : 'Titles';
+    countLabel.textContent = `${advancedTotalCount} ${t(countKey, countFallback)}`;
   }
 
   syncAdvancedViewButtons();
@@ -317,7 +319,11 @@ function updateAdvancedFiltersVisibility() {
   filters.hidden = !advancedFiltersOpen;
   button.classList.toggle('active', advancedFiltersOpen);
   const label = button.querySelector('span');
-  if (label) label.textContent = advancedFiltersOpen ? 'Hide filters' : 'Show filters';
+  if (label) {
+    const key = advancedFiltersOpen ? 'search.hideFilters' : 'search.showFilters';
+    label.dataset.i18n = key;
+    label.textContent = t(key, advancedFiltersOpen ? 'Hide filters' : 'Show filters');
+  }
   const icon = button.querySelector('i');
   if (icon) icon.setAttribute('data-lucide', advancedFiltersOpen ? 'chevron-up' : 'chevron-down');
   if (typeof lucide !== 'undefined') lucide.createIcons();
@@ -378,6 +384,7 @@ function escapeAdvancedHtml(text) {
 
 function onLocaleChanged() {
   advancedFiltersState?.render();
+  updateAdvancedFiltersVisibility();
   renderAdvancedResults();
 }
 

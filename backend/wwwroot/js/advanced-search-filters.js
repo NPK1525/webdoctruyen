@@ -63,11 +63,21 @@
     });
   }
 
-  function filterOptions(options, search) {
+  function filterOptions(
+    options,
+    search,
+    labelSelector = option => option.name,
+    limit = null
+  ) {
     const query = String(search || '').trim().toLocaleLowerCase();
-    return (Array.isArray(options) ? options : [])
-      .filter(option => !query || String(option.name || '').toLocaleLowerCase().includes(query))
-      .slice(0, 8);
+    const matches = (Array.isArray(options) ? options : [])
+      .filter(option => !query || String(labelSelector(option) || '')
+        .toLocaleLowerCase()
+        .includes(query));
+
+    return Number.isInteger(limit) && limit > 0
+      ? matches.slice(0, limit)
+      : matches;
   }
 
   function parseQueryState(params) {
@@ -119,6 +129,15 @@
 
     const get = id => documentRef.getElementById(id);
     const emitChange = () => options.onChange?.(state.value);
+    const escapeHtml = value => String(value ?? '').replace(
+      /[&<>"']/g,
+      char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char])
+    );
+    const optionLabel = item => {
+      const value = String(item.id ?? item.value ?? '');
+      const fallback = String(item.name ?? item.label ?? value);
+      return item.i18n ? translate(item.i18n, fallback) : fallback;
+    };
 
     function tagState(group, value) {
       const tags = state.value.tags[group];
@@ -141,12 +160,11 @@
       for (const [group, containerId] of Object.entries(tagGroupIds)) {
         const container = get(containerId);
         if (!container) continue;
-        const items = filterOptions(metadata[group], query);
+        const items = filterOptions(metadata[group], query, optionLabel);
         container.innerHTML = items.map(item => {
           const current = tagState(group, item.id ?? item.value);
           const value = String(item.id ?? item.value);
-          const label = String(item.name ?? item.label ?? value)
-            .replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
+          const label = escapeHtml(optionLabel(item));
           return `<button type="button" class="advanced-filter-tag ${current}" data-filter-tag="${value}" data-filter-tag-group="${group}" aria-pressed="${current !== 'neutral'}">${label}</button>`;
         }).join('') || `<span class="advanced-person-empty" data-i18n="search.noTagMatches">${translate('search.noTagMatches', 'No matching tags.')}</span>`;
         container.querySelectorAll('[data-filter-tag]').forEach(button => {
@@ -169,8 +187,8 @@
       const selectedIds = state.value[role === 'author' ? 'authors' : 'artists'].map(String);
       const available = peopleForRole(metadata.people, role)
         .filter(person => !selectedIds.includes(String(person.id)));
-      const items = filterOptions(available, input.value);
-      results.innerHTML = items.map(person => `<button type="button" class="advanced-person-option" role="option" data-person-id="${person.id}">${String(person.name).replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]))}</button>`).join('') || `<div class="advanced-person-empty">${translate('search.noMatches', 'No matches.')}</div>`;
+      const items = filterOptions(available, input.value, person => person.name, 8);
+      results.innerHTML = items.map(person => `<button type="button" class="advanced-person-option" role="option" data-person-id="${person.id}">${escapeHtml(person.name)}</button>`).join('') || `<div class="advanced-person-empty">${translate('search.noMatches', 'No matches.')}</div>`;
       const hasQuery = input.value.trim().length > 0;
       results.hidden = !hasQuery;
       input.setAttribute('aria-expanded', String(hasQuery));
@@ -186,8 +204,12 @@
       selected.innerHTML = selectedIds.map(id => {
         const person = metadata.people.find(item => String(item.id) === id);
         if (!person) return '';
-        const label = String(person.name).replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
-        return `<span class="advanced-person-chip">${label}<button type="button" data-remove-person="${id}" aria-label="Remove ${label}">&times;</button></span>`;
+        const rawLabel = String(person.name);
+        const label = escapeHtml(rawLabel);
+        const removeLabel = escapeHtml(
+          translate('search.removeSelected', 'Remove {name}').replace('{name}', rawLabel)
+        );
+        return `<span class="advanced-person-chip">${label}<button type="button" data-remove-person="${id}" aria-label="${removeLabel}">&times;</button></span>`;
       }).join('');
       selected.querySelectorAll('[data-remove-person]').forEach(button => button.addEventListener('click', () => {
         const key = role === 'author' ? 'authors' : 'artists';

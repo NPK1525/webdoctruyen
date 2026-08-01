@@ -98,6 +98,17 @@ test('search text filters visible tag and person options case-insensitively', ()
   );
 });
 
+test('tag filtering returns the complete catalog while people suggestions can be limited', () => {
+  const utils = loadUtils();
+  const options = Array.from({ length: 12 }, (_, index) => ({
+    id: index + 1,
+    name: `Tag ${index + 1}`
+  }));
+
+  assert.equal(utils.filterOptions(options, '').length, 12);
+  assert.equal(utils.filterOptions(options, '', option => option.name, 8).length, 8);
+});
+
 const mangaView = fs.readFileSync(
   path.join(root, 'backend', 'Views', 'MangaView', 'Index.cshtml'),
   'utf8'
@@ -165,6 +176,72 @@ test('advanced search new filters are wired for localization', () => {
     assert.equal(typeof locale['search.noTagMatches'], 'string');
     assert.equal(typeof locale['filter.content'], 'string');
   }
+});
+
+test('advanced search page and dynamic labels are fully localized', () => {
+  for (const key of [
+    'nav.advancedSearch',
+    'search.placeholder',
+    'search.showFilters',
+    'search.sortBy',
+    'search.sortNone',
+    'search.sortLatest',
+    'search.sortTitle',
+    'search.sortYear',
+    'search.sortViews',
+    'filter.type',
+    'filter.demographic',
+    'search.publicationStatus',
+    'filter.releaseYear',
+    'search.contentRating',
+    'search.safe',
+    'search.suggestive',
+    'search.resetFilters',
+    'search.feelingLucky',
+    'filter.search',
+    'search.listView',
+    'search.compactView',
+    'search.gridView',
+    'common.loading'
+  ]) {
+    assert.match(mangaView, new RegExp(`data-i18n="${key.replace('.', '\\.')}"`));
+  }
+
+  for (const key of [
+    'search.hideFilters',
+    'search.titleSingular',
+    'search.titlePlural',
+    'search.removeSelected'
+  ]) {
+    assert.match(`${advancedSearchScript}\n${filterModule}`, new RegExp(key.replace('.', '\\.')));
+  }
+
+  for (const locale of [enLocale, viLocale]) {
+    for (const key of [
+      'search.showFilters',
+      'search.hideFilters',
+      'search.sortBy',
+      'search.publicationStatus',
+      'search.contentRating',
+      'search.resetFilters',
+      'search.feelingLucky',
+      'search.titleSingular',
+      'search.titlePlural',
+      'search.removeSelected'
+    ]) {
+      assert.equal(typeof locale[key], 'string', `${key} must exist in every locale`);
+    }
+  }
+
+  assert.doesNotMatch(advancedSearchScript, /label\.textContent\s*=\s*advancedFiltersOpen\s*\?/);
+  assert.doesNotMatch(advancedSearchScript, /countLabel\.textContent\s*=\s*`\$\{advancedTotalCount\} \$\{advancedTotalCount === 1/);
+});
+
+test('advanced taxonomy keeps canonical English tag labels', () => {
+  assert.match(advancedSearchScript, /name: 'Adaptation'/);
+  assert.match(advancedSearchScript, /name: 'Gore'/);
+  assert.doesNotMatch(advancedSearchScript, /name: 'Adaptation', i18n:/);
+  assert.doesNotMatch(advancedSearchScript, /name: 'Gore', i18n:/);
 });
 
 test('advanced search styles include responsive tag panel and selected states', () => {

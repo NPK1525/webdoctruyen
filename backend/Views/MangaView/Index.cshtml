@@ -6,7 +6,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Advanced Search - MangaNPK</title>
+    <title data-i18n="nav.advancedSearch">Advanced Search</title>
     <link rel="stylesheet" href="/css/style.css?v=5.0" />
     <script src="/vendor/lucide/lucide.min.js?v=1.27.0"></script>
   </head>
@@ -19,73 +19,73 @@
       <main id="main-layout">
         <div class="library-shell advanced-search-shell">
           <div class="library-page-title">
-            <button type="button" onclick="history.back()" aria-label="Back">
+            <button type="button" onclick="history.back()" title="Back" data-i18n="common.back" data-i18n-attr="title">
               <i data-lucide="arrow-left"></i>
             </button>
-            <h1>Advanced Search</h1>
+            <h1 data-i18n="nav.advancedSearch">Advanced Search</h1>
           </div>
 
           <section class="advanced-search-panel">
             <div class="advanced-search-top">
               <label class="advanced-search-input">
                 <i data-lucide="search"></i>
-                <input id="advanced-search-input" type="search" placeholder="Search" autocomplete="off" />
+                <input id="advanced-search-input" type="search" placeholder="Search" data-i18n="search.placeholder" data-i18n-attr="placeholder" autocomplete="off" />
               </label>
               <button id="advanced-toggle-filters" type="button" class="advanced-filter-toggle">
                 <i data-lucide="chevron-down"></i>
-                <span>Show filters</span>
+                <span data-i18n="search.showFilters">Show filters</span>
               </button>
             </div>
 
             <div id="advanced-filters" class="advanced-filters" hidden>
               <label>
-                <span>Sort by</span>
+                <span data-i18n="search.sortBy">Sort by</span>
                 <select id="advanced-sort">
-                  <option value="">None</option>
-                  <option value="latest">Latest upload</option>
-                  <option value="title">Title</option>
-                  <option value="year">Publication year</option>
-                  <option value="views">Most viewed</option>
+                  <option value="" data-i18n="search.sortNone">None</option>
+                  <option value="latest" data-i18n="search.sortLatest">Latest upload</option>
+                  <option value="title" data-i18n="search.sortTitle">Title</option>
+                  <option value="year" data-i18n="search.sortYear">Publication year</option>
+                  <option value="views" data-i18n="search.sortViews">Most viewed</option>
                 </select>
               </label>
               <label>
-                <span>Type</span>
+                <span data-i18n="filter.type">Type</span>
                 <select id="advanced-type">
-                  <option value="">Any</option>
-                  <option value="0">Manga</option>
-                  <option value="1">Manhwa</option>
-                  <option value="2">Manhua</option>
+                  <option value="" data-i18n="search.any">Any</option>
+                  <option value="0" data-i18n="filter.typeManga">Manga</option>
+                  <option value="1" data-i18n="filter.typeManhwa">Manhwa</option>
+                  <option value="2" data-i18n="filter.typeManhua">Manhua</option>
                 </select>
               </label>
               <label>
-                <span>Magazine Demographic</span>
+                <span data-i18n="filter.demographic">Magazine Demographic</span>
                 <select id="advanced-demographic">
-                  <option value="">Any</option>
-                  <option value="1">Shounen</option>
-                  <option value="2">Shoujo</option>
-                  <option value="3">Seinen</option>
-                  <option value="4">Josei</option>
+                  <option value="" data-i18n="search.any">Any</option>
+                  <option value="1" data-i18n="filter.demographicShounen">Shounen</option>
+                  <option value="2" data-i18n="filter.demographicShoujo">Shoujo</option>
+                  <option value="3" data-i18n="filter.demographicSeinen">Seinen</option>
+                  <option value="4" data-i18n="filter.demographicJosei">Josei</option>
                 </select>
               </label>
               <label>
-                <span>Publication Status</span>
+                <span data-i18n="search.publicationStatus">Publication Status</span>
                 <select id="advanced-status">
-                  <option value="">Any</option>
-                  <option value="0">Ongoing</option>
-                  <option value="1">Completed</option>
-                  <option value="2">Hiatus</option>
+                  <option value="" data-i18n="search.any">Any</option>
+                  <option value="0" data-i18n="filter.statusOngoing">Ongoing</option>
+                  <option value="1" data-i18n="filter.statusCompleted">Completed</option>
+                  <option value="2" data-i18n="filter.statusHiatus">Hiatus</option>
                 </select>
               </label>
               <label>
-                <span>Publication year</span>
-                <input id="advanced-year" type="number" min="1900" max="2100" placeholder="Any" />
+                <span data-i18n="filter.releaseYear">Publication year</span>
+                <input id="advanced-year" type="number" min="1900" max="2100" placeholder="Any" data-i18n="search.any" data-i18n-attr="placeholder" />
               </label>
               <label>
-                <span>Content Rating</span>
+                <span data-i18n="search.contentRating">Content Rating</span>
                 <select id="advanced-rating">
-                  <option value="">Any</option>
-                  <option value="safe">Safe</option>
-                  <option value="suggestive">Suggestive</option>
+                  <option value="" data-i18n="search.any">Any</option>
+                  <option value="safe" data-i18n="search.safe">Safe</option>
+                  <option value="suggestive" data-i18n="search.suggestive">Suggestive</option>
                 </select>
               </label>
               <div class="advanced-filter-tags-field">
@@ -136,11 +136,11 @@
             </div>
 
             <div class="advanced-actions">
-              <button id="advanced-reset" type="button" class="advanced-reset-btn">Reset filters</button>
-              <button id="advanced-lucky" type="button" class="advanced-lucky-btn">I'm feeling lucky</button>
+              <button id="advanced-reset" type="button" class="advanced-reset-btn" data-i18n="search.resetFilters">Reset filters</button>
+              <button id="advanced-lucky" type="button" class="advanced-lucky-btn" data-i18n="search.feelingLucky">I'm feeling lucky</button>
               <button id="advanced-search-btn" type="button" class="advanced-search-btn">
                 <i data-lucide="search"></i>
-                <span>Search</span>
+                <span data-i18n="filter.search">Search</span>
               </button>
             </div>
           </section>
@@ -148,19 +148,19 @@
           <div class="library-toolbar advanced-results-toolbar">
             <h2 id="advanced-count-label">0 Titles</h2>
             <div class="library-view-switcher">
-              <button type="button" data-advanced-view="list" title="List view">
+              <button type="button" data-advanced-view="list" title="List view" data-i18n="search.listView" data-i18n-attr="title">
                 <i data-lucide="list"></i>
               </button>
-              <button type="button" data-advanced-view="compact" title="Compact view">
+              <button type="button" data-advanced-view="compact" title="Compact view" data-i18n="search.compactView" data-i18n-attr="title">
                 <i data-lucide="rows-2"></i>
               </button>
-              <button type="button" data-advanced-view="grid" title="Grid view">
+              <button type="button" data-advanced-view="grid" title="Grid view" data-i18n="search.gridView" data-i18n-attr="title">
                 <i data-lucide="grid-2x2"></i>
               </button>
             </div>
           </div>
 
-          <div id="advanced-loading" class="library-empty" style="display: none;">Loading...</div>
+          <div id="advanced-loading" class="library-empty" style="display: none;" data-i18n="common.loading">Loading...</div>
           <div id="advanced-empty" class="library-empty" style="display: none;"></div>
           <div id="advanced-results" class="library-items list"></div>
           <div id="advanced-pagination" class="library-pagination"></div>
@@ -172,7 +172,7 @@
     <script src="/js/common-library.js?v=1.0"></script>
     <script src="/js/common-auth.js?v=1.0"></script>
 <script src="/js/common.js?v=5.8"></script>
-    <script src="/js/advanced-search-filters.js?v=1.1"></script>
-    <script src="/js/advanced-search.js?v=1.1"></script>
+    <script src="/js/advanced-search-filters.js?v=1.2"></script>
+    <script src="/js/advanced-search.js?v=1.2"></script>
   </body>
 </html>

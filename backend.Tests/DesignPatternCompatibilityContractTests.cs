@@ -21,7 +21,7 @@ public sealed class DesignPatternCompatibilityContractTests
 
         var parameters = method.GetParameters();
         Assert.Equal(typeof(int), parameters[0].ParameterType);
-        Assert.Equal(typeof(UpdateReportDto), parameters[1].ParameterType);
+        Assert.Equal(typeof(ReportsController.UpdateReportDto), parameters[1].ParameterType);
     }
 
     [Fact]

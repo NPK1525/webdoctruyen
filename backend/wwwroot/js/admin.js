@@ -16,10 +16,14 @@ let chapterListPage = 1;
 let chapterListPageSize = 20;
 const adminCatalogPageSize = 20;
 let authorManagementPage = 1;
+let authorManagementTotalPages = 1;
+let authorManagementTotalItems = 0;
+let authorManagementSearchTimer = null;
 let genreManagementPage = 1;
 
 // Data lists
 let authorsList = [];
+let authorManagementItems = [];
 let genresList = [];
 let themesList = [];
 let mangasList = [];
@@ -62,6 +66,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 async function loadAdminData() {
   await loadAuthors();
+  await loadAuthorManagement();
   await loadGenres();
   await loadThemes();
   await loadMangas();
@@ -71,7 +76,26 @@ async function loadAdminData() {
 async function loadAuthors() {
   try {
     const res = await fetch(`${API_BASE}/author`);
-    if (res.ok) { authorsList = await res.json(); populateAuthorsDropdowns(); renderAuthorManagement(); }
+    if (res.ok) { authorsList = await res.json(); populateAuthorsDropdowns(); }
+  } catch (e) { console.error(e); }
+}
+
+async function loadAuthorManagement(page = authorManagementPage) {
+  try {
+    const params = new URLSearchParams({
+      page: String(page),
+      pageSize: String(adminCatalogPageSize),
+      search: document.getElementById('admin-author-search')?.value.trim() || ''
+    });
+    [...params.keys()].forEach(key => { if (!params.get(key)) params.delete(key); });
+    const res = await fetch(`${API_BASE}/author/list?${params.toString()}`);
+    if (!res.ok) throw new Error('load authors failed');
+    const data = await res.json();
+    authorManagementItems = data.items || [];
+    authorManagementPage = data.page || 1;
+    authorManagementTotalPages = data.totalPages || 1;
+    authorManagementTotalItems = data.totalItems || 0;
+    renderAuthorManagement();
   } catch (e) { console.error(e); }
 }
 
@@ -84,15 +108,12 @@ async function loadGenres() {
 
 function renderAuthorManagement() {
   const root = document.getElementById('admin-author-management-list'); if (!root) return;
-  const term = document.getElementById('admin-author-search')?.value.trim().toLowerCase() || '';
-  const filtered = authorsList.filter(a => !term || a.name.toLowerCase().includes(term));
-  const totalPages = Math.max(1, Math.ceil(filtered.length / adminCatalogPageSize));
-  authorManagementPage = Math.min(authorManagementPage, totalPages);
-  const items = filtered.slice((authorManagementPage - 1) * adminCatalogPageSize, authorManagementPage * adminCatalogPageSize);
+  const totalPages = Math.max(1, authorManagementTotalPages);
+  const items = authorManagementItems;
   root.innerHTML = items.map(a => `<div class="management-row"><input value="${adminEscapeHtml(a.name)}" data-author-name="${a.id}"><button class="management-save" data-author-save="${a.id}">${t('admin.save', 'Lưu')}</button><button class="management-delete" data-author-delete="${a.id}">${t('admin.delete', 'Xóa')}</button></div>`).join('') || `<p class="management-empty">${t('admin.noAuthors', 'Chưa có tác giả.')}</p>`;
-  renderCatalogPagination('admin-author-pagination', authorManagementPage, totalPages, page => { authorManagementPage = page; renderAuthorManagement(); });
-  root.querySelectorAll('[data-author-save]').forEach(b => b.onclick = async () => { const id=Number(b.dataset.authorSave), author=authorsList.find(a=>a.id===id); const name=root.querySelector(`[data-author-name="${id}"]`).value.trim(); const res=await apiFetch(`${API_BASE}/admin/author/${id}`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,biography:author?.biography||''})}); if(res.ok) await loadAuthors(); else showToast('Không thể cập nhật tác giả.',false); });
-  root.querySelectorAll('[data-author-delete]').forEach(b => b.onclick = async () => { if(!confirm('Xóa tác giả này?')) return; const res=await apiFetch(`${API_BASE}/admin/author/${b.dataset.authorDelete}`,{method:'DELETE'}); if(res.ok) await loadAuthors(); else showToast((await res.json().catch(()=>({}))).message||'Không thể xóa tác giả.',false); });
+  renderCatalogPagination('admin-author-pagination', authorManagementPage, totalPages, page => { authorManagementPage = page; loadAuthorManagement(page); });
+  root.querySelectorAll('[data-author-save]').forEach(b => b.onclick = async () => { const id=Number(b.dataset.authorSave), author=authorsList.find(a=>a.id===id); const name=root.querySelector(`[data-author-name="${id}"]`).value.trim(); const res=await apiFetch(`${API_BASE}/admin/author/${id}`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,biography:author?.biography||''})}); if(res.ok) { await loadAuthors(); await loadAuthorManagement(authorManagementPage); } else showToast('Không thể cập nhật tác giả.',false); });
+  root.querySelectorAll('[data-author-delete]').forEach(b => b.onclick = async () => { if(!confirm('Xóa tác giả này?')) return; const res=await apiFetch(`${API_BASE}/admin/author/${b.dataset.authorDelete}`,{method:'DELETE'}); if(res.ok) { await loadAuthors(); await loadAuthorManagement(authorManagementPage); } else showToast((await res.json().catch(()=>({}))).message||'Không thể xóa tác giả.',false); });
 }
 
 function renderGenreManagement() {
@@ -441,7 +462,13 @@ document.getElementById('btn-add-form-author')?.addEventListener('click', () => 
 });
 
 function initAdminTabs() {
-  document.getElementById('admin-author-search')?.addEventListener('input', () => { authorManagementPage = 1; renderAuthorManagement(); });
+  document.getElementById('admin-author-search')?.addEventListener('input', () => {
+    clearTimeout(authorManagementSearchTimer);
+    authorManagementSearchTimer = setTimeout(() => {
+      authorManagementPage = 1;
+      loadAuthorManagement(1);
+    }, 250);
+  });
   document.getElementById('admin-genre-search')?.addEventListener('input', () => { genreManagementPage = 1; renderGenreManagement(); });
   document.querySelectorAll('.admin-tab-btn').forEach(btn => {
     btn.addEventListener('click', (e) => {
@@ -515,7 +542,7 @@ function initAdminForms() {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, biography })
       });
-      if (res.ok) { showToast(t('admin.createAuthorSuccess', 'Thêm tác giả thành công!'), true); document.getElementById('admin-author-form').reset(); await loadAuthors(); }
+      if (res.ok) { showToast(t('admin.createAuthorSuccess', 'Thêm tác giả thành công!'), true); document.getElementById('admin-author-form').reset(); await loadAuthors(); await loadAuthorManagement(1); }
       else { showToast(t('admin.createAuthorError', 'Lỗi thêm tác giả.'), false); }
     } catch { showToast(t('admin.connectionError', 'Lỗi kết nối.'), false); }
   });
@@ -653,8 +680,8 @@ window.addEventListener('manganpk:localechanged', () => {
   populateMangasDropdowns();
   refreshTitleDraftFormLocale();
   if (Array.isArray(mangasList)) renderMangasTable();
-  if (Array.isArray(authorsList)) renderAuthorsManagementList();
-  if (Array.isArray(genresList)) renderGenresManagementList();
+  if (Array.isArray(authorManagementItems)) renderAuthorManagement();
+  if (Array.isArray(genresList)) renderGenreManagement();
   if (typeof renderTitleDraftsTable === 'function') renderTitleDraftsTable();
   if (mangaDexPreview && typeof renderMangaDexPreview === 'function') renderMangaDexPreview(mangaDexPreview);
 });

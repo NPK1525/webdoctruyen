@@ -90,6 +90,7 @@ namespace MangaNPK.Controllers
         [HttpGet("genres")]
         public async Task<IActionResult> Genres()
         {
+            await MergeDuplicateGenresAsync();
             var genres = await _context.Genres.OrderBy(g => g.Name).ToListAsync();
             return View(genres);
         }
@@ -103,6 +104,7 @@ namespace MangaNPK.Controllers
                 var s = string.IsNullOrWhiteSpace(slug) ? name.Trim().ToLower().Replace(" ", "-") : slug.Trim();
                 _context.Genres.Add(new Genre { Name = name.Trim(), Slug = s });
                 await _context.SaveChangesAsync();
+                await MergeDuplicateGenresAsync();
             }
             return RedirectToAction("Genres");
         }
@@ -117,6 +119,7 @@ namespace MangaNPK.Controllers
                 genre.Name = name.Trim();
                 genre.Slug = string.IsNullOrWhiteSpace(slug) ? name.Trim().ToLowerInvariant().Replace(" ", "-") : slug.Trim();
                 await _context.SaveChangesAsync();
+                await MergeDuplicateGenresAsync();
             }
             return RedirectToAction(nameof(Genres));
         }
@@ -129,5 +132,67 @@ namespace MangaNPK.Controllers
             if (genre != null) { _context.Genres.Remove(genre); await _context.SaveChangesAsync(); }
             return RedirectToAction("Genres");
         }
+
+        private async Task MergeDuplicateGenresAsync()
+        {
+            var genres = await _context.Genres
+                .Include(genre => genre.MangaGenres)
+                .OrderBy(genre => genre.Id)
+                .ToListAsync();
+
+            var groups = genres
+                .GroupBy(genre => NormalizeGenreKey(genre.Name))
+                .Where(group => !string.IsNullOrWhiteSpace(group.Key) && group.Count() > 1)
+                .ToList();
+
+            foreach (var group in groups)
+            {
+                var canonical = group.First();
+                foreach (var duplicate in group.Skip(1).ToList())
+                    await MergeGenreIntoAsync(duplicate, canonical);
+            }
+
+            var remaining = await _context.Genres
+                .Include(genre => genre.MangaGenres)
+                .OrderBy(genre => genre.Id)
+                .ToListAsync();
+            var slugGroups = remaining
+                .GroupBy(genre => NormalizeGenreKey(genre.Slug))
+                .Where(group => !string.IsNullOrWhiteSpace(group.Key) && group.Count() > 1)
+                .ToList();
+
+            foreach (var group in slugGroups)
+            {
+                var canonical = group.First();
+                foreach (var duplicate in group.Skip(1).ToList())
+                    await MergeGenreIntoAsync(duplicate, canonical);
+            }
+
+            await _context.SaveChangesAsync();
+        }
+
+        private async Task MergeGenreIntoAsync(Genre duplicate, Genre canonical)
+        {
+            var links = await _context.MangaGenres
+                .Where(link => link.GenreId == duplicate.Id)
+                .ToListAsync();
+
+            foreach (var link in links)
+            {
+                var canonicalExists = await _context.MangaGenres.AnyAsync(candidate =>
+                    candidate.MangaId == link.MangaId && candidate.GenreId == canonical.Id);
+                _context.MangaGenres.Remove(link);
+                if (!canonicalExists)
+                    _context.MangaGenres.Add(new MangaGenre { MangaId = link.MangaId, GenreId = canonical.Id });
+            }
+
+            _context.Genres.Remove(duplicate);
+        }
+
+        private static string NormalizeGenreKey(string? value) =>
+            string.Join(' ', (value ?? string.Empty)
+                    .Trim()
+                    .Split(' ', StringSplitOptions.RemoveEmptyEntries))
+                .ToUpperInvariant();
     }
 }

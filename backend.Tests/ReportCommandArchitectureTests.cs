@@ -63,7 +63,7 @@ public sealed class ReportCommandArchitectureTests
 
         await controller.UpdateStatus(
             1,
-            new UpdateReportDto { Status = "Resolved" });
+            new ReportsController.UpdateReportDto { Status = "Resolved" });
 
         Assert.False(handler.Token.CanBeCanceled);
     }

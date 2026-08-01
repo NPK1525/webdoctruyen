@@ -111,13 +111,66 @@ namespace MangaNPK.Controllers
 
         [HttpGet("my")]
         [RequireAuth]
-        public async Task<IActionResult> MyReports()
+        public async Task<IActionResult> MyReports(
+            [FromQuery] int page = 1,
+            [FromQuery] int pageSize = 20,
+            [FromQuery] string? objectId = null,
+            [FromQuery] string? category = null,
+            [FromQuery] string? reason = null,
+            [FromQuery] string? status = null)
         {
+            page = Math.Max(1, page);
+            pageSize = Math.Clamp(pageSize, 1, 100);
             var userId = HttpContext.Session.GetInt32("UserId")!.Value;
-            var reports = await _context.Reports.AsNoTracking().Where(r => r.ReporterId == userId)
-                .Include(r => r.Manga).Include(r => r.Chapter).OrderByDescending(r => r.CreatedAt)
-                .Select(r => new { r.Id, targetType = r.TargetType.ToString(), r.Reason, r.Explanation, status = r.Status.ToString(), r.CreatedAt, r.ResolvedAt, mangaId = r.MangaId, chapterId = r.ChapterId, mangaTitle = r.Manga != null ? r.Manga.Title : null, chapterTitle = r.Chapter != null ? r.Chapter.Title : null }).ToListAsync();
-            return Ok(reports);
+            var query = _context.Reports.AsNoTracking()
+                .Where(r => r.ReporterId == userId)
+                .Include(r => r.Manga)
+                .Include(r => r.Chapter)
+                .AsQueryable();
+
+            var objectFilter = objectId?.Trim();
+            if (int.TryParse(objectFilter, out var objectIdValue))
+                query = query.Where(r => r.MangaId == objectIdValue || r.ChapterId == objectIdValue);
+            else if (!string.IsNullOrWhiteSpace(objectFilter))
+                query = query.Where(r => false);
+
+            var normalizedCategory = NormalizeReportCategory(category);
+            if (normalizedCategory is not null)
+                query = query.Where(r => r.TargetType == normalizedCategory.Value);
+            else if (!string.IsNullOrWhiteSpace(category))
+                query = query.Where(r => false);
+
+            if (Enum.TryParse<ReportStatus>(status, true, out var parsedStatus))
+                query = query.Where(r => r.Status == parsedStatus);
+            else if (!string.IsNullOrWhiteSpace(status))
+                query = query.Where(r => false);
+
+            if (!string.IsNullOrWhiteSpace(reason))
+                query = query.Where(r => r.Reason == reason);
+
+            var totalItems = await query.CountAsync();
+            var totalPages = Math.Max(1, (int)Math.Ceiling(totalItems / (double)pageSize));
+            page = Math.Min(page, totalPages);
+            var reports = await query
+                .OrderByDescending(r => r.CreatedAt)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .Select(r => new
+                {
+                    r.Id,
+                    targetType = r.TargetType.ToString(),
+                    r.Reason,
+                    r.Explanation,
+                    status = r.Status.ToString(),
+                    r.CreatedAt,
+                    r.ResolvedAt,
+                    mangaId = r.MangaId,
+                    chapterId = r.ChapterId,
+                    mangaTitle = r.Manga != null ? r.Manga.Title : null,
+                    chapterTitle = r.Chapter != null ? r.Chapter.Title : null
+                })
+                .ToListAsync();
+            return Ok(new { items = reports, page, pageSize, totalItems, totalPages });
         }
 
         [HttpPatch("{id:int}")]
@@ -145,20 +198,34 @@ namespace MangaNPK.Controllers
                 })
             };
         }
-    }
 
-    public sealed class CreateReportDto
-    {
-        public string? TargetType { get; set; }
-        public int? MangaId { get; set; }
-        public int? ChapterId { get; set; }
-        public string? Reason { get; set; }
-        public string? Explanation { get; set; }
-    }
+        public sealed class CreateReportDto
+        {
+            public string? TargetType { get; set; }
+            public int? MangaId { get; set; }
+            public int? ChapterId { get; set; }
+            public string? Reason { get; set; }
+            public string? Explanation { get; set; }
+        }
 
-    public sealed class UpdateReportDto
-    {
-        public string? Status { get; set; }
-        public string? AdminNote { get; set; }
+        public sealed class UpdateReportDto
+        {
+            public string? Status { get; set; }
+            public string? AdminNote { get; set; }
+        }
+
+        private static ReportTargetType? NormalizeReportCategory(string? category)
+        {
+            if (string.IsNullOrWhiteSpace(category))
+                return null;
+
+            var trimmed = category.Trim();
+            if (string.Equals(trimmed, "Title", StringComparison.OrdinalIgnoreCase))
+                return ReportTargetType.Manga;
+
+            return Enum.TryParse<ReportTargetType>(trimmed, true, out var parsed)
+                ? parsed
+                : null;
+        }
     }
 }

@@ -10,10 +10,14 @@ namespace MangaNPK.Controllers
     [ApiController]
     [Route("api/admin")]
     [RequireAdmin]
-    public class AdminCatalogController(CatalogAdminService catalogService, MangaDbContext context) : ControllerBase
+    public class AdminCatalogController(
+        CatalogAdminService catalogService,
+        MangaDbContext context,
+        GenreDeduplicationService genreDeduplicationService) : ControllerBase
     {
         private readonly CatalogAdminService _catalogService = catalogService;
         private readonly MangaDbContext _context = context;
+        private readonly GenreDeduplicationService _genreDeduplicationService = genreDeduplicationService;
 
         [HttpPost("author")]
         public async Task<IActionResult> CreateAuthor([FromBody] CreateAuthorDto dto)
@@ -25,7 +29,12 @@ namespace MangaNPK.Controllers
         [HttpPost("genre")]
         public async Task<IActionResult> CreateGenre([FromBody] CreateGenreDto dto)
         {
-            var result = await _catalogService.CreateGenreAsync(dto, HttpContext.RequestAborted);
+            var cancellationToken = HttpContext?.RequestAborted ?? CancellationToken.None;
+            var result = await _catalogService.CreateGenreAsync(dto, cancellationToken);
+            if (result.Entity != null)
+            {
+                await _genreDeduplicationService.MergeDuplicateGenresAsync(cancellationToken);
+            }
             return result.Entity == null ? BadRequest(new { message = result.Error }) : CreatedAtAction(nameof(CreateGenre), new { id = result.Entity.Id }, result.Entity);
         }
 
@@ -53,7 +62,9 @@ namespace MangaNPK.Controllers
             var genre = await _context.Genres.FindAsync(id); if (genre == null) return NotFound();
             if (string.IsNullOrWhiteSpace(dto.Name)) return BadRequest(new { message = "Tên thể loại không được trống." });
             genre.Name = dto.Name.Trim(); genre.Slug = string.IsNullOrWhiteSpace(dto.Slug) ? dto.Name.Trim().ToLowerInvariant().Replace(" ", "-") : dto.Slug.Trim();
-            await _context.SaveChangesAsync(); return Ok(genre);
+            await _context.SaveChangesAsync();
+            await _genreDeduplicationService.MergeDuplicateGenresAsync(HttpContext?.RequestAborted ?? CancellationToken.None);
+            return Ok(genre);
         }
 
         [HttpDelete("genre/{id:int}")]

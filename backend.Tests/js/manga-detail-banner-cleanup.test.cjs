@@ -72,5 +72,5 @@ test('continue-reading action distinguishes first read from saved reading histor
   assert.match(script, /readLocalReadingHistory\(\)/);
   assert.match(script, /function updateContinueReadingButton\(\)/);
   assert.match(script, /lastChapterId/);
-  assert.match(view, /\/js\/detail\.js\?v=5\.2/);
+  assert.match(view, /\/js\/detail\.js\?v=5\.3/);
 });

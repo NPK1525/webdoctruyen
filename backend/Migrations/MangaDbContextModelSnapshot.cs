@@ -90,6 +90,9 @@ namespace MangaNPK.Migrations
                     b.Property<DateTime>("UploadedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<int>("ViewCount")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
                     b.HasIndex("MangaId", "ChapterNumber")

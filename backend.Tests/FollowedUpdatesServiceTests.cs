@@ -23,5 +23,7 @@ public class FollowedUpdatesServiceTests
         Assert.Contains("UploadedAt", sql, StringComparison.OrdinalIgnoreCase);
         Assert.DoesNotContain("ReadingStatus", sql, StringComparison.OrdinalIgnoreCase);
         Assert.DoesNotContain("[Status]", sql, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("[c].[ViewCount]", sql, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("[m].[ViewCount]", sql, StringComparison.OrdinalIgnoreCase);
     }
 }

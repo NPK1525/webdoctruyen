@@ -2,7 +2,7 @@
 @{
     Layout = null;
     var chaptersJson = System.Text.Json.JsonSerializer.Serialize(Model.Chapters?.OrderByDescending(c => c.ChapterNumber).Select(c => new {
-        id = c.Id, chapterNumber = c.ChapterNumber, title = c.Title, uploadedAt = c.UploadedAt
+        id = c.Id, chapterNumber = c.ChapterNumber, title = c.Title, uploadedAt = c.UploadedAt, viewCount = c.ViewCount
     }));
     var genresJson = System.Text.Json.JsonSerializer.Serialize(Model.MangaGenres?.Select(g => new { id = g.GenreId, name = g.Genre.Name }));
     var authorsJson = System.Text.Json.JsonSerializer.Serialize(Model.MangaAuthors?.Select(a => new { name = a.Author.Name, role = a.Role }));
@@ -19,7 +19,7 @@
         genres = Model.MangaGenres?.Select(g => new { id = g.GenreId, name = g.Genre.Name }),
         themes = Model.MangaThemes?.Select(t => new { id = t.ThemeId, name = t.Theme.Name }),
         authors = Model.MangaAuthors?.Select(a => new { name = a.Author.Name, role = a.Role }),
-        chapters = Model.Chapters?.OrderByDescending(c => c.ChapterNumber).Select(c => new { id = c.Id, chapterNumber = c.ChapterNumber, title = c.Title, uploadedAt = c.UploadedAt })
+        chapters = Model.Chapters?.OrderByDescending(c => c.ChapterNumber).Select(c => new { id = c.Id, chapterNumber = c.ChapterNumber, title = c.Title, uploadedAt = c.UploadedAt, viewCount = c.ViewCount })
     });
 }
 <!DOCTYPE html>
@@ -250,7 +250,7 @@
     <script src="/js/report-modal.js?v=1.2"></script>
     <script src="/js/detail-taxonomy.js?v=1.0"></script>
     <script src="/js/detail-lists.js?v=1.1"></script>
-    <script src="/js/detail.js?v=5.2"></script>
+    <script src="/js/detail.js?v=5.3"></script>
     <script src="/js/detail-comments.js?v=3.2"></script>
     <script src="/js/detail-rating.js?v=3.6"></script>
     <style>

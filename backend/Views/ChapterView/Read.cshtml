@@ -8,6 +8,7 @@
         mangaTitle = Model.Manga?.Title ?? "",
         chapterNumber = Model.ChapterNumber,
         title = Model.Title,
+        viewCount = Model.ViewCount,
         uploadedAt = Model.UploadedAt,
         authors = Model.Manga?.MangaAuthors?.Select(a => new { name = a.Author.Name, role = a.Role }),
         pages = Model.Pages.Select(p => new { id = p.Id, pageNumber = p.PageNumber, imageUrl = p.ImageUrl }),
@@ -23,7 +24,7 @@
         status = Model.Manga?.Status.ToString() ?? "Ongoing",
         viewCount = Model.Manga?.ViewCount ?? 0,
         authors = Model.Manga?.MangaAuthors?.Select(a => new { name = a.Author.Name, role = a.Role }),
-        chapters = allChapters.Select(c => new { id = c.Id, chapterNumber = c.ChapterNumber, title = c.Title })
+        chapters = allChapters.Select(c => new { id = c.Id, chapterNumber = c.ChapterNumber, title = c.Title, viewCount = c.ViewCount })
     });
 }
 <!DOCTYPE html>
@@ -318,7 +319,7 @@
     <script src="/js/common.js?v=5.8"></script>
     <script src="/js/report-modal.js?v=1.2"></script>
     <script src="/js/reader-settings.js?v=1.2"></script>
-    <script src="/js/reader.js?v=5.1"></script>
+    <script src="/js/reader.js?v=5.2"></script>
     <style>
       .reader-drawer-navrow { position: relative; }
       .reader-drawer-select.open [data-lucide], .reader-drawer-select.open svg { transform: rotate(180deg); }

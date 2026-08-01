@@ -460,7 +460,7 @@ namespace MangaNPK.Controllers
                 Authors = manga.MangaAuthors.Select(ma => new { ma.Author.Id, ma.Author.Name, ma.Role }).ToList(),
                 Chapters = manga.Chapters
                     .OrderByDescending(c => c.ChapterNumber)
-                    .Select(c => new { c.Id, c.ChapterNumber, c.Title, c.UploadedAt })
+                    .Select(c => new { c.Id, c.ChapterNumber, c.Title, c.UploadedAt, c.ViewCount })
                     .ToList()
             };
 
@@ -475,11 +475,12 @@ namespace MangaNPK.Controllers
                 return NotFound(new { message = "Manga not found" });
 
             // Nếu lượt đọc đến từ trang đọc truyện thì kiểm tra chương có thuộc đúng truyện không.
+            Chapter? chapter = null;
             if (chapterId.HasValue)
             {
-                var chapterExists = await _context.Chapters
-                    .AnyAsync(c => c.Id == chapterId.Value && c.MangaId == id);
-                if (!chapterExists)
+                chapter = await _context.Chapters
+                    .FirstOrDefaultAsync(c => c.Id == chapterId.Value && c.MangaId == id);
+                if (chapter == null)
                     return BadRequest(new { message = "Chapter does not belong to this manga" });
             }
 
@@ -492,10 +493,16 @@ namespace MangaNPK.Controllers
             {
                 HttpContext.Session.SetString(sessionKey, "1");
                 manga.ViewCount += 1;
+                if (chapter != null)
+                    chapter.ViewCount += 1;
                 await _context.SaveChangesAsync();
             }
 
-            return Ok(new { viewCount = manga.ViewCount });
+            return Ok(new
+            {
+                viewCount = manga.ViewCount,
+                chapterViewCount = chapter?.ViewCount
+            });
         }
 
         // GET: api/manga/{id}/recommendations

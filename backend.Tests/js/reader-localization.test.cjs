@@ -85,7 +85,12 @@ test('reader waits for the locale dictionary before rendering dynamic labels', (
 test('reader page requests fresh localized scripts', () => {
   assert.match(readerView, /report-modal\.js\?v=1\.2/);
   assert.match(readerView, /reader-settings\.js\?v=1\.2/);
-  assert.match(readerView, /reader\.js\?v=5\.1/);
+  assert.match(readerView, /reader\.js\?v=5\.2/);
+});
+
+test('reader keeps the returned chapter view count in chapter state', () => {
+  assert.match(reader, /chapterViewCount/);
+  assert.match(readerView, /viewCount\s*=\s*Model\.ViewCount/);
 });
 
 test('every shared report modal consumer requests the localized script version', () => {

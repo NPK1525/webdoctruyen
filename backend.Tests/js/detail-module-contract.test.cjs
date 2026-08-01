@@ -113,3 +113,9 @@ test('detail uses Library as the single follow source and persists it to the ser
   assert.match(detailCoordinator, /method:\s*'DELETE'/);
   assert.match(detailCoordinator, /method:\s*'PUT'/);
 });
+
+test('detail chapter rows render each chapters own view count', () => {
+  assert.match(detailView, /viewCount\s*=\s*c\.ViewCount/);
+  assert.match(detailCoordinator, /data-lucide="eye"/);
+  assert.match(detailCoordinator, /formatCompactNumber\(c\.viewCount\s*\|\|\s*0\)/);
+});

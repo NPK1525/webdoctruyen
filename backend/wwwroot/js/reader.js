@@ -943,7 +943,15 @@ async function incrementReaderMangaViewCount() {
   submittedReaderViewKeys.add(viewKey);
 
   try {
-    await apiFetch(`${API_BASE}/manga/${mangaId}/view?chapterId=${chapterId}`, { method: 'POST' });
+    const response = await apiFetch(`${API_BASE}/manga/${mangaId}/view?chapterId=${chapterId}`, { method: 'POST' });
+    if (!response.ok) throw new Error(`View count update failed (${response.status})`);
+    const result = await response.json();
+    chapterDetail.viewCount = result.chapterViewCount ?? chapterDetail.viewCount ?? 0;
+    if (mangaDetail) {
+      mangaDetail.viewCount = result.viewCount ?? mangaDetail.viewCount ?? 0;
+      const chapter = mangaDetail.chapters?.find(item => Number(item.id) === Number(chapterId));
+      if (chapter) chapter.viewCount = chapterDetail.viewCount;
+    }
   } catch (e) {
     submittedReaderViewKeys.delete(viewKey);
     console.error('View count update error:', e);

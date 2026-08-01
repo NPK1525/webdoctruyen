@@ -14,6 +14,7 @@ namespace MangaNPK.Models
         
         public double ChapterNumber { get; set; }
         public string Title { get; set; } = string.Empty;
+        public int ViewCount { get; set; }
         public DateTime UploadedAt { get; set; } = DateTime.UtcNow;
         public string Source { get; set; } = "Local";
         public string ExternalId { get; set; } = string.Empty;

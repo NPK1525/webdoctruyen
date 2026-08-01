@@ -41,7 +41,7 @@ public sealed class FollowedUpdatesService(MangaDbContext context) : IFollowedUp
                 MangaId = chapter.MangaId,
                 MangaTitle = chapter.Manga.Title,
                 CoverUrl = chapter.Manga.CoverUrl,
-                ViewCount = chapter.Manga.ViewCount,
+                ViewCount = chapter.ViewCount,
                 Genres = chapter.Manga.MangaGenres.Select(item => item.Genre.Name).ToList(),
                 Authors = chapter.Manga.MangaAuthors.Select(item => item.Author.Name).ToList(),
                 ChapterId = chapter.Id,

@@ -320,6 +320,7 @@ function renderChaptersList() {
         </div>
       </div>
       <div class="detail-chapter-meta">
+        <span><i data-lucide="eye"></i>${formatCompactNumber(c.viewCount || 0)}</span>
         <span><i data-lucide="clock"></i>${new Date(c.uploadedAt).toLocaleDateString('vi-VN')}</span>
         <span><i data-lucide="message-square"></i>0</span>
       </div>

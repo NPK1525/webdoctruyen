@@ -29,7 +29,7 @@ namespace MangaNPK.Controllers
                     mangaId = c.MangaId,
                     mangaTitle = c.Manga.Title,
                     coverUrl = c.Manga.CoverUrl,
-                    viewCount = c.Manga.ViewCount,
+                    viewCount = c.ViewCount,
                     genres = c.Manga.MangaGenres.Select(mg => mg.Genre.Name).ToList(),
                     authors = c.Manga.MangaAuthors.Select(ma => ma.Author.Name).ToList(),
                     chapterId = c.Id,
